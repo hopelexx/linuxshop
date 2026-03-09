@@ -466,11 +466,25 @@ section {
   overflow: hidden;
 }
 
+.product-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-img img {
+  transform: scale(1.05);
+}
+
 .product-img::before {
   content: '';
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at 50% 50%, rgba(255,102,0,0.05), transparent 70%);
+  pointer-events: none;
+  z-index: 1;
 }
 
 .product-emoji {
@@ -1638,46 +1652,46 @@ footer {
 // ─── PRODUCTS DATA ───
 const PRODUCTS = [
   // ПОСУД
-  {id:1, name:'Чашка Linux', img:'images/chashka-linux.jpg', cat:'dishes', emoji:'☕', price:299, badge:'hit', desc:'Керамічна чашка 330мл з логотипом Tux. Мікрохвильова піч ОК.'},
-  {id:2, name:'Термокружка Linux', img:'images/termokruzhka-linux.jpg', cat:'dishes', emoji:'🧊', price:549, badge:'new', desc:'Нержавіюча сталь, 450мл. Тримає тепло 12 год. Лазерне гравіювання.'},
-  {id:3, name:'Термос Linux', img:'images/termos_tux.jpg', cat:'dishes', emoji:'🏺', price:799, badge:null, desc:'Великий термос 1л для справжніх програмістів. 24 год тепла.'},
-  {id:4, name:'Пляшка для води', img:'images/plashka_dlya_vodu.jpg', cat:'dishes', emoji:'💧', price:399, badge:'sale', oldPrice:499, desc:'Спортивна пляшка 700мл. Tux у кольорі на боці.'},
+  {id:1, name:'Чашка Linux', img:'chashka-linux.jpg', cat:'dishes', emoji:'☕', price:299, badge:'hit', desc:'Керамічна чашка 330мл з логотипом Tux. Мікрохвильова піч ОК.'},
+  {id:2, name:'Термокружка Linux', img:'termokruzhka-linux.jpg', cat:'dishes', emoji:'🧊', price:549, badge:'new', desc:'Нержавіюча сталь, 450мл. Тримає тепло 12 год. Лазерне гравіювання.'},
+  {id:3, name:'Термос Linux', img:'termos_tux.jpg', cat:'dishes', emoji:'🏺', price:799, badge:null, desc:'Великий термос 1л для справжніх програмістів. 24 год тепла.'},
+  {id:4, name:'Пляшка для води', img:'plashka_dlya_vodu.jpg', cat:'dishes', emoji:'💧', price:399, badge:'sale', oldPrice:499, desc:'Спортивна пляшка 700мл. Tux у кольорі на боці.'},
 
   // ОДЯГ
-  {id:5, name:'Футболка Linux', img:'images/futbolka_linux.jpg', cat:'clothes', emoji:'👕', price:699, badge:'hit', desc:'100% бавовна, унісекс. Print "I use Arch btw" на спині.'},
-  {id:6, name:'Худі Linux', img:'images/xydi.jpg', cat:'clothes', emoji:'🧥', price:1299, badge:'new', desc:'Теплий фліс 300г. Великий принт Tux на грудях. Розміри S-3XL.'},
-  {id:7, name:'Світшот Linux', img:'images/svitshot.jpg', cat:'clothes', emoji:'🌀', price:999, badge:null, desc:'Легкий свитшот 220г. Мінімалістичний дизайн з пінгвіном.'},
-  {id:8, name:'Носки Linux', img:'images/noski.jpg', cat:'clothes', emoji:'🧦', price:199, badge:'sale', oldPrice:249, desc:'Бавовна 80%. Принти: Tux, kernel, terminal. Набір з 3 пар.'},
-  {id:9, name:'Кепка Linux', img:'images/kepka.jpg', cat:'clothes', emoji:'🧢', price:449, badge:null, desc:'Snapback кепка. Вишитий логотип Tux. Розмір регулюється.'},
-  {id:10, name:'Панама Linux', img:'images/panama.jpg', cat:'clothes', emoji:'👒', price:499, badge:'new', desc:'Панама для літа. 100% бавовна. Принт по колу поля.'},
+  {id:5, name:'Футболка Linux', img:'futbolka_linux.jpg', cat:'clothes', emoji:'👕', price:699, badge:'hit', desc:'100% бавовна, унісекс. Print "I use Arch btw" на спині.'},
+  {id:6, name:'Худі Linux', img:'xydi.jpg', cat:'clothes', emoji:'🧥', price:1299, badge:'new', desc:'Теплий фліс 300г. Великий принт Tux на грудях. Розміри S-3XL.'},
+  {id:7, name:'Світшот Linux', img:'svitshot.jpg', cat:'clothes', emoji:'🌀', price:999, badge:null, desc:'Легкий свитшот 220г. Мінімалістичний дизайн з пінгвіном.'},
+  {id:8, name:'Носки Linux', img:'noski.jpg', cat:'clothes', emoji:'🧦', price:199, badge:'sale', oldPrice:249, desc:'Бавовна 80%. Принти: Tux, kernel, terminal. Набір з 3 пар.'},
+  {id:9, name:'Кепка Linux', img:'kepka.jpg', cat:'clothes', emoji:'🧢', price:449, badge:null, desc:'Snapback кепка. Вишитий логотип Tux. Розмір регулюється.'},
+  {id:10, name:'Панама Linux', img:'panama.jpg', cat:'clothes', emoji:'👒', price:499, badge:'new', desc:'Панама для літа. 100% бавовна. Принт по колу поля.'},
 
   // АКСЕСУАРИ
-  {id:11, name:'Шоппер Linux', img:'images/shoper.jpg', cat:'accessories', emoji:'🛍️', price:349, badge:'hit', desc:'Міцний холщовий шоппер 38×42 см. "rm -rf /bags" принт.'},
-  {id:12, name:'Рюкзак Linux', img:'images/portfel.jpg', cat:'accessories', emoji:'🎒', price:1599, badge:'new', desc:'Рюкзак 25л з відсіком для ноутбука. USB-порт. Водонепроникний.'},
-  {id:13, name:'Гаманець Linux', img:'images/koshelek.jpg', cat:'accessories', emoji:'👜', price:649, badge:null, desc:'RFID-захист. Слот для монет. Натуральна шкіра. Linux тиснення.'},
-  {id:14, name:'Ремінь Linux', img:'images/remen.jpg', cat:'accessories', emoji:'👓', price:549, badge:null, desc:'Плетений текстильний ремінь з пряжкою з логотипом Tux.'},
+  {id:11, name:'Шоппер Linux', img:'shoper.jpg', cat:'accessories', emoji:'🛍️', price:349, badge:'hit', desc:'Міцний холщовий шоппер 38×42 см. "rm -rf /bags" принт.'},
+  {id:12, name:'Рюкзак Linux', img:'portfel.jpg', cat:'accessories', emoji:'🎒', price:1599, badge:'new', desc:'Рюкзак 25л з відсіком для ноутбука. USB-порт. Водонепроникний.'},
+  {id:13, name:'Гаманець Linux', img:'koshelek.jpg', cat:'accessories', emoji:'👜', price:649, badge:null, desc:'RFID-захист. Слот для монет. Натуральна шкіра. Linux тиснення.'},
+  {id:14, name:'Ремінь Linux', img:'remen.jpg', cat:'accessories', emoji:'👓', price:549, badge:null, desc:'Плетений текстильний ремінь з пряжкою з логотипом Tux.'},
 
   // ГАДЖЕТИ
-  {id:15, name:'Повербанк Linux', img:'images/power-bank.jpg', cat:'gadgets', emoji:'🔋', price:1199, badge:'new', desc:'20000 mAh. USB-C + USB-A. Швидка зарядка QC 3.0. Tux на корпусі.'},
-  {id:16, name:'Флешка Linux', img:'images/fleshka_tux.jpg', cat:'gadgets', emoji:'💾', price:499, badge:null, desc:'USB 3.0, 64GB. У вигляді Tux пінгвіна. Читання 150 МБ/с.'},
-  {id:17, name:'Мишка Linux', img:'images/mishka_linux.jpg', cat:'gadgets', emoji:'🖱️', price:899, badge:'sale', oldPrice:1099, desc:'Бездротова мишка 2.4GHz. DPI до 2400. Підсвітка RGB.'},
-  {id:18, name:'Коврик для мишки', img:'images/kovrik.jpg', cat:'gadgets', emoji:'🟫', price:349, badge:null, desc:'Ігровий коврик з принтом Linux Tux, RGB-підсвітка по краях.'},
-  {id:19, name:'USB-хаб Linux', img:'images/usb.jpg', cat:'gadgets', emoji:'🔌', price:749, badge:'new', desc:'7 портів USB 3.0. Алюмінієвий корпус. Лазерне гравіювання Tux.'},
-  {id:20, name:'Навушники Linux', img:'images/nayshniki.jpg', cat:'gadgets', emoji:'🎧', price:1899, badge:null, desc:'Бездротові навушники з шумопоглинанням. 30 год. заряду.'},
+  {id:15, name:'Повербанк Linux', img:'power-bank.jpg', cat:'gadgets', emoji:'🔋', price:1199, badge:'new', desc:'20000 mAh. USB-C + USB-A. Швидка зарядка QC 3.0. Tux на корпусі.'},
+  {id:16, name:'Флешка Linux', img:'fleshka_tux.jpg', cat:'gadgets', emoji:'💾', price:499, badge:null, desc:'USB 3.0, 64GB. У вигляді Tux пінгвіна. Читання 150 МБ/с.'},
+  {id:17, name:'Мишка Linux', img:'mishka_linux.jpg', cat:'gadgets', emoji:'🖱️', price:899, badge:'sale', oldPrice:1099, desc:'Бездротова мишка 2.4GHz. DPI до 2400. Підсвітка RGB.'},
+  {id:18, name:'Коврик для мишки', img:'kovrik.jpg', cat:'gadgets', emoji:'🟫', price:349, badge:null, desc:'Ігровий коврик з принтом Linux Tux, RGB-підсвітка по краях.'},
+  {id:19, name:'USB-хаб Linux', img:'usb.jpg', cat:'gadgets', emoji:'🔌', price:749, badge:'new', desc:'7 портів USB 3.0. Алюмінієвий корпус. Лазерне гравіювання Tux.'},
+  {id:20, name:'Навушники Linux', img:'nayshniki.jpg', cat:'gadgets', emoji:'🎧', price:1899, badge:null, desc:'Бездротові навушники з шумопоглинанням. 30 год. заряду.'},
 
   // КАНЦЕЛЯРІЯ
-  {id:21, name:'Блокнот Linux', img:'images/bloknot.jpg', cat:'stationery', emoji:'📓', price:299, badge:'hit', desc:'А5, 120 сторінок, клітинка. Обкладинка — принт bash-коду.'},
-  {id:22, name:'Ручка Linux', img:'images/ruchka.jpg', cat:'stationery', emoji:'✒️', price:149, badge:null, desc:'Гелева ручка чорна. Метал. Гравіювання "#!/bin/bash".'},
-  {id:23, name:'Набір стікерів', img:'images/stiker.jpg', cat:'stationery', emoji:'📌', price:199, badge:'new', desc:'50 стікерів з Linux мемами, дистрибутивами та Tux.'},
-  {id:24, name:'Щоденник Linux', img:'images/chodenik.jpg', cat:'stationery', emoji:'📔', price:449, badge:null, desc:'Датований щоденник на 2025. Хардкавер. 384 стр.'},
-  {id:25, name:'Маркерна дошка', img:'images/doska.jpg', cat:'stationery', emoji:'📋', price:699, badge:null, desc:'Настільна маркерна дошка A3 з набором маркерів.'},
+  {id:21, name:'Блокнот Linux', img:'bloknot.jpg', cat:'stationery', emoji:'📓', price:299, badge:'hit', desc:'А5, 120 сторінок, клітинка. Обкладинка — принт bash-коду.'},
+  {id:22, name:'Ручка Linux', img:'ruchka.jpg', cat:'stationery', emoji:'✒️', price:149, badge:null, desc:'Гелева ручка чорна. Метал. Гравіювання "#!/bin/bash".'},
+  {id:23, name:'Набір стікерів', img:'stiker.jpg', cat:'stationery', emoji:'📌', price:199, badge:'new', desc:'50 стікерів з Linux мемами, дистрибутивами та Tux.'},
+  {id:24, name:'Щоденник Linux', img:'chodenik.jpg', cat:'stationery', emoji:'📔', price:449, badge:null, desc:'Датований щоденник на 2025. Хардкавер. 384 стр.'},
+  {id:25, name:'Маркерна дошка', img:'doska.jpg', cat:'stationery', emoji:'📋', price:699, badge:null, desc:'Настільна маркерна дошка A3 з набором маркерів.'},
 
   // ЛАЙФСТАЙЛ
-  {id:26, name:'Брелок Tux', img:'images/brelok.jpg', cat:'lifestyle', emoji:'🔑', price:99, badge:'new', desc:'Металевий аксесуар з емаллю та гравіюванням. Стильний символ Open Source.'},
-  {id:27, name:'Килимок Linux', img:'images/yoga.jpg', cat:'lifestyle', emoji:'🟩', price:1299, badge:null, desc:'Йога-килимок 180×60 см з принтом матриці Terminal.'},
-  {id:28, name:'Свічка Linux', img:'images/svichka.jpg', cat:'lifestyle', emoji:'🕯️', price:349, badge:'new', desc:'Аромасвічка "Запах серверної кімнати". Соєвий віск.'},
-  {id:29, name:'Подушка Linux', img:'images/podushka.jpg', cat:'lifestyle', emoji:'🛋️', price:599, badge:null, desc:'Декоративна подушка 40×40. Принт "Sleep(8*3600)".'},
-  {id:30, name:'Чохол для ноутбука', img:'images/noytbyk.jpg', cat:'lifestyle', emoji:'💻', price:799, badge:'hit', desc:'Неопрен. 13" / 15" / 17". "sudo make me a coffee" принт.'},
+  {id:26, name:'Брелок Tux', img:'brelok.jpg', cat:'lifestyle', emoji:'🔑', price:99, badge:'new', desc:'Металевий аксесуар з емаллю та гравіюванням. Стильний символ Open Source.'},
+  {id:27, name:'Килимок Linux', img:'yoga.jpg', cat:'lifestyle', emoji:'🟩', price:1299, badge:null, desc:'Йога-килимок 180×60 см з принтом матриці Terminal.'},
+  {id:28, name:'Свічка Linux', img:'svichka.jpg', cat:'lifestyle', emoji:'🕯️', price:349, badge:'new', desc:'Аромасвічка "Запах серверної кімнати". Соєвий віск.'},
+  {id:29, name:'Подушка Linux', img:'podushka.jpg', cat:'lifestyle', emoji:'🛋️', price:599, badge:null, desc:'Декоративна подушка 40×40. Принт "Sleep(8*3600)".'},
+  {id:30, name:'Чохол для ноутбука', img:'noytbyk.jpg', cat:'lifestyle', emoji:'💻', price:799, badge:'hit', desc:'Неопрен. 13" / 15" / 17". "sudo make me a coffee" принт.'},
 ];
 
 // ─── CART STATE ───
@@ -1692,10 +1706,7 @@ function renderCatalog(filter = 'all') {
     <div class="product-card" id="card-${p.id}">
       ${p.badge ? `<span class="product-badge badge-${p.badge}">${p.badge === 'hit' ? 'ХІТ' : p.badge === 'new' ? 'NEW' : 'АКЦІЯ'}</span>` : ''}
       <div class="product-img">
-        ${p.img
-          ? `<img src="${p.img}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;">`
-          : `<span class="product-emoji" id="emoji-${p.id}">${p.emoji}</span>`
-        }
+        ${p.img ? `<img src="${p.img}" alt="${p.name}">` : `<span class="product-emoji" id="emoji-${p.id}">${p.emoji}</span>`}
       </div>
       <div class="product-info">
         <div class="product-cat">${catLabel(p.cat)}</div>
