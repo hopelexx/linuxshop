@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Адмін — Linux Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--black:#0a0a0a;--dark:#111111;--card:#161616;--border:#2a2a2a;--orange:#ff6600;--orange-dim:rgba(255,102,0,0.15);--white:#f0f0f0;--gray:#888;--red:#ff3333;--green:#33ff66;}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--black);color:var(--white);font-family:'Space Mono',monospace;min-height:100vh}
+
+/* LOGIN PAGE */
+#loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(255,102,0,0.06) 0%,transparent 70%)}
+.login-box{background:var(--dark);border:1px solid var(--border);padding:48px;width:100%;max-width:420px;text-align:center}
+.login-tux{font-size:64px;display:block;margin-bottom:16px;filter:drop-shadow(0 0 20px rgba(255,102,0,0.5))}
+.login-title{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;margin-bottom:8px}
+.login-title span{color:var(--orange)}
+.login-sub{color:var(--gray);font-size:11px;letter-spacing:0.2em;margin-bottom:32px}
+.login-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:16px;font-family:'Space Mono',monospace;font-size:14px;outline:none;transition:border-color 0.2s;text-align:center;letter-spacing:0.2em;margin-bottom:12px}
+.login-input:focus{border-color:var(--orange)}
+.login-btn{width:100%;background:var(--orange);color:#000;border:none;padding:16px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(10px 0,100% 0,calc(100%-10px) 100%,0 100%);transition:background 0.2s;margin-bottom:12px}
+.login-btn:hover{background:#ff8833}
+.login-error{color:var(--red);font-size:12px;display:none;margin-bottom:8px}
+.login-hint{color:var(--border);font-size:11px}
+.back-link{display:inline-block;margin-top:16px;color:var(--gray);font-size:11px;text-decoration:none;transition:color 0.2s}
+.back-link:hover{color:var(--orange)}
+
+/* ADMIN DASHBOARD */
+#dashboard{display:none;min-height:100vh}
+.admin-nav{background:var(--dark);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.admin-brand{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;display:flex;align-items:center;gap:10px}
+.admin-brand span{color:var(--orange)}
+.admin-nav-right{display:flex;align-items:center;gap:16px}
+.logout-btn{background:transparent;border:1px solid var(--border);color:var(--gray);padding:8px 16px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s}
+.logout-btn:hover{border-color:var(--red);color:var(--red)}
+.firebase-status{font-size:11px;color:var(--gray)}
+.firebase-status.ok{color:var(--green)}
+
+/* TABS */
+.admin-tabs{background:var(--dark);border-bottom:1px solid var(--border);padding:0 32px;display:flex;gap:0}
+.tab-btn{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--gray);padding:16px 24px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;letter-spacing:0.05em}
+.tab-btn:hover{color:var(--white)}
+.tab-btn.active{color:var(--orange);border-bottom-color:var(--orange)}
+
+/* CONTENT */
+.admin-body{padding:32px}
+.section-title{font-family:'Orbitron',monospace;font-size:11px;color:var(--orange);letter-spacing:0.2em;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--card);border:1px solid var(--border);padding:24px;text-align:center}
+.stat-num{font-family:'Orbitron',monospace;font-size:32px;font-weight:900;display:block;margin-bottom:8px}
+.stat-lbl{font-size:11px;color:var(--gray);letter-spacing:0.1em}
+
+/* TABLE */
+.admin-table{width:100%;border-collapse:collapse;font-size:13px}
+.admin-table th{background:var(--card);border:1px solid var(--border);padding:10px 14px;text-align:left;font-size:11px;color:var(--orange);letter-spacing:0.1em;font-weight:400}
+.admin-table td{border:1px solid var(--border);padding:10px 14px;vertical-align:middle}
+.admin-table tr:hover td{background:rgba(255,102,0,0.03)}
+
+/* BADGES */
+.badge{padding:3px 8px;font-size:10px;font-weight:700;letter-spacing:0.1em}
+.badge-hit{background:var(--orange);color:#000}
+.badge-new{background:var(--green);color:#000}
+.badge-sale{background:var(--red);color:#fff}
+
+/* FORM */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 14px;font-family:'Space Mono',monospace;font-size:12px;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--orange)}
+.btn-orange{background:var(--orange);color:#000;border:none;padding:10px 20px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;font-weight:700}
+.btn-gray{background:transparent;color:var(--gray);border:1px solid var(--border);padding:10px 16px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer}
+.btn-small{padding:4px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;border:1px solid;transition:all 0.2s}
+
+/* ADD FORM BOX */
+.add-form-box{background:var(--card);border:1px solid var(--orange);padding:24px;margin-bottom:20px;display:none}
+
+/* ORDERS */
+.order-card{background:var(--card);border:1px solid var(--border);padding:20px;margin-bottom:12px}
+.order-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px}
+.order-num{font-family:'Orbitron',monospace;font-size:14px;color:var(--orange)}
+.order-total{font-family:'Orbitron',monospace;font-size:16px;font-weight:900}
+.order-date{font-size:11px;color:var(--gray)}
+.order-detail{font-size:12px;color:var(--gray);line-height:1.8}
+.order-status{display:inline-block;padding:3px 10px;font-size:10px;font-weight:700;letter-spacing:0.1em;background:rgba(255,102,0,0.2);color:var(--orange);border:1px solid rgba(255,102,0,0.4)}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--card);border:1px solid var(--orange);color:var(--white);padding:12px 24px;font-family:'Space Mono',monospace;font-size:12px;z-index:9999;opacity:0;transition:all 0.3s;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.empty-box{text-align:center;padding:60px;color:var(--gray)}
+.empty-box .icon{font-size:48px;display:block;margin-bottom:16px}
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="login-box">
+    <span class="login-tux">🐧</span>
+    <div class="login-title">LINUX<span>SHOP</span></div>
+    <div class="login-sub">// ПАНЕЛЬ АДМІНІСТРАТОРА</div>
+    <input class="login-input" type="password" id="passInput" placeholder="••••••••••" onkeydown="if(event.key==='Enter')login()">
+    <div class="login-error" id="loginError">❌ Невірний пароль</div>
+    <button class="login-btn" onclick="login()">УВІЙТИ →</button>
+    <div class="login-hint">// Доступ тільки для адміністраторів</div>
+    <br>
+    <a href="index.html" class="back-link">← Повернутись на сайт</a>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+  <nav class="admin-nav">
+    <div class="admin-brand">⚙️ LINUX<span>SHOP</span> // ADMIN</div>
+    <div class="admin-nav-right">
+      <span class="firebase-status" id="fbStatus">⏳ Firebase...</span>
+      <button class="logout-btn" onclick="logout()">ВИЙТИ</button>
+    </div>
+  </nav>
+
+  <div class="admin-tabs">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📊 Огляд</button>
+    <button class="tab-btn" onclick="switchTab('products',this)">📦 Товари</button>
+    <button class="tab-btn" onclick="switchTab('orders',this)">🛒 Замовлення</button>
+    <button class="tab-btn" onclick="switchTab('sale',this)">🔥 Акції</button>
+  </div>
+
+  <div class="admin-body" id="adminContent"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PASSWORD = 'admin123';
+const firebaseConfig = {
+  apiKey: "AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE",
+  authDomain: "linux-shop-b5b3e.firebaseapp.com",
+  projectId: "linux-shop-b5b3e",
+  storageBucket: "linux-shop-b5b3e.firebasestorage.app",
+  messagingSenderId: "889010336562",
+  appId: "1:889010336562:web:2f60090b33fa29c0ed5d2b"
+};
+let db = null;
+let PRODUCTS = [];
+const DEMO_PRODUCTS = [
+  {id:1,name:'Чашка Linux',cat:'dishes',emoji:'☕',price:299,badge:'hit',desc:'Керамічна чашка 330мл з логотипом Tux.'},
+  {id:2,name:'Термокружка Linux',cat:'dishes',emoji:'🧊',price:549,badge:'new',desc:'Нержавіюча сталь, 450мл.'},
+  {id:3,name:'Термос Linux',cat:'dishes',emoji:'🏺',price:799,badge:null,desc:'Великий термос 1л.'},
+  {id:4,name:'Пляшка для води',cat:'dishes',emoji:'💧',price:399,badge:'sale',oldPrice:499,desc:'Спортивна пляшка 700мл.'},
+  {id:5,name:'Футболка Linux',cat:'clothes',emoji:'👕',price:699,badge:'hit',desc:'100% бавовна, унісекс.'},
+  {id:6,name:'Худі Linux',cat:'clothes',emoji:'🧥',price:1299,badge:'new',desc:'Теплий фліс 300г.'},
+  {id:7,name:'Світшот Linux',cat:'clothes',emoji:'🌀',price:999,badge:null,desc:'Легкий свитшот 220г.'},
+  {id:8,name:'Носки Linux',cat:'clothes',emoji:'🧦',price:199,badge:'sale',oldPrice:249,desc:'Набір з 3 пар.'},
+  {id:9,name:'Кепка Linux',cat:'clothes',emoji:'🧢',price:449,badge:null,desc:'Snapback кепка.'},
+  {id:10,name:'Панама Linux',cat:'clothes',emoji:'👒',price:499,badge:'new',desc:'Панама для літа.'},
+  {id:11,name:'Шоппер Linux',cat:'accessories',emoji:'🛍️',price:349,badge:'hit',desc:'Міцний холщовий шоппер.'},
+  {id:12,name:'Рюкзак Linux',cat:'accessories',emoji:'🎒',price:1599,badge:'new',desc:'Рюкзак 25л.'},
+  {id:13,name:'Гаманець Linux',cat:'accessories',emoji:'👜',price:649,badge:null,desc:'RFID-захист.'},
+  {id:14,name:'Ремінь Linux',cat:'accessories',emoji:'👓',price:549,badge:null,desc:'Плетений ремінь.'},
+  {id:15,name:'Повербанк Linux',cat:'gadgets',emoji:'🔋',price:1199,badge:'new',desc:'20000 mAh.'},
+  {id:16,name:'Флешка Linux',cat:'gadgets',emoji:'💾',price:499,badge:null,desc:'USB 3.0, 64GB.'},
+  {id:17,name:'Мишка Linux',cat:'gadgets',emoji:'🖱️',price:899,badge:'sale',oldPrice:1099,desc:'Бездротова мишка.'},
+  {id:18,name:'Коврик для мишки',cat:'gadgets',emoji:'🟫',price:349,badge:null,desc:'Ігровий коврик.'},
+  {id:19,name:'USB-хаб Linux',cat:'gadgets',emoji:'🔌',price:749,badge:'new',desc:'7 портів USB 3.0.'},
+  {id:20,name:'Навушники Linux',cat:'gadgets',emoji:'🎧',price:1899,badge:null,desc:'Бездротові навушники.'},
+  {id:21,name:'Блокнот Linux',cat:'stationery',emoji:'📓',price:299,badge:'hit',desc:'А5, 120 сторінок.'},
+  {id:22,name:'Ручка Linux',cat:'stationery',emoji:'✒️',price:149,badge:null,desc:'Гелева ручка чорна.'},
+  {id:23,name:'Набір стікерів',cat:'stationery',emoji:'📌',price:199,badge:'new',desc:'50 стікерів.'},
+  {id:24,name:'Щоденник Linux',cat:'stationery',emoji:'📔',price:449,badge:null,desc:'Датований щоденник.'},
+  {id:25,name:'Маркерна дошка',cat:'stationery',emoji:'📋',price:699,badge:null,desc:'Настільна дошка A3.'},
+  {id:26,name:'Брелок Tux',cat:'lifestyle',emoji:'🔑',price:99,badge:'new',desc:'Металевий аксесуар.'},
+  {id:27,name:'Килимок Linux',cat:'lifestyle',emoji:'🟩',price:1299,badge:null,desc:'Йога-килимок.'},
+  {id:28,name:'Свічка Linux',cat:'lifestyle',emoji:'🕯️',price:349,badge:'new',desc:'Аромасвічка.'},
+  {id:29,name:'Подушка Linux',cat:'lifestyle',emoji:'🛋️',price:599,badge:null,desc:'Декоративна подушка.'},
+  {id:30,name:'Чохол для ноутбука',cat:'lifestyle',emoji:'💻',price:799,badge:'hit',desc:'Неопрен 13"/15"/17".'},
+];
+
+function catLabel(c){ return {clothes:'Одяг',gadgets:'Гаджети',dishes:'Посуд',accessories:'Аксесуари',stationery:'Канцелярія',lifestyle:'Лайфстайл'}[c]||c; }
+
+// ── AUTH ──
+function login() {
+  var p = document.getElementById('passInput').value;
+  var err = document.getElementById('loginError');
+  if (p === ADMIN_PASSWORD) {
+    sessionStorage.setItem('admin_auth', '1');
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    initAdmin();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('passInput').value = '';
+    document.getElementById('passInput').focus();
+  }
+}
+function logout() {
+  sessionStorage.removeItem('admin_auth');
+  location.reload();
+}
+
+// ── INIT ──
+async function initAdmin() {
+  try {
+    firebase.initializeApp(firebaseConfig);
+    db = firebase.firestore();
+    document.getElementById('fbStatus').textContent = '✅ Firebase підключено';
+    document.getElementById('fbStatus').className = 'firebase-status ok';
+  } catch(e) {
+    document.getElementById('fbStatus').textContent = '⚠️ Демо режим';
+  }
+  await loadProducts();
+  renderTab('overview');
+}
+
+async function loadProducts() {
+  if (db) {
+    try {
+      var snap = await db.collection('products').get();
+      PRODUCTS = snap.empty ? DEMO_PRODUCTS.map(p=>({...p})) : snap.docs.map(d=>({firestoreId:d.id,...d.data()}));
+    } catch(e) { PRODUCTS = DEMO_PRODUCTS.map(p=>({...p})); }
+  } else { PRODUCTS = DEMO_PRODUCTS.map(p=>({...p})); }
+}
+
+// ── TABS ──
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  var c = document.getElementById('adminContent');
+  if (tab === 'overview') {
+    var sale = PRODUCTS.filter(p=>p.badge==='sale').length;
+    var hit  = PRODUCTS.filter(p=>p.badge==='hit').length;
+    var nw   = PRODUCTS.filter(p=>p.badge==='new').length;
+    c.innerHTML =
+      '<div class="section-title">// ЗАГАЛЬНА СТАТИСТИКА</div>'+
+      '<div class="stats-grid">'+
+        '<div class="stat-card"><span class="stat-num" style="color:var(--orange)">'+PRODUCTS.length+'</span><span class="stat-lbl">ВСЬОГО ТОВАРІВ</span></div>'+
+        '<div class="stat-card"><span class="stat-num" style="color:var(--red)">'+sale+'</span><span class="stat-lbl">АКЦІЙНИХ</span></div>'+
+        '<div class="stat-card"><span class="stat-num" style="color:var(--green)">'+hit+'</span><span class="stat-lbl">ХІТІВ</span></div>'+
+        '<div class="stat-card"><span class="stat-num">'+nw+'</span><span class="stat-lbl">НОВИНОК</span></div>'+
+      '</div>'+
+      '<div class="section-title">// ТОВАРИ ЗА КАТЕГОРІЯМИ</div>'+
+      '<table class="admin-table"><thead><tr><th>КАТЕГОРІЯ</th><th>К-ТЬ</th><th>МІН. ЦІНА</th><th>МАКС. ЦІНА</th><th>СЕРЕДНЯ</th></tr></thead><tbody>'+
+      ['clothes','gadgets','dishes','accessories','stationery','lifestyle'].map(function(cat){
+        var ps = PRODUCTS.filter(p=>p.cat===cat);
+        if (!ps.length) return '<tr><td>'+catLabel(cat)+'</td><td>0</td><td>—</td><td>—</td><td>—</td></tr>';
+        var prices = ps.map(p=>p.price);
+        var avg = Math.round(prices.reduce((a,b)=>a+b,0)/prices.length);
+        return '<tr><td>'+catLabel(cat)+'</td><td style="color:var(--orange)">'+ps.length+'</td><td>'+Math.min(...prices)+' ₴</td><td>'+Math.max(...prices)+' ₴</td><td>'+avg+' ₴</td></tr>';
+      }).join('')+
+      '</tbody></table>';
+  }
+  else if (tab === 'products') {
+    c.innerHTML =
+      '<div class="section-title">// УПРАВЛІННЯ ТОВАРАМИ ('+PRODUCTS.length+' позицій)</div>'+
+      '<div style="margin-bottom:16px"><button class="btn-orange" onclick="document.getElementById(\'addForm\').style.display=\'block\'">+ ДОДАТИ ТОВАР</button></div>'+
+      '<div class="add-form-box" id="addForm">'+
+        '<div class="section-title">// НОВИЙ ТОВАР</div>'+
+        '<div class="form-grid">'+
+          '<input class="form-input" id="np-name" placeholder="Назва *">'+
+          '<input class="form-input" id="np-price" type="number" placeholder="Ціна (₴) *">'+
+          '<input class="form-input" id="np-oldprice" type="number" placeholder="Стара ціна (якщо акція)">'+
+          '<input class="form-input" id="np-emoji" placeholder="Емодзі (напр. 👕)">'+
+          '<select class="form-input" id="np-cat" style="background:var(--card);color:var(--white)">'+
+            '<option value="">Категорія *</option>'+
+            '<option value="clothes">Одяг</option><option value="gadgets">Гаджети</option>'+
+            '<option value="dishes">Посуд</option><option value="accessories">Аксесуари</option>'+
+            '<option value="stationery">Канцелярія</option><option value="lifestyle">Лайфстайл</option>'+
+          '</select>'+
+          '<select class="form-input" id="np-badge" style="background:var(--card);color:var(--white)">'+
+            '<option value="">Без значка</option><option value="hit">ХІТ</option><option value="new">NEW</option><option value="sale">АКЦІЯ</option>'+
+          '</select>'+
+        '</div>'+
+        '<input class="form-input" id="np-desc" placeholder="Опис товару" style="width:100%;margin-bottom:12px">'+
+        '<div style="display:flex;gap:8px">'+
+          '<button class="btn-orange" onclick="saveNewProduct()">ЗБЕРЕГТИ →</button>'+
+          '<button class="btn-gray" onclick="document.getElementById(\'addForm\').style.display=\'none\'">СКАСУВАТИ</button>'+
+        '</div>'+
+      '</div>'+
+      '<table class="admin-table"><thead><tr><th>#</th><th>ТОВАР</th><th>КАТ.</th><th>ЦІНА</th><th>ЗНАЧОК</th><th>ДІЇ</th></tr></thead><tbody>'+
+      PRODUCTS.map(function(p){
+        var pid = p.firestoreId||p.id;
+        return '<tr id="row-'+pid+'"><td style="color:var(--gray);font-size:10px">'+String(pid).slice(-6)+'</td>'+
+          '<td>'+p.emoji+' '+p.name+'</td><td>'+catLabel(p.cat)+'</td>'+
+          '<td><span id="pl-'+pid+'" style="color:var(--orange);font-family:Orbitron,monospace">'+p.price+' ₴</span>'+
+            '<input id="pi-'+pid+'" type="number" style="display:none;width:80px;background:var(--card);border:1px solid var(--orange);color:#fff;padding:4px;font-family:Orbitron,monospace" value="'+p.price+'"></td>'+
+          '<td>'+(p.badge?'<span class="badge badge-'+p.badge+'">'+(p.badge==='hit'?'ХІТ':p.badge==='new'?'NEW':'АКЦІЯ')+'</span>':'—')+'</td>'+
+          '<td style="display:flex;gap:4px;flex-wrap:wrap">'+
+            '<button class="btn-small" id="eb-'+pid+'" style="border-color:var(--orange);color:var(--orange)" onclick="editPrice(\''+pid+'\')">✏️</button>'+
+            '<button class="btn-small" id="sb-'+pid+'" style="display:none;border-color:var(--green);color:var(--green)" onclick="savePriceEdit(\''+pid+'\')">✓</button>'+
+            '<button class="btn-small" style="border-color:var(--border);color:var(--gray)" onclick="toggleBadge(\''+pid+'\')">🔄</button>'+
+            '<button class="btn-small" style="border-color:var(--red);color:var(--red)" onclick="deleteProduct(\''+pid+'\')">🗑</button>'+
+          '</td></tr>';
+      }).join('')+'</tbody></table>';
+  }
+  else if (tab === 'orders') {
+    c.innerHTML = '<div class="section-title">// ЗАМОВЛЕННЯ КЛІЄНТІВ</div><div id="ordersMsg" style="color:var(--gray);font-size:11px">// Завантаження...</div><div id="ordersContainer"></div>';
+    loadOrders();
+  }
+  else if (tab === 'sale') {
+    var saleP = PRODUCTS.filter(p=>p.badge==='sale');
+    c.innerHTML =
+      '<div class="section-title">// АКЦІЙНІ ТОВАРИ ('+saleP.length+' позицій)</div>'+
+      (saleP.length ? '<table class="admin-table"><thead><tr><th>ТОВАР</th><th>СТАРА ЦІНА</th><th>АКЦІЙНА ЦІНА</th><th>ЗНИЖКА</th><th>ДІЯ</th></tr></thead><tbody>'+
+        saleP.map(function(p){
+          var disc = p.oldPrice ? Math.round((1-p.price/p.oldPrice)*100) : 0;
+          var pid = p.firestoreId||p.id;
+          return '<tr><td>'+p.emoji+' '+p.name+'</td>'+
+            '<td style="text-decoration:line-through;color:var(--gray)">'+(p.oldPrice||p.price)+' ₴</td>'+
+            '<td style="color:var(--red);font-family:Orbitron,monospace">'+p.price+' ₴</td>'+
+            '<td><span class="badge badge-sale">-'+disc+'%</span></td>'+
+            '<td><button class="btn-small" style="border-color:var(--border);color:var(--gray)" onclick="removeFromSale(\''+pid+'\')">ЗНЯТИ З АКЦІЇ</button></td></tr>';
+        }).join('')+'</tbody></table>'
+      : '<div class="empty-box"><span class="icon">📭</span>Акційних товарів немає</div>');
+  }
+}
+
+// ── PRODUCT CRUD ──
+async function saveNewProduct() {
+  var name=document.getElementById('np-name').value.trim();
+  var price=parseInt(document.getElementById('np-price').value);
+  var cat=document.getElementById('np-cat').value;
+  var emoji=document.getElementById('np-emoji').value.trim()||'📦';
+  var desc=document.getElementById('np-desc').value.trim();
+  var badge=document.getElementById('np-badge').value||null;
+  var oldPrice=parseInt(document.getElementById('np-oldprice').value)||null;
+  if (!name||!price||!cat){showToast('❌ Заповніть назву, ціну та категорію');return;}
+  var np={name,price,cat,emoji,desc,badge,oldPrice,img:null};
+  if (db) {
+    try { var ref=await db.collection('products').add(np); PRODUCTS.push({firestoreId:ref.id,...np}); showToast('✅ Товар додано в Firebase!'); }
+    catch(e){showToast('❌ '+e.message);return;}
+  } else { np.id=PRODUCTS.length+1; PRODUCTS.push(np); showToast('✅ Додано (демо)'); }
+  document.getElementById('addForm').style.display='none';
+  renderTab('products');
+}
+function editPrice(id) {
+  document.getElementById('pl-'+id).style.display='none';
+  document.getElementById('pi-'+id).style.display='inline-block';
+  document.getElementById('eb-'+id).style.display='none';
+  document.getElementById('sb-'+id).style.display='inline-block';
+}
+async function savePriceEdit(id) {
+  var np=parseInt(document.getElementById('pi-'+id).value);
+  if (!np||np<1){showToast('❌ Некоректна ціна');return;}
+  var p=PRODUCTS.find(p=>String(p.firestoreId||p.id)===String(id));
+  if (!p) return;
+  if (db&&p.firestoreId){try{await db.collection('products').doc(id).update({price:np});}catch(e){showToast('❌ '+e.message);return;}}
+  p.price=np; showToast('✅ Ціну оновлено!'); renderTab('products');
+}
+async function toggleBadge(id) {
+  var p=PRODUCTS.find(p=>String(p.firestoreId||p.id)===String(id));
+  if (!p) return;
+  var badges=[null,'hit','new','sale'];
+  var next=badges[(badges.indexOf(p.badge)+1)%badges.length];
+  if (db&&p.firestoreId){try{await db.collection('products').doc(id).update({badge:next});}catch(e){showToast('❌ '+e.message);return;}}
+  p.badge=next; showToast('✅ Значок: '+(next||'без значка')); renderTab('products');
+}
+async function deleteProduct(id) {
+  var p=PRODUCTS.find(p=>String(p.firestoreId||p.id)===String(id));
+  if (!p) return;
+  if (!confirm('Видалити "'+p.name+'"?')) return;
+  if (db&&p.firestoreId){try{await db.collection('products').doc(id).delete();}catch(e){showToast('❌ '+e.message);return;}}
+  PRODUCTS=PRODUCTS.filter(p=>String(p.firestoreId||p.id)!==String(id));
+  showToast('✅ Видалено!'); renderTab('products');
+}
+async function removeFromSale(id) {
+  var p=PRODUCTS.find(p=>String(p.firestoreId||p.id)===String(id));
+  if (!p) return;
+  if (db&&p.firestoreId){try{await db.collection('products').doc(id).update({badge:null,oldPrice:null});}catch(e){showToast('❌ '+e.message);return;}}
+  p.badge=null; p.oldPrice=null; showToast('✅ Знято з акції'); renderTab('sale');
+}
+
+// ── ORDERS ──
+async function loadOrders() {
+  var msg=document.getElementById('ordersMsg');
+  var cont=document.getElementById('ordersContainer');
+  if (!db){msg.textContent='// Firebase не підключено';return;}
+  try {
+    var snap=await db.collection('orders').get();
+    var orders=snap.docs.map(d=>({id:d.id,...d.data()})).reverse();
+    msg.textContent='// Знайдено '+orders.length+' замовлень';
+    cont.innerHTML=orders.length?orders.map(function(o){
+      return '<div class="order-card"><div class="order-head">'+
+        '<span class="order-num">№ '+o.id.slice(-6).toUpperCase()+'</span>'+
+        '<span class="order-date">'+o.date+'</span>'+
+        '<span class="order-status">'+o.status+'</span>'+
+        '<span class="order-total">'+o.total+' ₴</span>'+
+        '</div><div class="order-detail">'+
+        '👤 '+o.name+' | 📱 '+o.phone+'<br>📍 '+o.address+'<br>🛒 '+o.items+
+        '</div></div>';
+    }).join(''):'<div class="empty-box"><span class="icon">📭</span>Замовлень поки немає</div>';
+  } catch(e){ msg.textContent='// Помилка: '+e.message; }
+}
+
+// ── UTILS ──
+function showToast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show');},2800);}
+
+// ── AUTO CHECK SESSION ──
+if (sessionStorage.getItem('admin_auth')==='1') {
+  document.getElementById('loginPage').style.display='none';
+  document.getElementById('dashboard').style.display='block';
+  initAdmin();
+}
+</script>
+</body>
+</html>
