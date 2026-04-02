@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Адмін-панель — Linux Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--black:#0a0a0a;--dark:#111;--card:#161616;--border:#2a2a2a;--orange:#ff6600;--orange-dim:rgba(255,102,0,0.15);--white:#f0f0f0;--gray:#888;--light:#ccc;--red:#ff3333;--green:#33ff66;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-serif;min-height:100vh;}
+
+/* LOGIN */
+#loginPage{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.login-box{background:var(--dark);border:1px solid var(--border);padding:48px;width:100%;max-width:420px;}
+.login-logo{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;margin-bottom:8px;}
+.login-logo span{color:var(--orange);}
+.login-sub{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.2em;margin-bottom:36px;}
+.login-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.1em;display:block;margin-bottom:6px;}
+.login-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:14px 16px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;margin-bottom:16px;}
+.login-input:focus{border-color:var(--orange);}
+.login-btn{width:100%;background:var(--orange);color:#000;border:none;padding:16px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all 0.2s;}
+.login-btn:hover{background:#ff8833;}
+.login-error{color:var(--red);font-family:'Space Mono',monospace;font-size:12px;margin-top:12px;display:none;}
+
+/* ADMIN PANEL */
+#adminPage{display:none;}
+.admin-nav{background:var(--dark);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.admin-logo{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;}
+.admin-logo span{color:var(--orange);}
+.admin-user{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);display:flex;align-items:center;gap:16px;}
+.logout-btn{background:transparent;border:1px solid var(--border);color:var(--gray);padding:6px 14px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.logout-btn:hover{border-color:var(--red);color:var(--red);}
+.admin-wrap{display:grid;grid-template-columns:220px 1fr;min-height:calc(100vh - 60px);}
+.admin-sidebar{background:var(--dark);border-right:1px solid var(--border);padding:24px 0;}
+.admin-menu-item{display:block;width:100%;text-align:left;background:transparent;border:none;color:var(--gray);padding:14px 24px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:0.05em;transition:all 0.2s;border-left:3px solid transparent;}
+.admin-menu-item:hover{color:var(--white);background:rgba(255,255,255,0.03);}
+.admin-menu-item.active{color:var(--orange);border-left-color:var(--orange);background:var(--orange-dim);}
+.admin-content{padding:32px;overflow-y:auto;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:32px;}
+.stat-card{background:var(--card);border:1px solid var(--border);padding:24px;}
+.stat-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.1em;margin-bottom:8px;}
+.stat-value{font-family:'Orbitron',monospace;font-size:32px;font-weight:900;color:var(--orange);}
+.stat-sub{font-size:13px;color:var(--gray);margin-top:4px;}
+
+/* SECTION HEADER */
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;}
+.section-head h2{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;}
+.add-btn{background:var(--orange);color:#000;border:none;padding:10px 20px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);transition:all 0.2s;}
+.add-btn:hover{background:#ff8833;}
+
+/* PRODUCTS TABLE */
+.products-table{width:100%;border-collapse:collapse;background:var(--card);}
+.products-table th{background:var(--dark);border:1px solid var(--border);padding:12px 16px;text-align:left;font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.1em;}
+.products-table td{border:1px solid var(--border);padding:12px 16px;font-size:14px;vertical-align:middle;}
+.products-table tr:hover td{background:rgba(255,102,0,0.04);}
+.product-emoji-cell{font-size:28px;text-align:center;}
+.badge-small{font-family:'Space Mono',monospace;font-size:10px;padding:2px 6px;}
+.badge-hit{background:rgba(255,102,0,0.2);color:var(--orange);border:1px solid rgba(255,102,0,0.4);}
+.badge-new{background:rgba(51,255,102,0.15);color:#33ff66;border:1px solid rgba(51,255,102,0.3);}
+.badge-sale{background:rgba(255,51,51,0.15);color:#ff3333;border:1px solid rgba(255,51,51,0.3);}
+.action-btns{display:flex;gap:8px;}
+.edit-btn{background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.edit-btn:hover{background:var(--orange);color:#000;}
+.del-btn{background:rgba(255,51,51,0.1);border:1px solid rgba(255,51,51,0.3);color:#ff3333;padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
+.del-btn:hover{background:#ff3333;color:#000;}
+.price-edit{font-family:'Orbitron',monospace;font-size:16px;color:var(--orange);font-weight:900;}
+
+/* ORDERS TABLE */
+.orders-table{width:100%;border-collapse:collapse;background:var(--card);}
+.orders-table th{background:var(--dark);border:1px solid var(--border);padding:12px 16px;text-align:left;font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.1em;}
+.orders-table td{border:1px solid var(--border);padding:12px 16px;font-size:14px;vertical-align:top;}
+.orders-table tr:hover td{background:rgba(255,102,0,0.04);}
+.order-status{font-family:'Space Mono',monospace;font-size:11px;padding:4px 10px;border-radius:2px;}
+.status-new{background:rgba(255,102,0,0.2);color:var(--orange);border:1px solid rgba(255,102,0,0.4);}
+.status-processing{background:rgba(51,51,255,0.2);color:#6699ff;border:1px solid rgba(51,51,255,0.4);}
+.status-done{background:rgba(51,255,102,0.15);color:#33ff66;border:1px solid rgba(51,255,102,0.3);}
+.status-select{background:var(--card);border:1px solid var(--border);color:var(--white);padding:4px 8px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;outline:none;}
+.order-items-list{font-size:12px;color:var(--gray);margin-top:4px;}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--dark);border:1px solid var(--border);padding:40px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;margin-bottom:28px;color:var(--orange);}
+.form-row{margin-bottom:16px;}
+.form-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.1em;display:block;margin-bottom:6px;}
+.form-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 14px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;}
+.form-input:focus{border-color:var(--orange);}
+.form-select{width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 14px;font-family:'Space Mono',monospace;font-size:12px;outline:none;cursor:pointer;}
+.checkbox-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--orange);cursor:pointer;}
+.checkbox-row label{font-family:'Space Mono',monospace;font-size:12px;color:var(--light);cursor:pointer;}
+.form-btns{display:flex;gap:12px;margin-top:24px;}
+.save-btn{flex:1;background:var(--orange);color:#000;border:none;padding:14px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);transition:all 0.2s;}
+.save-btn:hover{background:#ff8833;}
+.cancel-btn{flex:1;background:transparent;color:var(--gray);border:1px solid var(--border);padding:14px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;}
+.cancel-btn:hover{border-color:var(--orange);color:var(--orange);}
+
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.loading{color:var(--gray);font-family:'Space Mono',monospace;font-size:13px;padding:40px;text-align:center;}
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--orange);color:var(--white);padding:14px 28px;font-family:'Space Mono',monospace;font-size:13px;z-index:9999;transition:transform 0.3s;opacity:0;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage">
+  <div class="login-box">
+    <div class="login-logo">🐧 LINUX<span>SHOP</span></div>
+    <div class="login-sub">// АДМІН-ПАНЕЛЬ</div>
+    <label class="login-label">ЛОГІН</label>
+    <input class="login-input" type="text" id="loginUser" placeholder="admin" autocomplete="username">
+    <label class="login-label">ПАРОЛЬ</label>
+    <input class="login-input" type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password" onkeypress="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">УВІЙТИ →</button>
+    <div class="login-error" id="loginError">❌ Невірний логін або пароль</div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPage">
+  <nav class="admin-nav">
+    <div class="admin-logo">🐧 LINUX<span>SHOP</span> — АДМІН</div>
+    <div class="admin-user">
+      <span>👤 admin</span>
+      <button class="logout-btn" onclick="doLogout()">ВИЙТИ</button>
+    </div>
+  </nav>
+
+  <div class="admin-wrap">
+    <aside class="admin-sidebar">
+      <button class="admin-menu-item active" onclick="showTab('dashboard',this)">📊 Дашборд</button>
+      <button class="admin-menu-item" onclick="showTab('products',this)">📦 Товари</button>
+      <button class="admin-menu-item" onclick="showTab('orders',this)">🛒 Замовлення</button>
+      <button class="admin-menu-item" onclick="showTab('promo',this)">🎯 Акції</button>
+    </aside>
+
+    <div class="admin-content">
+      <!-- DASHBOARD -->
+      <div class="tab-content active" id="tab-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card"><div class="stat-label">ТОВАРІВ</div><div class="stat-value" id="s-products">—</div><div class="stat-sub">в каталозі</div></div>
+          <div class="stat-card"><div class="stat-label">ЗАМОВЛЕНЬ</div><div class="stat-value" id="s-orders">—</div><div class="stat-sub">всього</div></div>
+          <div class="stat-card"><div class="stat-label">НОВИХ</div><div class="stat-value" id="s-new">—</div><div class="stat-sub">очікують обробки</div></div>
+          <div class="stat-card"><div class="stat-label">ВИРУЧКА</div><div class="stat-value" id="s-revenue">—</div><div class="stat-sub">загальна сума</div></div>
+        </div>
+        <div style="background:var(--card);border:1px solid var(--border);padding:24px;">
+          <h3 style="font-family:'Orbitron',monospace;font-size:16px;margin-bottom:16px;color:var(--orange)">// ОСТАННІ ЗАМОВЛЕННЯ</h3>
+          <div id="recentOrders"><div class="loading">Завантаження...</div></div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS -->
+      <div class="tab-content" id="tab-products">
+        <div class="section-head">
+          <h2>ТОВАРИ</h2>
+          <button class="add-btn" onclick="openProductModal()">+ ДОДАТИ ТОВАР</button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="products-table" id="productsTable">
+            <thead><tr>
+              <th>EMOJI</th><th>НАЗВА</th><th>КАТЕГОРІЯ</th><th>ЦІНА</th><th>МІТКИ</th><th>ДІЇ</th>
+            </tr></thead>
+            <tbody id="productsTbody"><tr><td colspan="6" class="loading">Завантаження...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="tab-content" id="tab-orders">
+        <div class="section-head">
+          <h2>ЗАМОВЛЕННЯ</h2>
+          <span id="ordersCount" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray)"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="orders-table" id="ordersTable">
+            <thead><tr>
+              <th>ID</th><th>КЛІЄНТ</th><th>ТЕЛЕФОН</th><th>МІСТО / НП</th><th>ТОВАРИ</th><th>СУМА</th><th>СТАТУС</th><th>ДАТА</th>
+            </tr></thead>
+            <tbody id="ordersTbody"><tr><td colspan="8" class="loading">Завантаження...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PROMO -->
+      <div class="tab-content" id="tab-promo">
+        <div class="section-head"><h2>УПРАВЛІННЯ АКЦІЯМИ</h2></div>
+        <div style="background:var(--card);border:1px solid var(--border);padding:28px;max-width:600px;">
+          <p style="color:var(--gray);font-family:'Space Mono',monospace;font-size:12px;margin-bottom:20px;">Щоб поставити або зняти мітку «АКЦІЯ» з товару — перейдіть в розділ <strong style="color:var(--orange)">Товари</strong> і натисніть «Редагувати». Там можна зняти галочку «Акція», встановити стару ціну тощо.</p>
+          <div style="background:var(--dark);border:1px solid var(--border);padding:20px;margin-bottom:16px;">
+            <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--white);margin-bottom:8px;">ПОТОЧНИЙ ПРОМОКОД</div>
+            <div style="font-family:'Orbitron',monospace;font-size:28px;color:var(--orange);border:2px dashed var(--orange);display:inline-block;padding:10px 24px;letter-spacing:0.2em;">LINUX20</div>
+            <div style="font-size:13px;color:var(--gray);margin-top:10px;">Знижка 20% — відображається на головній сторінці</div>
+          </div>
+          <button class="add-btn" onclick="showToast('✅ Функція збереження промокодів в розробці')">ОНОВИТИ ПРОМОКОД</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div class="modal-overlay" id="productModal">
+  <div class="modal-box">
+    <div class="modal-title" id="modalTitle">ДОДАТИ ТОВАР</div>
+    <div class="form-row">
+      <label class="form-label">НАЗВА ТОВАРУ *</label>
+      <input class="form-input" type="text" id="p-name" placeholder="Футболка Linux Tux">
+    </div>
+    <div class="form-row">
+      <label class="form-label">ЦІНА (ГРН) *</label>
+      <input class="form-input" type="number" id="p-price" placeholder="450">
+    </div>
+    <div class="form-row">
+      <label class="form-label">СТАРА ЦІНА (якщо акція, необов'язково)</label>
+      <input class="form-input" type="number" id="p-oldprice" placeholder="600">
+    </div>
+    <div class="form-row">
+      <label class="form-label">КАТЕГОРІЯ</label>
+      <select class="form-select" id="p-category">
+        <option value="tshirts">👕 Футболки</option>
+        <option value="hoodies">🧥 Худі</option>
+        <option value="caps">🧢 Кепки</option>
+        <option value="mugs">☕ Кружки</option>
+        <option value="stickers">🏷️ Стікери</option>
+        <option value="accessories">🎒 Аксесуари</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <label class="form-label">EMOJI (іконка товару)</label>
+      <input class="form-input" type="text" id="p-emoji" placeholder="👕" maxlength="4">
+    </div>
+    <div class="form-row">
+      <label class="form-label">ОПИС (необов'язково)</label>
+      <input class="form-input" type="text" id="p-desc" placeholder="Короткий опис товару">
+    </div>
+    <div class="form-row">
+      <label class="form-label">МІТКИ</label>
+      <div class="checkbox-row">
+        <input type="checkbox" id="p-hit"><label for="p-hit">⭐ ХІТ ПРОДАЖІВ</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="p-new"><label for="p-new">🆕 НОВИНКА</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="p-sale"><label for="p-sale">🔥 АКЦІЯ</label>
+      </div>
+    </div>
+    <div class="form-btns">
+      <button class="save-btn" onclick="saveProduct()">💾 ЗБЕРЕГТИ</button>
+      <button class="cancel-btn" onclick="closeProductModal()">СКАСУВАТИ</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE",
+    authDomain: "linux-shop-b5b3e.firebaseapp.com",
+    projectId: "linux-shop-b5b3e",
+    storageBucket: "linux-shop-b5b3e.firebasestorage.app",
+    messagingSenderId: "889010336562",
+    appId: "1:889010336562:web:2f60090b33fa29c0ed5d2b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  window._db = db;
+  window._products = [];
+  window._orders = [];
+  window._editingId = null;
+
+  // LOAD PRODUCTS
+  window.loadProducts = async function() {
+    const snap = await getDocs(collection(db, 'products'));
+    window._products = [];
+    snap.forEach(d => window._products.push({id: d.id, ...d.data()}));
+    renderProductsTable();
+    document.getElementById('s-products').textContent = window._products.length;
+  };
+
+  // LOAD ORDERS
+  window.loadOrders = async function() {
+    const snap = await getDocs(collection(db, 'orders'));
+    window._orders = [];
+    snap.forEach(d => window._orders.push({id: d.id, ...d.data()}));
+    window._orders.sort((a,b) => {
+      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+    renderOrdersTable();
+    const newCount = window._orders.filter(o => o.status === 'new').length;
+    const revenue = window._orders.reduce((s,o) => s + (o.total || 0), 0);
+    document.getElementById('s-orders').textContent = window._orders.length;
+    document.getElementById('s-new').textContent = newCount;
+    document.getElementById('s-revenue').textContent = revenue + '₴';
+    renderRecentOrders();
+  };
+
+  // SAVE PRODUCT
+  window.saveProductToDB = async function(data, id) {
+    if (id) {
+      await updateDoc(doc(db, 'products', id), data);
+    } else {
+      await addDoc(collection(db, 'products'), {...data, createdAt: serverTimestamp()});
+    }
+    await loadProducts();
+  };
+
+  // DELETE PRODUCT
+  window.deleteProductFromDB = async function(id) {
+    await deleteDoc(doc(db, 'products', id));
+    await loadProducts();
+  };
+
+  // UPDATE ORDER STATUS
+  window.updateOrderStatus = async function(id, status) {
+    await updateDoc(doc(db, 'orders', id), {status});
+    const o = window._orders.find(o => o.id === id);
+    if (o) o.status = status;
+  };
+
+  // Auto-load when admin logs in
+  window.initAdminData = async function() {
+    await Promise.all([loadProducts(), loadOrders()]);
+  };
+</script>
+
+<script>
+// LOGIN
+const ADMIN_USER = 'PrSvyat';
+const ADMIN_PASS = '120322';
+
+function doLogin() {
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value;
+  if (u === ADMIN_USER && p === ADMIN_PASS) {
+    document.getElementById('loginPage').style.display = 'none';
+    document.getElementById('adminPage').style.display = 'block';
+    if (window.initAdminData) window.initAdminData();
+    else setTimeout(() => window.initAdminData && window.initAdminData(), 500);
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function doLogout() {
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('adminPage').style.display = 'none';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// TABS
+function showTab(tab, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-menu-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'products') renderProductsTable();
+  if (tab === 'orders') renderOrdersTable();
+}
+
+// PRODUCTS TABLE
+function renderProductsTable() {
+  const tbody = document.getElementById('productsTbody');
+  const products = window._products || [];
+  if (products.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="loading">Товарів немає. Додайте перший товар →</td></tr>';
+    return;
+  }
+  const catNames = {tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери',accessories:'Аксесуари'};
+  tbody.innerHTML = products.map(p => `
+    <tr>
+      <td class="product-emoji-cell">${p.emoji || '📦'}</td>
+      <td><strong>${p.name}</strong>${p.description ? `<br><small style="color:var(--gray)">${p.description}</small>` : ''}</td>
+      <td>${catNames[p.category] || p.category || '—'}</td>
+      <td>
+        <span class="price-edit">${p.price} грн</span>
+        ${p.isSale && p.oldPrice ? `<br><small style="color:var(--gray);text-decoration:line-through">${p.oldPrice} грн</small>` : ''}
+      </td>
+      <td style="display:flex;gap:4px;flex-wrap:wrap;padding-top:16px;">
+        ${p.isHit ? '<span class="badge-small badge-hit">ХІТ</span>' : ''}
+        ${p.isNew ? '<span class="badge-small badge-new">НОВЕ</span>' : ''}
+        ${p.isSale ? '<span class="badge-small badge-sale">АКЦІЯ</span>' : ''}
+      </td>
+      <td>
+        <div class="action-btns">
+          <button class="edit-btn" onclick="editProduct('${p.id}')">✏️ Ред.</button>
+          <button class="del-btn" onclick="confirmDelete('${p.id}','${p.name.replace(/'/g,"\\'")}')">🗑 Вид.</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ORDERS TABLE
+function renderOrdersTable() {
+  const tbody = document.getElementById('ordersTbody');
+  const orders = window._orders || [];
+  document.getElementById('ordersCount').textContent = `Всього: ${orders.length}`;
+  if (orders.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="loading">Замовлень ще немає.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = orders.map(o => {
+    const d = o.customer || {};
+    const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('uk-UA') : '—';
+    const items = (o.items || []).map(i => `${i.emoji||'📦'} ${i.name} ×${i.qty}`).join('<br>');
+    const statusClass = {new:'status-new',processing:'status-processing',done:'status-done'}[o.status] || 'status-new';
+    return `<tr>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
+      <td><strong>${d.name||'—'}</strong>${d.email?`<br><small style="color:var(--gray)">${d.email}</small>`:''}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:12px;">${d.phone||'—'}</td>
+      <td>${d.city||'—'}<br><small style="color:var(--gray)">${d.branch||'—'}</small></td>
+      <td class="order-items-list">${items}</td>
+      <td style="font-family:'Orbitron',monospace;color:var(--orange);font-weight:900;white-space:nowrap">${o.total||0} грн</td>
+      <td>
+        <select class="status-select" onchange="changeOrderStatus('${o.id}',this.value)">
+          <option value="new" ${o.status==='new'?'selected':''}>🆕 Новий</option>
+          <option value="processing" ${o.status==='processing'?'selected':''}>⚙️ В роботі</option>
+          <option value="done" ${o.status==='done'?'selected':''}>✅ Виконано</option>
+        </select>
+      </td>
+      <td style="font-size:12px;color:var(--gray)">${date}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRecentOrders() {
+  const orders = (window._orders || []).slice(0, 5);
+  const el = document.getElementById('recentOrders');
+  if (orders.length === 0) { el.innerHTML = '<div class="loading" style="padding:20px">Замовлень ще немає</div>'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;">
+    <tr style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">
+      <td style="padding:6px 12px">ID</td><td style="padding:6px 12px">Клієнт</td><td style="padding:6px 12px">Сума</td><td style="padding:6px 12px">Статус</td>
+    </tr>
+    ${orders.map(o => {
+      const d = o.customer||{};
+      return `<tr style="border-top:1px solid var(--border)">
+        <td style="padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
+        <td style="padding:8px 12px">${d.name||'—'}</td>
+        <td style="padding:8px 12px;font-family:'Orbitron',monospace;color:var(--orange)">${o.total||0} грн</td>
+        <td style="padding:8px 12px"><span class="order-status status-${o.status||'new'}">${{new:'Новий',processing:'В роботі',done:'Виконано'}[o.status]||'Новий'}</span></td>
+      </tr>`;
+    }).join('')}
+  </table>`;
+}
+
+// PRODUCT MODAL
+function openProductModal(id) {
+  window._editingId = null;
+  document.getElementById('modalTitle').textContent = 'ДОДАТИ ТОВАР';
+  document.getElementById('p-name').value = '';
+  document.getElementById('p-price').value = '';
+  document.getElementById('p-oldprice').value = '';
+  document.getElementById('p-category').value = 'tshirts';
+  document.getElementById('p-emoji').value = '';
+  document.getElementById('p-desc').value = '';
+  document.getElementById('p-hit').checked = false;
+  document.getElementById('p-new').checked = false;
+  document.getElementById('p-sale').checked = false;
+  document.getElementById('productModal').classList.add('open');
+}
+
+function editProduct(id) {
+  const p = window._products.find(p => p.id === id);
+  if (!p) return;
+  window._editingId = id;
+  document.getElementById('modalTitle').textContent = 'РЕДАГУВАТИ ТОВАР';
+  document.getElementById('p-name').value = p.name || '';
+  document.getElementById('p-price').value = p.price || '';
+  document.getElementById('p-oldprice').value = p.oldPrice || '';
+  document.getElementById('p-category').value = p.category || 'tshirts';
+  document.getElementById('p-emoji').value = p.emoji || '';
+  document.getElementById('p-desc').value = p.description || '';
+  document.getElementById('p-hit').checked = !!p.isHit;
+  document.getElementById('p-new').checked = !!p.isNew;
+  document.getElementById('p-sale').checked = !!p.isSale;
+  document.getElementById('productModal').classList.add('open');
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').classList.remove('open');
+}
+
+async function saveProduct() {
+  const name = document.getElementById('p-name').value.trim();
+  const price = parseFloat(document.getElementById('p-price').value);
+  if (!name || isNaN(price)) { showToast('❌ Вкажіть назву та ціну'); return; }
+
+  const data = {
+    name,
+    price,
+    oldPrice: parseFloat(document.getElementById('p-oldprice').value) || null,
+    category: document.getElementById('p-category').value,
+    emoji: document.getElementById('p-emoji').value.trim() || '📦',
+    description: document.getElementById('p-desc').value.trim(),
+    isHit: document.getElementById('p-hit').checked,
+    isNew: document.getElementById('p-new').checked,
+    isSale: document.getElementById('p-sale').checked
+  };
+
+  try {
+    await window.saveProductToDB(data, window._editingId);
+    closeProductModal();
+    showToast(window._editingId ? '✅ Товар оновлено!' : '✅ Товар додано!');
+  } catch(e) {
+    showToast('❌ Помилка збереження: ' + e.message);
+  }
+}
+
+function confirmDelete(id, name) {
+  if (confirm(`Видалити товар "${name}"?`)) {
+    window.deleteProductFromDB(id).then(() => showToast('✅ Товар видалено'));
+  }
+}
+
+async function changeOrderStatus(id, status) {
+  await window.updateOrderStatus(id, status);
+  showToast('✅ Статус оновлено');
+  renderRecentOrders();
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
