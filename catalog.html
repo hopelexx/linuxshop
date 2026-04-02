@@ -84,7 +84,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
 .close-btn:hover{border-color:var(--orange);color:var(--orange);}
 .cart-items{flex:1;display:flex;flex-direction:column;gap:12px;}
 .cart-item{background:var(--card);border:1px solid var(--border);padding:14px;display:flex;gap:14px;align-items:center;}
-.cart-item-emoji{font-size:32px;}
+.cart-item-img{width:56px;height:56px;background:var(--dark);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;overflow:hidden;}
+.cart-item-img img{width:100%;height:100%;object-fit:cover;}
 .cart-item-info{flex:1;}
 .cart-item-name{font-family:'Orbitron',monospace;font-size:12px;color:var(--white);margin-bottom:4px;}
 .cart-item-price{font-size:13px;color:var(--orange);font-family:'Space Mono',monospace;}
@@ -98,15 +99,27 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
 .cart-total-row{display:flex;justify-content:space-between;font-family:'Space Mono',monospace;font-size:13px;color:var(--gray);margin-bottom:8px;}
 .cart-total-sum{font-family:'Orbitron',monospace;font-size:24px;color:var(--orange);font-weight:900;}
 .cart-empty{text-align:center;padding:40px;color:var(--gray);font-family:'Space Mono',monospace;font-size:13px;}
+.cart-actions{display:flex;flex-direction:column;gap:10px;}
+.cart-back-btn{background:transparent;border:1px solid var(--border);color:var(--gray);padding:14px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;width:100%;}
+.cart-back-btn:hover{border-color:var(--orange);color:var(--orange);}
+.cart-checkout-btn{background:var(--orange);color:#000;border:none;padding:14px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;width:100%;}
+.cart-checkout-btn:hover{background:var(--orange-glow);}
 
-/* ORDER FORM */
-.order-form{display:flex;flex-direction:column;gap:10px;}
-.order-form h3{font-family:'Orbitron',monospace;font-size:15px;color:var(--white);}
+/* ORDER MODAL */
+.order-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px;}
+.order-modal.open{display:flex;}
+.order-box{background:var(--dark);border:1px solid var(--border);width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:40px;display:flex;flex-direction:column;gap:16px;animation:slideUp 0.3s ease;}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.order-box-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--orange);margin-bottom:4px;}
+.order-box-sub{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:8px;}
 .form-input{background:var(--card);border:1px solid var(--border);color:var(--white);padding:12px 14px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;width:100%;}
 .form-input:focus{border-color:var(--orange);}
 .order-btn{background:var(--orange);color:#000;border:none;padding:14px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;width:100%;}
 .order-btn:hover{background:var(--orange-glow);}
 .order-btn:disabled{opacity:0.5;cursor:not-allowed;}
+.order-back-btn{background:transparent;border:1px solid var(--border);color:var(--gray);padding:12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;width:100%;}
+.order-back-btn:hover{border-color:var(--orange);color:var(--orange);}
+.order-promo-row{border-top:1px solid var(--border);padding-top:12px;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--orange);color:var(--white);padding:14px 28px;font-family:'Space Mono',monospace;font-size:13px;z-index:9999;transition:transform 0.3s;opacity:0;}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 </style>
@@ -138,7 +151,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
 
     <div class="filter-group">
       <span class="filter-label">КАТЕГОРІЯ</span>
-      <button class="filter-btn" onclick="setCat('',this)">Всі категорії</button>
+      <button class="filter-btn active" onclick="setCat('',this)">Всі категорії</button>
       <button class="filter-btn" onclick="setCat('tshirts',this)">👕 Футболки</button>
       <button class="filter-btn" onclick="setCat('hoodies',this)">🧥 Худі</button>
       <button class="filter-btn" onclick="setCat('caps',this)">🧢 Кепки</button>
@@ -197,16 +210,30 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
     <div class="cart-total" id="cartTotal" style="display:none">
       <div class="cart-total-row"><span>Разом:</span><span class="cart-total-sum" id="cartTotalSum">0 грн</span></div>
     </div>
-    <div class="order-form" id="orderForm" style="display:none">
-      <h3>ОФОРМЛЕННЯ ЗАМОВЛЕННЯ</h3>
-      <input class="form-input" type="text" id="o-name" placeholder="Ваше ім'я *">
-      <input class="form-input" type="tel" id="o-phone" placeholder="Телефон *">
-      <input class="form-input" type="email" id="o-email" placeholder="Email">
-      <input class="form-input" type="text" id="o-city" placeholder="Місто *">
-      <input class="form-input" type="text" id="o-branch" placeholder="Відділення Нової Пошти *">
-      <input class="form-input" type="text" id="o-promo" placeholder="Промокод (необов'язково)">
-      <button class="order-btn" id="orderBtn" onclick="submitOrder()">✅ ОФОРМИТИ ЗАМОВЛЕННЯ</button>
+    <div class="cart-actions" id="cartActions" style="display:none">
+      <button class="cart-back-btn" onclick="closeCart()">← ПОВЕРНУТИСЬ ДО ПОКУПОК</button>
+      <button class="cart-checkout-btn" onclick="openOrderModal()">ПЕРЕЙТИ ДО ЗАМОВЛЕННЯ →</button>
     </div>
+  </div>
+</div>
+
+<!-- ORDER MODAL -->
+<div class="order-modal" id="orderModal">
+  <div class="order-box">
+    <div>
+      <div class="order-box-title">ОФОРМЛЕННЯ ЗАМОВЛЕННЯ</div>
+      <div class="order-box-sub">// Заповніть дані для доставки</div>
+    </div>
+    <input class="form-input" type="text" id="o-name" placeholder="Ваше ім'я *">
+    <input class="form-input" type="tel" id="o-phone" placeholder="Телефон *">
+    <input class="form-input" type="email" id="o-email" placeholder="Email">
+    <input class="form-input" type="text" id="o-city" placeholder="Місто *">
+    <input class="form-input" type="text" id="o-branch" placeholder="Відділення Нової Пошти *">
+    <div class="order-promo-row">
+      <input class="form-input" type="text" id="o-promo" placeholder="Промокод (необов'язково)">
+    </div>
+    <button class="order-btn" id="orderBtn" onclick="submitOrder()">✅ ПІДТВЕРДИТИ ЗАМОВЛЕННЯ</button>
+    <button class="order-back-btn" onclick="closeOrderModal()">← ПОВЕРНУТИСЬ ДО КОШИКА</button>
   </div>
 </div>
 
@@ -367,18 +394,18 @@ function renderProducts() {
         <div class="product-price-row">
           <span class="product-price">${p.price} грн</span>${oldPrice}
         </div>
-        <button class="product-btn" onclick="addToCart('${p.id}','${p.name.replace(/'/g,"\\'")}',${p.price},'${p.emoji||'📦'}')">В КОШИК</button>
+        <button class="product-btn" onclick="addToCart('${p.id}','${p.name.replace(/'/g,"\\'")}',${p.price},'${p.emoji||'📦'}','${p.photo||''}')">В КОШИК</button>
       </div>
     </div>`;
   }).join('');
 }
 
 // CART
-function addToCart(id, name, price, emoji) {
+function addToCart(id, name, price, emoji, photo) {
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
   const idx = cart.findIndex(i => i.id === id);
   if (idx >= 0) cart[idx].qty++;
-  else cart.push({id, name, price, emoji, qty: 1});
+  else cart.push({id, name, price, emoji, photo: photo||null, qty: 1});
   localStorage.setItem('cart', JSON.stringify(cart));
   updateCartCount();
   showToast('✅ Додано: ' + name);
@@ -403,22 +430,37 @@ function closeCartOutside(e) {
   if (e.target === document.getElementById('cartModal')) closeCart();
 }
 
+function openOrderModal() {
+  document.getElementById('cartModal').classList.remove('open');
+  document.getElementById('orderModal').classList.add('open');
+}
+
+function closeOrderModal() {
+  document.getElementById('orderModal').classList.remove('open');
+  document.getElementById('cartModal').classList.add('open');
+  renderCart();
+}
+
 function renderCart() {
   const cart = JSON.parse(localStorage.getItem('cart') || '[]');
   const items = document.getElementById('cartItems');
   const total = document.getElementById('cartTotal');
-  const form = document.getElementById('orderForm');
+  const actions = document.getElementById('cartActions');
 
   if (cart.length === 0) {
     items.innerHTML = '<div class="cart-empty">🛒 Кошик порожній<br><br>Додайте товари з каталогу</div>';
     total.style.display = 'none';
-    form.style.display = 'none';
+    actions.style.display = 'none';
     return;
   }
 
-  items.innerHTML = cart.map((item,i) => `
+  items.innerHTML = cart.map((item,i) => {
+    const imgContent = item.photo
+      ? `<img src="${item.photo}" alt="${item.name}">`
+      : item.emoji || '📦';
+    return `
     <div class="cart-item">
-      <span class="cart-item-emoji">${item.emoji}</span>
+      <div class="cart-item-img">${item.photo ? `<img src="${item.photo}" alt="">` : `<span style="font-size:28px">${item.emoji||'📦'}</span>`}</div>
       <div class="cart-item-info">
         <div class="cart-item-name">${item.name}</div>
         <div class="cart-item-price">${item.price * item.qty} грн</div>
@@ -429,13 +471,13 @@ function renderCart() {
         </div>
       </div>
       <button class="cart-remove" onclick="removeItem(${i})">✕</button>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
 
   const sum = cart.reduce((s,i) => s + i.price * i.qty, 0);
   document.getElementById('cartTotalSum').textContent = sum + ' грн';
   total.style.display = 'block';
-  form.style.display = 'flex';
+  actions.style.display = 'flex';
 }
 
 function changeQty(idx, delta) {
@@ -473,15 +515,8 @@ async function submitOrder() {
 
   const total = cart.reduce((s,i) => s + i.price * i.qty, 0);
   const orderData = {
-    customer: {
-      name,
-      phone,
-      email: document.getElementById('o-email').value.trim(),
-      city,
-      branch,
-      promo: document.getElementById('o-promo').value.trim()
-    },
-    items: cart,
+    customer: { name, phone, email: document.getElementById('o-email').value.trim(), city, branch, promo: document.getElementById('o-promo').value.trim() },
+    items: cart.map(i => ({id:i.id, name:i.name, price:i.price, emoji:i.emoji||'📦', qty:i.qty})),
     total,
     status: 'new'
   };
@@ -490,14 +525,14 @@ async function submitOrder() {
     await window.submitOrderToDB(orderData);
     localStorage.removeItem('cart');
     updateCartCount();
+    document.getElementById('orderModal').classList.remove('open');
     showToast('✅ Замовлення оформлено! Дякуємо, ' + name + '!');
-    setTimeout(() => closeCart(), 2000);
   } catch(e) {
     showToast('❌ Помилка. Спробуйте ще раз.');
   }
 
   btn.disabled = false;
-  btn.textContent = '✅ ОФОРМИТИ ЗАМОВЛЕННЯ';
+  btn.textContent = '✅ ПІДТВЕРДИТИ ЗАМОВЛЕННЯ';
 }
 
 function showToast(msg) {
