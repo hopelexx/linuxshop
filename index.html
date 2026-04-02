@@ -244,12 +244,12 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
     <a href="catalog.html" class="btn-secondary">ВЕСЬ КАТАЛОГ →</a>
   </div>
   <div class="cat-grid">
-    <a href="catalog.html?cat=tshirts" class="cat-card"><span class="cat-emoji">👕</span><h3>ФУТБОЛКИ</h3><p>від 450 грн</p></a>
-    <a href="catalog.html?cat=hoodies" class="cat-card"><span class="cat-emoji">🧥</span><h3>ХУДІ</h3><p>від 890 грн</p></a>
-    <a href="catalog.html?cat=caps" class="cat-card"><span class="cat-emoji">🧢</span><h3>КЕПКИ</h3><p>від 320 грн</p></a>
-    <a href="catalog.html?cat=mugs" class="cat-card"><span class="cat-emoji">☕</span><h3>КРУЖКИ</h3><p>від 250 грн</p></a>
-    <a href="catalog.html?cat=stickers" class="cat-card"><span class="cat-emoji">🏷️</span><h3>СТІКЕРИ</h3><p>від 80 грн</p></a>
-    <a href="catalog.html?cat=accessories" class="cat-card"><span class="cat-emoji">🎒</span><h3>АКСЕСУАРИ</h3><p>від 150 грн</p></a>
+    <a href="catalog.html?cat=clothing" class="cat-card"><span class="cat-emoji">👕</span><h3>ОДЯГ</h3><p>від 450 грн</p></a>
+    <a href="catalog.html?cat=gadgets" class="cat-card"><span class="cat-emoji">📱</span><h3>ГАДЖЕТИ</h3><p>від 290 грн</p></a>
+    <a href="catalog.html?cat=dishes" class="cat-card"><span class="cat-emoji">🍽️</span><h3>ПОСУД</h3><p>від 250 грн</p></a>
+    <a href="catalog.html?cat=accessories" class="cat-card"><span class="cat-emoji">👜</span><h3>АКСЕСУАРИ</h3><p>від 150 грн</p></a>
+    <a href="catalog.html?cat=stationery" class="cat-card"><span class="cat-emoji">✏️</span><h3>КАНЦЕЛЯРІЯ</h3><p>від 80 грн</p></a>
+    <a href="catalog.html?cat=lifestyle" class="cat-card"><span class="cat-emoji">🌿</span><h3>ЛАЙФСТАЙЛ</h3><p>від 120 грн</p></a>
   </div>
 </section>
 
@@ -456,4 +456,15 @@ async function sendContact(btn) {
     document.getElementById('c-msg').value = '';
     btn.textContent = 'НАДІСЛАТИ'; btn.disabled = false;
     showToast('✅ Повідомлення надіслано! Дякуємо.');
-  }, 1
+  }, 1000);
+}
+window.addEventListener('scroll', () => {
+  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
+});
+setTimeout(() => {
+  document.getElementById('preloader').style.display = 'none';
+  document.getElementById('site').classList.add('visible');
+}, 3200);
+</script>
+</body>
+</html>
