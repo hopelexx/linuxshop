@@ -262,9 +262,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
 
   // Highlight correct filter button
   if (initFilter !== 'all') {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-      if (btn.textContent.toLowerCase().includes(initFilter)) {
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.sidebar .filter-group:first-of-type .filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.sidebar .filter-group:first-of-type .filter-btn').forEach(btn => {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'"+initFilter+"'")) {
+        btn.classList.add('active');
+      }
+    });
+  }
+  if (initCat) {
+    document.querySelectorAll('.sidebar .filter-group:nth-of-type(2) .filter-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.sidebar .filter-group:nth-of-type(2) .filter-btn').forEach(btn => {
+      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'"+initCat+"'")) {
         btn.classList.add('active');
       }
     });
