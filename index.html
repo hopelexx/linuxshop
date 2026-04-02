@@ -17,9 +17,6 @@ body { background: var(--black); color: var(--white); font-family: 'Rajdhani', s
 
 /* PRELOADER */
 #preloader { position:fixed; inset:0; background:#000; z-index:9999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:30px; }
-.tux-svg { width:180px; height:180px; filter: drop-shadow(0 0 30px rgba(255,102,0,0.8)); animation: tuxGlow 2s ease-in-out infinite alternate, tuxFloat 3s ease-in-out infinite; }
-@keyframes tuxFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-15px)} }
-@keyframes tuxGlow { from{filter:drop-shadow(0 0 20px rgba(255,102,0,0.6))} to{filter:drop-shadow(0 0 40px rgba(255,102,0,1))} }
 .preloader-text { font-family:'Orbitron',monospace; font-size:clamp(32px,6vw,64px); font-weight:900; letter-spacing:0.15em; animation: revealText 2.5s cubic-bezier(0.16,1,0.3,1) 0.8s forwards; opacity:0; filter:blur(20px); transform:scale(0.7); text-shadow:0 0 40px var(--orange); }
 .preloader-text span { color:var(--orange); }
 @keyframes revealText { 0%{filter:blur(20px);opacity:0;transform:scale(0.7)} 60%{filter:blur(4px);opacity:0.8;transform:scale(1.05)} 100%{filter:blur(0);opacity:1;transform:scale(1)} }
@@ -28,13 +25,12 @@ body { background: var(--black); color: var(--white); font-family: 'Rajdhani', s
 .progress-fill { height:100%; background:linear-gradient(90deg,var(--orange),var(--orange-glow)); width:0%; animation:fillBar 2s ease 1.5s forwards; box-shadow:0 0 10px var(--orange); }
 @keyframes fillBar { to{width:100%} }
 @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
 #site { opacity:0; transition:opacity 0.8s ease; }
 #site.visible { opacity:1; }
 
 /* NAV */
 nav { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(10,10,10,0.92); backdrop-filter:blur(20px); border-bottom:1px solid var(--border); padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; }
-.nav-logo { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; color:var(--white); letter-spacing:0.1em; cursor:pointer; display:flex; align-items:center; gap:10px; }
+.nav-logo { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; color:var(--white); letter-spacing:0.1em; cursor:pointer; display:flex; align-items:center; gap:10px; text-decoration:none; }
 .nav-logo span { color:var(--orange); }
 .nav-links { display:flex; gap:32px; list-style:none; }
 .nav-links a { color:var(--gray); text-decoration:none; font-family:'Space Mono',monospace; font-size:12px; letter-spacing:0.1em; text-transform:uppercase; transition:color 0.2s; position:relative; }
@@ -64,7 +60,7 @@ nav { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(10,1
 .stat-num { font-family:'Orbitron',monospace; font-size:36px; font-weight:900; color:var(--orange); }
 .stat-label { font-size:13px; color:var(--gray); font-family:'Space Mono',monospace; margin-top:4px; }
 
-/* PROMO BANNER */
+/* PROMO */
 .promo-banner { background:linear-gradient(135deg,rgba(255,102,0,0.15),rgba(255,136,51,0.08)); border-top:1px solid rgba(255,102,0,0.3); border-bottom:1px solid rgba(255,102,0,0.3); padding:32px 40px; display:flex; align-items:center; justify-content:center; gap:40px; flex-wrap:wrap; }
 .promo-banner h3 { font-family:'Orbitron',monospace; font-size:22px; }
 .promo-banner h3 span { color:var(--orange); }
@@ -95,17 +91,29 @@ section { padding:80px 40px; max-width:1400px; margin:0 auto; }
 .cat-card h3 { font-family:'Orbitron',monospace; font-size:14px; color:var(--white); margin-bottom:6px; }
 .cat-card p { font-size:12px; color:var(--orange); font-family:'Space Mono',monospace; }
 
+/* FEATURED PRODUCTS */
+.products-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:24px; }
+.product-card { background:var(--card); border:1px solid var(--border); transition:all 0.25s; position:relative; overflow:hidden; }
+.product-card:hover { border-color:var(--orange); transform:translateY(-4px); }
+.product-img { width:100%; aspect-ratio:1; background:var(--dark); display:flex; align-items:center; justify-content:center; font-size:80px; border-bottom:1px solid var(--border); }
+.product-info { padding:20px; }
+.product-badges { display:flex; gap:6px; margin-bottom:10px; flex-wrap:wrap; }
+.badge { font-family:'Space Mono',monospace; font-size:10px; padding:3px 8px; letter-spacing:0.1em; }
+.badge-hit { background:rgba(255,102,0,0.2); color:var(--orange); border:1px solid rgba(255,102,0,0.4); }
+.badge-new { background:rgba(51,255,102,0.15); color:#33ff66; border:1px solid rgba(51,255,102,0.3); }
+.badge-sale { background:rgba(255,51,51,0.15); color:#ff3333; border:1px solid rgba(255,51,51,0.3); }
+.product-name { font-family:'Orbitron',monospace; font-size:14px; color:var(--white); margin-bottom:8px; }
+.product-price { font-family:'Orbitron',monospace; font-size:20px; color:var(--orange); font-weight:900; }
+.product-old-price { font-size:13px; color:var(--gray); text-decoration:line-through; margin-left:8px; }
+.product-btn { width:100%; margin-top:14px; background:var(--orange-dim); border:1px solid var(--orange); color:var(--orange); padding:10px; font-family:'Space Mono',monospace; font-size:11px; cursor:pointer; letter-spacing:0.1em; transition:all 0.2s; }
+.product-btn:hover { background:var(--orange); color:#000; }
+
 /* DELIVERY */
 .delivery-steps { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:24px; }
 .delivery-step { background:var(--card); border:1px solid var(--border); padding:32px 24px; text-align:center; }
 .step-icon { font-size:48px; display:block; margin-bottom:16px; }
 .delivery-step h3 { font-family:'Orbitron',monospace; font-size:15px; margin-bottom:12px; color:var(--white); }
 .delivery-step p { color:var(--gray); font-size:14px; line-height:1.6; }
-.info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:24px; }
-.info-card { background:var(--card); border:1px solid var(--border); padding:28px; }
-.info-icon { font-size:32px; display:block; margin-bottom:12px; }
-.info-card h3 { font-family:'Orbitron',monospace; font-size:14px; margin-bottom:10px; color:var(--white); }
-.info-card p { color:var(--gray); font-size:14px; line-height:1.6; }
 
 /* ABOUT */
 .about-wrap { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:center; }
@@ -115,89 +123,66 @@ section { padding:80px 40px; max-width:1400px; margin:0 auto; }
 .about-text p { color:var(--light); line-height:1.8; margin-bottom:16px; font-size:16px; }
 .about-values { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:24px; }
 .value-item { background:var(--card); border:1px solid var(--border); padding:20px; }
-.value-item .icon { font-size:28px; display:block; margin-bottom:8px; }
-.value-item h4 { font-family:'Orbitron',monospace; font-size:13px; margin-bottom:6px; color:var(--white); }
+.value-item .icon { font-size:24px; display:block; margin-bottom:8px; }
+.value-item h4 { font-family:'Orbitron',monospace; font-size:13px; color:var(--white); margin-bottom:4px; }
 .value-item p { font-size:13px; color:var(--gray); }
-.about-visual { background:var(--card); border:1px solid var(--border); padding:48px; display:flex; align-items:center; justify-content:center; }
-.tux-big { font-size:180px; display:block; text-align:center; filter:drop-shadow(0 0 40px rgba(255,102,0,0.5)); animation:tuxFloat 3s ease-in-out infinite; }
+.about-visual { display:flex; align-items:center; justify-content:center; }
+.tux-big { font-size:200px; filter:drop-shadow(0 0 40px rgba(255,102,0,0.4)); display:block; }
 
 /* CONTACTS */
-.contacts-wrap { display:grid; grid-template-columns:1fr 1fr; gap:48px; }
+.contacts-wrap { display:grid; grid-template-columns:1fr 1fr; gap:60px; }
 @media(max-width:768px){ .contacts-wrap{grid-template-columns:1fr} }
-.contact-item { display:flex; gap:16px; align-items:flex-start; margin-bottom:24px; }
-.contact-icon { font-size:28px; flex-shrink:0; }
-.contact-item-info h4 { font-family:'Orbitron',monospace; font-size:13px; margin-bottom:4px; color:var(--white); }
+.contact-info { display:flex; flex-direction:column; gap:24px; }
+.contact-item { display:flex; align-items:center; gap:16px; }
+.contact-icon { font-size:28px; }
+.contact-item-info h4 { font-family:'Orbitron',monospace; font-size:13px; color:var(--white); margin-bottom:4px; }
 .contact-item-info p { color:var(--gray); font-size:14px; }
-.form-input { width:100%; background:var(--card); border:1px solid var(--border); color:var(--white); padding:14px 16px; font-family:'Space Mono',monospace; font-size:13px; margin-bottom:12px; outline:none; transition:border-color 0.2s; }
-.form-input:focus { border-color:var(--orange); }
-.form-textarea { width:100%; background:var(--card); border:1px solid var(--border); color:var(--white); padding:14px 16px; font-family:'Space Mono',monospace; font-size:13px; margin-bottom:12px; outline:none; transition:border-color 0.2s; resize:vertical; }
-.form-textarea:focus { border-color:var(--orange); }
+.contact-form { display:flex; flex-direction:column; gap:12px; }
+.form-input, .form-textarea { background:var(--card); border:1px solid var(--border); color:var(--white); padding:14px 16px; font-family:'Rajdhani',sans-serif; font-size:15px; outline:none; transition:border-color 0.2s; }
+.form-input:focus, .form-textarea:focus { border-color:var(--orange); }
+.form-textarea { resize:vertical; }
 
 /* FOOTER */
-footer { background:var(--dark); border-top:1px solid var(--border); padding:48px 40px 24px; }
-.footer-top { display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; margin-bottom:40px; }
+footer { background:var(--dark); border-top:1px solid var(--border); }
+.footer-top { max-width:1400px; margin:0 auto; padding:60px 40px 40px; display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:40px; }
 @media(max-width:768px){ .footer-top{grid-template-columns:1fr 1fr} }
-.footer-brand p { color:var(--gray); font-size:14px; line-height:1.6; margin-top:12px; }
-.footer-col h4 { font-family:'Orbitron',monospace; font-size:13px; margin-bottom:16px; color:var(--white); }
-.footer-col ul { list-style:none; }
-.footer-col ul li { margin-bottom:8px; }
-.footer-col ul li a { color:var(--gray); text-decoration:none; font-size:14px; transition:color 0.2s; }
-.footer-col ul li a:hover { color:var(--orange); }
-.footer-bottom { border-top:1px solid var(--border); padding-top:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+.footer-brand p { color:var(--gray); font-size:14px; line-height:1.7; margin-top:12px; max-width:280px; }
+.footer-col h4 { font-family:'Orbitron',monospace; font-size:13px; color:var(--white); margin-bottom:16px; }
+.footer-col ul { list-style:none; display:flex; flex-direction:column; gap:10px; }
+.footer-col a { color:var(--gray); text-decoration:none; font-size:14px; transition:color 0.2s; }
+.footer-col a:hover { color:var(--orange); }
+.footer-bottom { border-top:1px solid var(--border); padding:24px 40px; display:flex; align-items:center; justify-content:space-between; max-width:1400px; margin:0 auto; }
 .footer-bottom p { color:var(--gray); font-size:13px; font-family:'Space Mono',monospace; }
-
-/* TOAST */
-.toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(20px); background:var(--card); border:1px solid var(--orange); color:var(--white); padding:14px 28px; font-family:'Space Mono',monospace; font-size:13px; z-index:9999; opacity:0; transition:all 0.3s; pointer-events:none; white-space:nowrap; }
-.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-.scroll-top { position:fixed; bottom:32px; right:32px; background:var(--orange); color:#000; border:none; width:44px; height:44px; font-size:20px; cursor:pointer; z-index:999; opacity:0; transition:opacity 0.3s; clip-path:polygon(50% 0%,100% 100%,0% 100%); display:flex; align-items:center; justify-content:center; }
-.scroll-top.show { opacity:1; }
-@media(max-width:768px){ nav{padding:0 16px} .nav-links{display:none} section{padding:60px 16px} .hero-stats{gap:24px} }
+.toast { position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px); background:var(--card); border:1px solid var(--orange); color:var(--white); padding:14px 28px; font-family:'Space Mono',monospace; font-size:13px; z-index:9999; transition:transform 0.3s; opacity:0; }
+.toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+.scroll-top { position:fixed; bottom:30px; right:30px; background:var(--orange); color:#000; border:none; width:44px; height:44px; font-size:18px; cursor:pointer; display:none; z-index:999; clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%); }
+.scroll-top.show { display:block; }
+.products-loading { text-align:center; padding:40px; color:var(--gray); font-family:'Space Mono',monospace; font-size:13px; }
 </style>
 </head>
 <body>
 
-<!-- PRELOADER -->
 <div id="preloader">
-  <svg class="tux-svg" viewBox="0 0 200 240" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <ellipse cx="100" cy="150" rx="65" ry="75" fill="#1a1a1a"/>
-    <ellipse cx="100" cy="160" rx="38" ry="55" fill="#f0f0f0"/>
-    <ellipse cx="100" cy="65" rx="50" ry="52" fill="#1a1a1a"/>
-    <ellipse cx="84" cy="55" rx="12" ry="13" fill="white"/>
-    <ellipse cx="116" cy="55" rx="12" ry="13" fill="white"/>
-    <circle cx="87" cy="57" r="7" fill="#ff6600"/>
-    <circle cx="119" cy="57" r="7" fill="#ff6600"/>
-    <circle cx="89" cy="55" r="4" fill="#000"/>
-    <circle cx="121" cy="55" r="4" fill="#000"/>
-    <path d="M90 76 L110 76 L100 88 Z" fill="#ff6600"/>
-    <ellipse cx="40" cy="155" rx="24" ry="48" fill="#1a1a1a" transform="rotate(-10 40 155)"/>
-    <ellipse cx="160" cy="155" rx="24" ry="48" fill="#1a1a1a" transform="rotate(10 160 155)"/>
-    <ellipse cx="82" cy="218" rx="18" ry="8" fill="#ff6600"/>
-    <ellipse cx="118" cy="218" rx="18" ry="8" fill="#ff6600"/>
-    <path d="M55 95 Q100 80 145 95 Q140 108 100 105 Q60 108 55 95Z" fill="#ff6600"/>
-  </svg>
-  <div class="preloader-text">LINUX <span>SHOP</span></div>
-  <div class="preloader-sub">// офіційний мерч магазин</div>
+  <div class="preloader-text">LINUX<span>SHOP</span></div>
   <div class="progress-bar"><div class="progress-fill"></div></div>
+  <div class="preloader-sub">// ЗАВАНТАЖЕННЯ...</div>
 </div>
 
 <div id="site">
-
-<!-- NAV -->
 <nav>
-  <div class="nav-logo" onclick="window.scrollTo({top:0,behavior:'smooth'})">🐧 LINUX<span>SHOP</span></div>
+  <a href="index.html" class="nav-logo">🐧 LINUX<span>SHOP</span></a>
   <ul class="nav-links">
-    <li><a href="catalog.html">Каталог</a></li>
+    <li><a href="#features">Переваги</a></li>
+    <li><a href="#categories">Категорії</a></li>
     <li><a href="#delivery">Доставка</a></li>
     <li><a href="#about">Про нас</a></li>
     <li><a href="#contacts">Контакти</a></li>
   </ul>
-  <div style="display:flex;gap:10px;align-items:center">
-    <a href="catalog.html" class="nav-btn">🛒 КАТАЛОГ</a>
-  </div>
+  <a href="catalog.html" class="nav-btn">🛒 Каталог</a>
 </nav>
 
 <!-- HERO -->
-<div id="hero">
+<section id="hero">
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
   <div class="hero-content">
@@ -206,67 +191,44 @@ footer { background:var(--dark); border-top:1px solid var(--border); padding:48p
       <span class="line1">LINUX</span>
       <span class="line2">SHOP</span>
     </h1>
-    <p class="hero-desc">Якісний брендований мерч для справжніх фанатів Linux та open-source культури. Від футболок до гаджетів.</p>
+    <p class="hero-desc">Якісний мерч для справжніх прихильників open-source. Футболки, худі, аксесуари з унікальними Linux дизайнами.</p>
     <div class="hero-btns">
-      <a href="catalog.html" class="btn-primary">ДИВИТИСЬ КАТАЛОГ</a>
+      <a href="catalog.html" class="btn-primary">ПЕРЕЙТИ ДО КАТАЛОГУ</a>
       <a href="#about" class="btn-secondary">ПРО НАС</a>
     </div>
     <div class="hero-stats">
-      <div class="stat"><span class="stat-num">30+</span><span class="stat-label">Товарів</span></div>
-      <div class="stat"><span class="stat-num">5к+</span><span class="stat-label">Клієнтів</span></div>
-      <div class="stat"><span class="stat-num">100%</span><span class="stat-label">Якість</span></div>
+      <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Товарів</span></div>
+      <div class="stat"><span class="stat-num">2K+</span><span class="stat-label">Клієнтів</span></div>
+      <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Рейтинг</span></div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- PROMO BANNER -->
+<!-- PROMO -->
 <div class="promo-banner">
-  <div class="promo-banner-text">
+  <div>
     <h3>ЗНИЖКА <span>20%</span> НА ПЕРШЕ ЗАМОВЛЕННЯ</h3>
     <p>Введіть промокод при оформленні замовлення</p>
   </div>
-  <div class="promo-code-display" onclick="copyPromo()" title="Натисни, щоб скопіювати">LINUX20</div>
+  <div class="promo-code-display" onclick="copyPromo()">LINUX20</div>
+  <a href="catalog.html" class="btn-primary">КУПИТИ ЗАРАЗ</a>
 </div>
+
+<div class="sep"></div>
 
 <!-- FEATURES -->
 <section id="features">
   <div class="section-header">
     <div>
-      <div class="section-tag">// ПЕРЕВАГИ</div>
-      <h2 class="section-title">ЧОМУ LINUX SHOP?</h2>
+      <div class="section-tag">// ЧОМУ МИ</div>
+      <h2 class="section-title">НАШІ ПЕРЕВАГИ</h2>
     </div>
   </div>
   <div class="features-grid">
-    <div class="feature-card">
-      <span class="feature-icon">🏆</span>
-      <h3>ПРЕМІУМ ЯКІСТЬ</h3>
-      <p>Тільки якісні матеріали та перевірені виробники. Кожен товар проходить контроль якості перед відправкою.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🐧</span>
-      <h3>УНІКАЛЬНИЙ ДИЗАЙН</h3>
-      <p>Всі дизайни створені спеціально для Linux спільноти. Ви не знайдете таке ніде більше.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🚚</span>
-      <h3>ШВИДКА ДОСТАВКА</h3>
-      <p>Відправка протягом 1-2 днів. Нова Пошта, Укрпошта та кур'єр по всій Україні.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🔄</span>
-      <h3>ЛЕГКЕ ПОВЕРНЕННЯ</h3>
-      <p>Не підійшов розмір або колір? Повернемо гроші або обміняємо протягом 14 днів.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">💳</span>
-      <h3>БЕЗПЕЧНА ОПЛАТА</h3>
-      <p>Карта, Apple Pay, Google Pay або накладений платіж. Всі транзакції захищені SSL.</p>
-    </div>
-    <div class="feature-card">
-      <span class="feature-icon">🎁</span>
-      <h3>ПОДАРУНКОВА УПАКОВКА</h3>
-      <p>Безкоштовна подарункова упаковка при замовленні від 1000 ₴. Ідеально для подарунка!</p>
-    </div>
+    <div class="feature-card"><span class="feature-icon">🎨</span><h3>УНІКАЛЬНІ ДИЗАЙНИ</h3><p>Кожен виріб має оригінальний дизайн, натхненний культурою Linux та open-source філософією.</p></div>
+    <div class="feature-card"><span class="feature-icon">👕</span><h3>ЯКІСНІ МАТЕРІАЛИ</h3><p>Використовуємо лише перевірені тканини та матеріали, що зберігають форму після багаторазових прань.</p></div>
+    <div class="feature-card"><span class="feature-icon">🚀</span><h3>ШВИДКА ДОСТАВКА</h3><p>Відправляємо замовлення протягом 1-2 робочих днів. Доставка по всій Україні через Нову Пошту.</p></div>
+    <div class="feature-card"><span class="feature-icon">💳</span><h3>ЗРУЧНА ОПЛАТА</h3><p>Оплата карткою, готівкою або накладеним платежем. Безпечні транзакції через захищений сервер.</p></div>
   </div>
 </section>
 
@@ -277,40 +239,33 @@ footer { background:var(--dark); border-top:1px solid var(--border); padding:48p
   <div class="section-header">
     <div>
       <div class="section-tag">// АСОРТИМЕНТ</div>
-      <h2 class="section-title">КАТЕГОРІЇ ТОВАРІВ</h2>
+      <h2 class="section-title">КАТЕГОРІЇ</h2>
     </div>
+    <a href="catalog.html" class="btn-secondary">ВЕСЬ КАТАЛОГ →</a>
   </div>
   <div class="cat-grid">
-    <a href="catalog.html?cat=clothes" class="cat-card">
-      <span class="cat-emoji">👕</span>
-      <h3>ОДЯГ</h3>
-      <p>Футболки, худі, кепки</p>
-    </a>
-    <a href="catalog.html?cat=gadgets" class="cat-card">
-      <span class="cat-emoji">🔋</span>
-      <h3>ГАДЖЕТИ</h3>
-      <p>Техніка та аксесуари</p>
-    </a>
-    <a href="catalog.html?cat=dishes" class="cat-card">
-      <span class="cat-emoji">☕</span>
-      <h3>ПОСУД</h3>
-      <p>Чашки, термоси, пляшки</p>
-    </a>
-    <a href="catalog.html?cat=accessories" class="cat-card">
-      <span class="cat-emoji">🎒</span>
-      <h3>АКСЕСУАРИ</h3>
-      <p>Рюкзаки, гаманці</p>
-    </a>
-    <a href="catalog.html?cat=stationery" class="cat-card">
-      <span class="cat-emoji">📓</span>
-      <h3>КАНЦЕЛЯРІЯ</h3>
-      <p>Блокноти, ручки, стікери</p>
-    </a>
-    <a href="catalog.html?cat=lifestyle" class="cat-card">
-      <span class="cat-emoji">🕯️</span>
-      <h3>ЛАЙФСТАЙЛ</h3>
-      <p>Декор та аксесуари</p>
-    </a>
+    <a href="catalog.html?cat=tshirts" class="cat-card"><span class="cat-emoji">👕</span><h3>ФУТБОЛКИ</h3><p>від 450 грн</p></a>
+    <a href="catalog.html?cat=hoodies" class="cat-card"><span class="cat-emoji">🧥</span><h3>ХУДІ</h3><p>від 890 грн</p></a>
+    <a href="catalog.html?cat=caps" class="cat-card"><span class="cat-emoji">🧢</span><h3>КЕПКИ</h3><p>від 320 грн</p></a>
+    <a href="catalog.html?cat=mugs" class="cat-card"><span class="cat-emoji">☕</span><h3>КРУЖКИ</h3><p>від 250 грн</p></a>
+    <a href="catalog.html?cat=stickers" class="cat-card"><span class="cat-emoji">🏷️</span><h3>СТІКЕРИ</h3><p>від 80 грн</p></a>
+    <a href="catalog.html?cat=accessories" class="cat-card"><span class="cat-emoji">🎒</span><h3>АКСЕСУАРИ</h3><p>від 150 грн</p></a>
+  </div>
+</section>
+
+<div class="sep"></div>
+
+<!-- FEATURED PRODUCTS (from Firebase) -->
+<section id="featured">
+  <div class="section-header">
+    <div>
+      <div class="section-tag">// ХІТИ ПРОДАЖІВ</div>
+      <h2 class="section-title">ПОПУЛЯРНЕ</h2>
+    </div>
+    <a href="catalog.html?filter=hit" class="btn-secondary">ВСІ ХІТИ →</a>
+  </div>
+  <div class="products-grid" id="featuredGrid">
+    <div class="products-loading">⏳ Завантаження товарів...</div>
   </div>
 </section>
 
@@ -320,20 +275,15 @@ footer { background:var(--dark); border-top:1px solid var(--border); padding:48p
 <section id="delivery">
   <div class="section-header">
     <div>
-      <div class="section-tag">// ДОСТАВКА</div>
-      <h2 class="section-title">ЯК МИ ДОСТАВЛЯЄМО</h2>
+      <div class="section-tag">// ЛОГІСТИКА</div>
+      <h2 class="section-title">ДОСТАВКА І ОПЛАТА</h2>
     </div>
   </div>
   <div class="delivery-steps">
-    <div class="delivery-step"><span class="step-icon">🛒</span><h3>Оформи замовлення</h3><p>Вибери товари, додай у кошик та оформи замовлення онлайн за 2 хвилини.</p></div>
-    <div class="delivery-step"><span class="step-icon">📦</span><h3>Упакуємо</h3><p>Акуратно упаковуємо кожен товар протягом 1-2 робочих днів.</p></div>
-    <div class="delivery-step"><span class="step-icon">🚚</span><h3>Доставимо</h3><p>Відправка Новою Поштою, Укрпоштою або кур'єром по всій Україні.</p></div>
-    <div class="delivery-step"><span class="step-icon">✅</span><h3>Отримай!</h3><p>Отримай посилку та насолоджуйся якісним Linux мерчом!</p></div>
-  </div>
-  <div class="info-grid" style="margin-top:40px">
-    <div class="info-card"><span class="info-icon">💳</span><h3>Оплата</h3><p>Карта, Apple Pay, Google Pay, оплата при отриманні. Безпечний платіж через захищений протокол.</p></div>
-    <div class="info-card"><span class="info-icon">🔄</span><h3>Повернення</h3><p>Якщо товар не підійшов — повернемо протягом 14 днів без зайвих питань.</p></div>
-    <div class="info-card"><span class="info-icon">🎁</span><h3>Подарункова упаковка</h3><p>Безкоштовно при замовленні від 1000 грн. Ідеально для подарунка близьким.</p></div>
+    <div class="delivery-step"><span class="step-icon">🛒</span><h3>ОФОРМЛЕННЯ</h3><p>Оберіть товари, додайте в кошик та оформіть замовлення онлайн.</p></div>
+    <div class="delivery-step"><span class="step-icon">⚙️</span><h3>ОБРОБКА</h3><p>Протягом 24 годин ми обробляємо замовлення та передаємо в доставку.</p></div>
+    <div class="delivery-step"><span class="step-icon">📦</span><h3>ВІДПРАВКА</h3><p>Відправляємо Новою Поштою по всій Україні. ТТН надсилається на email.</p></div>
+    <div class="delivery-step"><span class="step-icon">🎉</span><h3>ОТРИМАННЯ</h3><p>Отримайте замовлення у відділенні або через кур'єра. Оплата картою або готівкою.</p></div>
   </div>
 </section>
 
@@ -345,7 +295,7 @@ footer { background:var(--dark); border-top:1px solid var(--border); padding:48p
     <div class="about-text">
       <div class="section-tag">// ПРО НАС</div>
       <h2>МИ — <span>LINUX</span> СПІЛЬНОТА</h2>
-      <p>Linux Shop — це більше ніж просто магазин. Ми об'єднуємо людей, які цінують свободу, відкритий код та технологічну незалежність.</p>
+      <p>Linux Shop — це магазин для тих, хто живе відкритим кодом. Ми створюємо мерч, який відображає справжню культуру Linux та unix-філософії.</p>
       <p>Кожен виріб — це якісний мерч з унікальними дизайнами, натхненними культурою Linux, open-source та unix-філософією.</p>
       <div class="about-values">
         <div class="value-item"><span class="icon">🐧</span><h4>Open Source</h4><p>Ми за відкритість у всьому</p></div>
@@ -354,9 +304,7 @@ footer { background:var(--dark); border-top:1px solid var(--border); padding:48p
         <div class="value-item"><span class="icon">♻️</span><h4>Екологія</h4><p>Відповідальне виробництво</p></div>
       </div>
     </div>
-    <div class="about-visual">
-      <span class="tux-big">🐧</span>
-    </div>
+    <div class="about-visual"><span class="tux-big">🐧</span></div>
   </div>
 </section>
 
@@ -376,7 +324,6 @@ footer { background:var(--dark); border-top:1px solid var(--border); padding:48p
       <div class="contact-item"><span class="contact-icon">📱</span><div class="contact-item-info"><h4>Телефон</h4><p>+38 (050) 123-45-67</p></div></div>
       <div class="contact-item"><span class="contact-icon">💬</span><div class="contact-item-info"><h4>Telegram</h4><p>@linuxshop_ua</p></div></div>
       <div class="contact-item"><span class="contact-icon">🕐</span><div class="contact-item-info"><h4>Графік роботи</h4><p>Пн-Пт: 9:00 — 18:00</p></div></div>
-      <div class="contact-item"><span class="contact-icon">📍</span><div class="contact-item-info"><h4>Адреса</h4><p>Київ, вул. Хрещатик, 1</p></div></div>
     </div>
     <div class="contact-form">
       <input class="form-input" type="text" id="c-name" placeholder="Ваше ім'я">
@@ -392,48 +339,102 @@ footer { background:var(--dark); border-top:1px solid var(--border); padding:48p
 <footer>
   <div class="footer-top">
     <div class="footer-brand">
-      <div class="nav-logo">🐧 LINUX<span style="color:var(--orange)">SHOP</span></div>
+      <a href="index.html" class="nav-logo">🐧 LINUX<span style="color:var(--orange)">SHOP</span></a>
       <p>Офіційний магазин Linux мерчу. Якість, стиль та відданість open-source культурі.</p>
     </div>
-    <div class="footer-col">
-      <h4>Магазин</h4>
-      <ul>
-        <li><a href="catalog.html">Каталог</a></li>
-        <li><a href="catalog.html?cat=new">Новинки</a></li>
-        <li><a href="catalog.html?cat=sale">Акції</a></li>
-        <li><a href="catalog.html?cat=hit">Хіти продажів</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Інформація</h4>
-      <ul>
-        <li><a href="#delivery">Доставка</a></li>
-        <li><a href="#delivery">Оплата</a></li>
-        <li><a href="#delivery">Повернення</a></li>
-        <li><a href="#about">Про нас</a></li>
-      </ul>
-    </div>
-    <div class="footer-col">
-      <h4>Контакти</h4>
-      <ul>
-        <li><a href="#contacts">info@linuxshop.ua</a></li>
-        <li><a href="#contacts">+38 (050) 123-45-67</a></li>
-        <li><a href="#contacts">@linuxshop_ua</a></li>
-      </ul>
-    </div>
+    <div class="footer-col"><h4>Магазин</h4><ul>
+      <li><a href="catalog.html">Каталог</a></li>
+      <li><a href="catalog.html?filter=new">Новинки</a></li>
+      <li><a href="catalog.html?filter=sale">Акції</a></li>
+      <li><a href="catalog.html?filter=hit">Хіти продажів</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Інформація</h4><ul>
+      <li><a href="#delivery">Доставка</a></li>
+      <li><a href="#delivery">Оплата</a></li>
+      <li><a href="#about">Про нас</a></li>
+    </ul></div>
+    <div class="footer-col"><h4>Контакти</h4><ul>
+      <li><a href="#contacts">info@linuxshop.ua</a></li>
+      <li><a href="#contacts">+38 (050) 123-45-67</a></li>
+      <li><a href="#contacts">@linuxshop_ua</a></li>
+    </ul></div>
   </div>
   <div class="footer-bottom">
     <p>© 2025 Linux Shop. Всі права захищені.</p>
     <p>Зроблено з ❤️ для Linux спільноти</p>
   </div>
 </footer>
-
 </div>
 
 <div class="toast" id="toast"></div>
 <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<!-- Firebase -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getFirestore, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE",
+    authDomain: "linux-shop-b5b3e.firebaseapp.com",
+    projectId: "linux-shop-b5b3e",
+    storageBucket: "linux-shop-b5b3e.firebasestorage.app",
+    messagingSenderId: "889010336562",
+    appId: "1:889010336562:web:2f60090b33fa29c0ed5d2b"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  async function loadFeatured() {
+    const grid = document.getElementById('featuredGrid');
+    try {
+      const q = query(collection(db, 'products'), where('isHit', '==', true), limit(4));
+      const snapshot = await getDocs(q);
+      if (snapshot.empty) {
+        grid.innerHTML = '<div class="products-loading">Товарів поки немає. Адмін може додати їх в <a href="admin.html" style="color:var(--orange)">адмін-панелі</a>.</div>';
+        return;
+      }
+      grid.innerHTML = '';
+      snapshot.forEach(doc => {
+        const p = doc.data();
+        grid.innerHTML += renderCard(doc.id, p);
+      });
+    } catch(e) {
+      grid.innerHTML = '<div class="products-loading">Помилка завантаження. Перевірте підключення.</div>';
+    }
+  }
+
+  function renderCard(id, p) {
+    const badges = [
+      p.isHit ? '<span class="badge badge-hit">ХІТ</span>' : '',
+      p.isNew ? '<span class="badge badge-new">НОВИНКА</span>' : '',
+      p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : ''
+    ].join('');
+    const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
+    return `<div class="product-card">
+      <div class="product-img">${p.emoji || '📦'}</div>
+      <div class="product-info">
+        <div class="product-badges">${badges}</div>
+        <div class="product-name">${p.name}</div>
+        <div><span class="product-price">${p.price} грн</span>${oldPrice}</div>
+        <button class="product-btn" onclick="addToCart('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')">В КОШИК</button>
+      </div>
+    </div>`;
+  }
+
+  loadFeatured();
+</script>
+
 <script>
+function addToCart(id, name, price, emoji) {
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  const idx = cart.findIndex(i => i.id === id);
+  if (idx >= 0) cart[idx].qty++;
+  else cart.push({id, name, price, emoji, qty: 1});
+  localStorage.setItem('cart', JSON.stringify(cart));
+  showToast('✅ Додано до кошика: ' + name);
+}
 function copyPromo() {
   if (navigator.clipboard) navigator.clipboard.writeText('LINUX20');
   showToast('✅ Промокод LINUX20 скопійовано!');
@@ -441,14 +442,14 @@ function copyPromo() {
 function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
-  setTimeout(function(){ t.classList.remove('show'); }, 2800);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 async function sendContact(btn) {
   var name = document.getElementById('c-name').value.trim();
   var msg = document.getElementById('c-msg').value.trim();
   if (!name || !msg) { showToast('❌ Введіть імʼя та повідомлення'); return; }
   btn.textContent = 'НАДСИЛАЄМО...'; btn.disabled = true;
-  setTimeout(function(){
+  setTimeout(() => {
     document.getElementById('c-name').value = '';
     document.getElementById('c-email').value = '';
     document.getElementById('c-subject').value = '';
@@ -457,17 +458,13 @@ async function sendContact(btn) {
     showToast('✅ Повідомлення надіслано! Дякуємо.');
   }, 1000);
 }
-window.addEventListener('scroll', function(){
+window.addEventListener('scroll', () => {
   document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
 });
-window.addEventListener('load', function(){
-  setTimeout(function(){
-    var pre = document.getElementById('preloader');
-    pre.style.transition = 'opacity 0.8s';
-    pre.style.opacity = '0';
-    setTimeout(function(){ pre.style.display='none'; document.getElementById('site').classList.add('visible'); }, 800);
-  }, 2800);
-});
+setTimeout(() => {
+  document.getElementById('preloader').style.display = 'none';
+  document.getElementById('site').classList.add('visible');
+}, 3200);
 </script>
 </body>
 </html>
