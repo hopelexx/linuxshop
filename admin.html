@@ -57,7 +57,6 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
 .products-table td{border:1px solid var(--border);padding:12px 16px;font-size:14px;vertical-align:middle;}
 .products-table tr:hover td{background:rgba(255,102,0,0.04);}
 .product-emoji-cell{font-size:28px;text-align:center;}
-.product-photo-cell{width:56px;height:56px;object-fit:cover;border:1px solid var(--border);display:block;}
 .badge-small{font-family:'Space Mono',monospace;font-size:10px;padding:2px 6px;}
 .badge-hit{background:rgba(255,102,0,0.2);color:var(--orange);border:1px solid rgba(255,102,0,0.4);}
 .badge-new{background:rgba(51,255,102,0.15);color:#33ff66;border:1px solid rgba(51,255,102,0.3);}
@@ -224,23 +223,17 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
     <div class="form-row">
       <label class="form-label">КАТЕГОРІЯ</label>
       <select class="form-select" id="p-category">
-        <option value="clothing">👕 Одяг</option>
-        <option value="gadgets">📱 Гаджети</option>
-        <option value="dishes">🍽️ Посуд</option>
-        <option value="accessories">👜 Аксесуари</option>
-        <option value="stationery">✏️ Канцелярія</option>
-        <option value="lifestyle">🌿 Лайфстайл</option>
+        <option value="tshirts">👕 Футболки</option>
+        <option value="hoodies">🧥 Худі</option>
+        <option value="caps">🧢 Кепки</option>
+        <option value="mugs">☕ Кружки</option>
+        <option value="stickers">🏷️ Стікери</option>
+        <option value="accessories">🎒 Аксесуари</option>
       </select>
     </div>
     <div class="form-row">
       <label class="form-label">EMOJI (іконка товару)</label>
       <input class="form-input" type="text" id="p-emoji" placeholder="👕" maxlength="4">
-    </div>
-    <div class="form-row">
-      <label class="form-label">ФОТО ТОВАРУ (URL або завантажити)</label>
-      <input class="form-input" type="text" id="p-photo" placeholder="https://... або залиш порожнім">
-      <input type="file" id="p-photo-file" accept="image/*" style="margin-top:8px;color:var(--gray);font-family:'Space Mono',monospace;font-size:11px;width:100%;" onchange="previewPhoto(this)">
-      <img id="p-photo-preview" src="" alt="" style="display:none;margin-top:8px;max-height:120px;border:1px solid var(--border);">
     </div>
     <div class="form-row">
       <label class="form-label">ОПИС (необов'язково)</label>
@@ -389,12 +382,10 @@ function renderProductsTable() {
     tbody.innerHTML = '<tr><td colspan="6" class="loading">Товарів немає. Додайте перший товар →</td></tr>';
     return;
   }
-  const catNames = {clothing:'Одяг',gadgets:'Гаджети',dishes:'Посуд',accessories:'Аксесуари',stationery:'Канцелярія',lifestyle:'Лайфстайл'};
+  const catNames = {tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери',accessories:'Аксесуари'};
   tbody.innerHTML = products.map(p => `
     <tr>
-      <td class="product-emoji-cell">
-        ${p.photo ? `<img src="${p.photo}" class="product-photo-cell" alt="">` : (p.emoji || '📦')}
-      </td>
+      <td class="product-emoji-cell">${p.emoji || '📦'}</td>
       <td><strong>${p.name}</strong>${p.description ? `<br><small style="color:var(--gray)">${p.description}</small>` : ''}</td>
       <td>${catNames[p.category] || p.category || '—'}</td>
       <td>
@@ -476,11 +467,8 @@ function openProductModal(id) {
   document.getElementById('p-name').value = '';
   document.getElementById('p-price').value = '';
   document.getElementById('p-oldprice').value = '';
-  document.getElementById('p-category').value = 'clothing';
+  document.getElementById('p-category').value = 'tshirts';
   document.getElementById('p-emoji').value = '';
-  document.getElementById('p-photo').value = '';
-  document.getElementById('p-photo-file').value = '';
-  document.getElementById('p-photo-preview').style.display = 'none';
   document.getElementById('p-desc').value = '';
   document.getElementById('p-hit').checked = false;
   document.getElementById('p-new').checked = false;
@@ -496,12 +484,8 @@ function editProduct(id) {
   document.getElementById('p-name').value = p.name || '';
   document.getElementById('p-price').value = p.price || '';
   document.getElementById('p-oldprice').value = p.oldPrice || '';
-  document.getElementById('p-category').value = p.category || 'clothing';
+  document.getElementById('p-category').value = p.category || 'tshirts';
   document.getElementById('p-emoji').value = p.emoji || '';
-  document.getElementById('p-photo').value = p.photo || '';
-  document.getElementById('p-photo-file').value = '';
-  const prev = document.getElementById('p-photo-preview');
-  if (p.photo) { prev.src = p.photo; prev.style.display = 'block'; } else { prev.style.display = 'none'; }
   document.getElementById('p-desc').value = p.description || '';
   document.getElementById('p-hit').checked = !!p.isHit;
   document.getElementById('p-new').checked = !!p.isNew;
@@ -524,7 +508,6 @@ async function saveProduct() {
     oldPrice: parseFloat(document.getElementById('p-oldprice').value) || null,
     category: document.getElementById('p-category').value,
     emoji: document.getElementById('p-emoji').value.trim() || '📦',
-    photo: document.getElementById('p-photo').value.trim() || null,
     description: document.getElementById('p-desc').value.trim(),
     isHit: document.getElementById('p-hit').checked,
     isNew: document.getElementById('p-new').checked,
@@ -550,20 +533,6 @@ async function changeOrderStatus(id, status) {
   await window.updateOrderStatus(id, status);
   showToast('✅ Статус оновлено');
   renderRecentOrders();
-}
-
-function previewPhoto(input) {
-  const file = input.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const prev = document.getElementById('p-photo-preview');
-    const photoUrl = e.target.result;
-    document.getElementById('p-photo').value = photoUrl;
-    prev.src = photoUrl;
-    prev.style.display = 'block';
-  };
-  reader.readAsDataURL(file);
 }
 
 function showToast(msg) {

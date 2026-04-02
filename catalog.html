@@ -139,12 +139,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
     <div class="filter-group">
       <span class="filter-label">КАТЕГОРІЯ</span>
       <button class="filter-btn" onclick="setCat('',this)">Всі категорії</button>
-      <button class="filter-btn" onclick="setCat('clothing',this)">👕 Одяг</button>
-      <button class="filter-btn" onclick="setCat('gadgets',this)">📱 Гаджети</button>
-      <button class="filter-btn" onclick="setCat('dishes',this)">🍽️ Посуд</button>
-      <button class="filter-btn" onclick="setCat('accessories',this)">👜 Аксесуари</button>
-      <button class="filter-btn" onclick="setCat('stationery',this)">✏️ Канцелярія</button>
-      <button class="filter-btn" onclick="setCat('lifestyle',this)">🌿 Лайфстайл</button>
+      <button class="filter-btn" onclick="setCat('tshirts',this)">👕 Футболки</button>
+      <button class="filter-btn" onclick="setCat('hoodies',this)">🧥 Худі</button>
+      <button class="filter-btn" onclick="setCat('caps',this)">🧢 Кепки</button>
+      <button class="filter-btn" onclick="setCat('mugs',this)">☕ Кружки</button>
+      <button class="filter-btn" onclick="setCat('stickers',this)">🏷️ Стікери</button>
+      <button class="filter-btn" onclick="setCat('accessories',this)">🎒 Аксесуари</button>
     </div>
 
     <div class="filter-group">
@@ -348,10 +348,10 @@ function renderProducts() {
       p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : ''
     ].join('');
     const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
-    const catNames = {clothing:'Одяг',gadgets:'Гаджети',dishes:'Посуд',accessories:'Аксесуари',stationery:'Канцелярія',lifestyle:'Лайфстайл'};
+    const catNames = {tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери',accessories:'Аксесуари'};
     const catLabel = catNames[p.category] || p.category || '';
     return `<div class="product-card">
-      <div class="product-img">${p.photo ? `<img src="${p.photo}" style="width:100%;height:100%;object-fit:cover;">` : (p.emoji || '📦')}</div>
+      <div class="product-img">${p.emoji || '📦'}</div>
       <div class="product-info">
         <div class="product-badges">${badges}</div>
         ${catLabel ? `<div class="product-category">${catLabel}</div>` : ''}
