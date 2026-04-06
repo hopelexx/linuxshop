@@ -456,6 +456,10 @@ function updateCartCount() {
 
 function openCart() {
   document.getElementById('cartModal').classList.add('open');
+  // Sync productsMap from allProducts to ensure photo data is available
+  if (window._allProducts && window._allProducts.length > 0) {
+    window._allProducts.forEach(p => { if (!window._productsMap[p.id]) window._productsMap[p.id] = p; });
+  }
   renderCart();
 }
 
@@ -606,6 +610,9 @@ function renderCart() {
   }, 0);
 
   itemsEl.innerHTML = cart.map((item,i) => {
+    // Always try to get photo from _productsMap first, then fallback to stored item.photo
+    const pData = (window._productsMap || {})[item.id];
+    const photoUrl = (pData && pData.photo) || item.photo || '';
     const hasSale = item.isSale && item.oldPrice && item.oldPrice > item.price;
     const saving = hasSale ? (item.oldPrice - item.price) * item.qty : 0;
     const saleBadge = hasSale
@@ -617,8 +624,8 @@ function renderCart() {
     const savingLine = hasSale
       ? `<div style="font-size:10px;color:#33ff66;font-family:'Space Mono',monospace;margin-top:2px;">🏷 Економія: ${saving} грн</div>`
       : '';
-    const imgHtml = item.photo
-      ? `<img src="${item.photo}" style="width:60px;height:60px;object-fit:cover;border:1px solid var(--border);border-radius:2px;flex-shrink:0;">`
+    const imgHtml = photoUrl
+      ? `<img src="${photoUrl}" style="width:60px;height:60px;object-fit:cover;border:1px solid var(--border);border-radius:2px;flex-shrink:0;">`
       : `<span style="font-size:36px;flex-shrink:0;line-height:1;">${item.emoji || '📦'}</span>`;
     return `
     <div class="cart-item" style="align-items:flex-start;">
