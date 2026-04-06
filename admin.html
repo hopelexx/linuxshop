@@ -395,7 +395,11 @@ function renderProductsTable() {
   const catNames = {tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери',accessories:'Аксесуари'};
   tbody.innerHTML = products.map(p => `
     <tr>
-      <td class="product-emoji-cell">${p.emoji || '📦'}</td>
+      <td class="product-emoji-cell" style="text-align:center;">
+        ${p.photo
+          ? `<img src="${p.photo}" style="width:48px;height:48px;object-fit:cover;border:1px solid var(--border);">`
+          : `<span style="font-size:28px">${p.emoji || '📦'}</span>`}
+      </td>
       <td><strong>${p.name}</strong>${p.description ? `<br><small style="color:var(--gray)">${p.description}</small>` : ''}</td>
       <td>${catNames[p.category] || p.category || '—'}</td>
       <td>
@@ -573,20 +577,28 @@ function clearPhoto() {
 function handlePhotoUpload(input) {
   const file = input.files[0];
   if (!file) return;
-  // Resize image before saving to keep Firebase doc small
   const reader = new FileReader();
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
       const canvas = document.createElement('canvas');
-      const maxSize = 600;
+      const maxSize = 400;
       let w = img.width, h = img.height;
-      if (w > h && w > maxSize) { h = h * maxSize / w; w = maxSize; }
-      else if (h > maxSize) { w = w * maxSize / h; h = maxSize; }
+      if (w > h && w > maxSize) { h = Math.round(h * maxSize / w); w = maxSize; }
+      else if (h > maxSize) { w = Math.round(w * maxSize / h); h = maxSize; }
       canvas.width = w; canvas.height = h;
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.75);
-      setPhotoPreview(dataUrl);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
+      // Check size - Firestore doc limit is ~1MB
+      if (dataUrl.length > 700000) {
+        // Compress more aggressively
+        const canvas2 = document.createElement('canvas');
+        canvas2.width = Math.round(w * 0.7); canvas2.height = Math.round(h * 0.7);
+        canvas2.getContext('2d').drawImage(canvas, 0, 0, canvas2.width, canvas2.height);
+        setPhotoPreview(canvas2.toDataURL('image/jpeg', 0.5));
+      } else {
+        setPhotoPreview(dataUrl);
+      }
       document.getElementById('p-photo-url').value = '';
     };
     img.src = e.target.result;
