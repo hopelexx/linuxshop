@@ -468,7 +468,20 @@ function closeCartOutside(e) {
 }
 
 function openOrderModal() {
-  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  // Enrich cart items with latest product data
+  const map = window._productsMap || {};
+  cart = cart.map(item => {
+    const p = map[item.id];
+    if (p) {
+      item.photo = p.photo || item.photo || '';
+      item.isSale = !!p.isSale;
+      item.oldPrice = p.oldPrice || item.oldPrice || 0;
+      item.emoji = p.emoji || item.emoji || '📦';
+    }
+    return item;
+  });
+  localStorage.setItem('cart', JSON.stringify(cart));
   if (cart.length === 0) { showToast('❌ Кошик порожній'); return; }
   const sum = getCartTotal(cart);
   document.getElementById('orderModalTotal').textContent = sum + ' грн';
@@ -561,7 +574,20 @@ function applyPromo() {
 }
 
 function renderCart() {
-  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  // Enrich cart items with latest product data (photo, isSale, oldPrice)
+  const map = window._productsMap || {};
+  cart = cart.map(item => {
+    const p = map[item.id];
+    if (p) {
+      item.photo = p.photo || item.photo || '';
+      item.isSale = !!p.isSale;
+      item.oldPrice = p.oldPrice || item.oldPrice || 0;
+      item.emoji = p.emoji || item.emoji || '📦';
+    }
+    return item;
+  });
+  localStorage.setItem('cart', JSON.stringify(cart));
   const itemsEl = document.getElementById('cartItems');
   const summaryEl = document.getElementById('cartSummaryBlock');
 
