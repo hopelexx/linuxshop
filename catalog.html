@@ -149,7 +149,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
       <button class="filter-btn" onclick="setCat('tech',this)">💻 Техніка</button>
       <button class="filter-btn" onclick="setCat('accessories',this)">🎒 Аксесуари</button>
       <button class="filter-btn" onclick="setCat('lifestyle',this)">✨ Лайфстайл</button>
-      <button class="filter-btn" onclick="setCat('stationery',this)">🖊️ Канцелярія</button>
     </div>
 
     <div class="filter-group">
@@ -228,14 +227,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
 
 <!-- ORDER MODAL (Step 2: checkout form) -->
 <div class="modal-overlay" id="orderModal" style="display:none;align-items:center;justify-content:center;" onclick="closeOrderOutside(event)">
-  <div class="cart-panel" style="width:480px;max-width:100vw;height:auto;max-height:90vh;border:1px solid var(--border);border-left:none;">
+  <div class="cart-panel" style="width:500px;max-width:100vw;height:auto;max-height:92vh;overflow-y:auto;border:1px solid var(--border);border-left:none;">
     <div class="cart-panel-header">
       <div class="cart-panel-title" style="font-size:16px;">📋 ОФОРМЛЕННЯ ЗАМОВЛЕННЯ</div>
       <button class="close-btn" onclick="closeOrderModal()">✕</button>
     </div>
-    <div style="background:var(--card);border:1px solid var(--border);padding:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;">
+    <!-- Selected items list -->
+    <div id="orderItemsList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+    <!-- Total -->
+    <div style="background:var(--card);border:1px solid var(--orange);padding:16px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 0 18px rgba(255,102,0,0.18);">
       <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray);">Сума замовлення:</span>
-      <span style="font-family:'Orbitron',monospace;font-size:22px;color:var(--orange);font-weight:900;" id="orderModalTotal">0 грн</span>
+      <span style="font-family:'Orbitron',monospace;font-size:22px;color:var(--orange);font-weight:900;text-shadow:0 0 12px rgba(255,102,0,0.5);" id="orderModalTotal">0 грн</span>
+    </div>
+    <!-- Savings in order modal -->
+    <div id="orderModalSavings" style="display:none;background:rgba(51,255,102,0.08);border:1px solid rgba(51,255,102,0.35);padding:10px 16px;margin-bottom:14px;font-family:'Space Mono',monospace;font-size:12px;color:#33ff66;display:flex;justify-content:space-between;align-items:center;">
+      <span>🎉 Ваша економія на акції:</span>
+      <span id="orderModalSavingsSum" style="font-family:'Orbitron',monospace;font-size:15px;font-weight:900;">0 грн</span>
     </div>
     <div class="order-form" id="orderForm" style="display:flex;">
       <input class="form-input" type="text" id="o-name" placeholder="Ваше ім'я *">
@@ -390,7 +397,7 @@ function renderProducts() {
       p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : ''
     ].join('');
     const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
-    const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',stationery:'Канцелярія',tshirts:'Одяг',hoodies:'Одяг',caps:'Аксесуари',mugs:'Посуд',stickers:'Лайфстайл'};
+    const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',tshirts:'Одяг',hoodies:'Одяг',caps:'Аксесуари',mugs:'Посуд',stickers:'Лайфстайл'};
     const catLabel = catNames[p.category] || p.category || '';
     const imgHtml = p.photo
       ? `<img src="${p.photo}" alt="${p.name}">`
@@ -404,7 +411,7 @@ function renderProducts() {
         <div class="product-price-row">
           <span class="product-price">${p.price} грн</span>${oldPrice}
         </div>
-        <button class="product-btn" onclick="addToCart('${p.id}','${p.name.replace(/'/g,"\\'")}',${p.price},'${p.emoji||'📦'}',${p.isSale?'true':'false'},${p.oldPrice||0})">В КОШИК</button>
+        <button class="product-btn" onclick="addToCart('${p.id}','${p.name.replace(/'/g,"\\'")}',${p.price},'${p.emoji||'📦'}',${p.isSale?'true':'false'},${p.oldPrice||0},'${p.photo||''}')">В КОШИК</button>
       </div>
     </div>`;
   }).join('');
@@ -415,11 +422,11 @@ window._promoApplied = null;
 window._promoDiscount = 0;
 const VALID_PROMOS = { 'LINUX20': 20, 'LINUX10': 10 };
 
-function addToCart(id, name, price, emoji, isSale, oldPrice) {
+function addToCart(id, name, price, emoji, isSale, oldPrice, photo) {
   let cart = JSON.parse(localStorage.getItem('cart') || '[]');
   const idx = cart.findIndex(i => i.id === id);
   if (idx >= 0) cart[idx].qty++;
-  else cart.push({id, name, price, emoji, qty: 1, isSale: !!isSale, oldPrice: oldPrice || 0});
+  else cart.push({id, name, price, emoji, photo: photo || '', qty: 1, isSale: !!isSale, oldPrice: oldPrice || 0});
   localStorage.setItem('cart', JSON.stringify(cart));
   updateCartCount();
   showToast('✅ Додано: ' + name);
@@ -449,6 +456,38 @@ function openOrderModal() {
   if (cart.length === 0) { showToast('❌ Кошик порожній'); return; }
   const sum = getCartTotal(cart);
   document.getElementById('orderModalTotal').textContent = sum + ' грн';
+
+  // Render items list
+  const itemsList = document.getElementById('orderItemsList');
+  itemsList.innerHTML = cart.map(item => {
+    const imgHtml = item.photo
+      ? `<img src="${item.photo}" style="width:48px;height:48px;object-fit:cover;border:1px solid var(--border);border-radius:2px;flex-shrink:0;">`
+      : `<span style="font-size:28px;flex-shrink:0;">${item.emoji || '📦'}</span>`;
+    const saleTag = item.isSale && item.oldPrice && item.oldPrice > item.price
+      ? `<span style="font-size:10px;color:#33ff66;font-family:'Space Mono',monospace;margin-left:6px;">-${item.oldPrice - item.price} грн/шт</span>` : '';
+    return `<div style="background:var(--card);border:1px solid var(--border);padding:10px 14px;display:flex;gap:12px;align-items:center;">
+      ${imgHtml}
+      <div style="flex:1;min-width:0;">
+        <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--white);margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${item.name}</div>
+        <div style="font-size:12px;color:var(--gray);font-family:'Space Mono',monospace;">${item.qty} шт × ${item.price} грн</div>
+      </div>
+      <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--orange);font-weight:900;white-space:nowrap;">${item.price * item.qty} грн${saleTag}</div>
+    </div>`;
+  }).join('');
+
+  // Savings
+  const savings = cart.reduce((s,i) => {
+    if (i.isSale && i.oldPrice && i.oldPrice > i.price) return s + (i.oldPrice - i.price) * i.qty;
+    return s;
+  }, 0);
+  const savingsEl = document.getElementById('orderModalSavings');
+  if (savings > 0) {
+    savingsEl.style.display = 'flex';
+    document.getElementById('orderModalSavingsSum').textContent = savings + ' грн';
+  } else {
+    savingsEl.style.display = 'none';
+  }
+
   document.getElementById('orderModal').style.display = 'flex';
 }
 
@@ -510,8 +549,8 @@ function renderCart() {
       ? `<div style="font-size:11px;color:#33ff66;font-family:'Space Mono',monospace;margin-top:2px;">🏷 Економія: ${(item.oldPrice - item.price) * item.qty} грн</div>`
       : '';
     const imgHtml = item.photo
-      ? `<img src="${item.photo}" style="width:44px;height:44px;object-fit:cover;border:1px solid var(--border);">`
-      : `<span class="cart-item-emoji">${item.emoji || '📦'}</span>`;
+      ? `<img src="${item.photo}" style="width:56px;height:56px;object-fit:cover;border:1px solid var(--border);border-radius:2px;flex-shrink:0;">`
+      : `<span class="cart-item-emoji" style="font-size:36px;flex-shrink:0;">${item.emoji || '📦'}</span>`;
     return `
     <div class="cart-item">
       ${imgHtml}
