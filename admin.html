@@ -223,12 +223,11 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
     <div class="form-row">
       <label class="form-label">КАТЕГОРІЯ</label>
       <select class="form-select" id="p-category">
-        <option value="tshirts">👕 Футболки</option>
-        <option value="hoodies">🧥 Худі</option>
-        <option value="caps">🧢 Кепки</option>
-        <option value="mugs">☕ Кружки</option>
-        <option value="stickers">🏷️ Стікери</option>
+        <option value="clothing">👕 Одяг</option>
+        <option value="dishes">🍽️ Посуд</option>
+        <option value="tech">💻 Техніка</option>
         <option value="accessories">🎒 Аксесуари</option>
+        <option value="lifestyle">✨ Лайфстайл</option>
       </select>
     </div>
     <div class="form-row">
@@ -392,7 +391,7 @@ function renderProductsTable() {
     tbody.innerHTML = '<tr><td colspan="6" class="loading">Товарів немає. Додайте перший товар →</td></tr>';
     return;
   }
-  const catNames = {tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери',accessories:'Аксесуари'};
+  const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери'};
   tbody.innerHTML = products.map(p => `
     <tr>
       <td class="product-emoji-cell" style="text-align:center;">
@@ -481,7 +480,7 @@ function openProductModal(id) {
   document.getElementById('p-name').value = '';
   document.getElementById('p-price').value = '';
   document.getElementById('p-oldprice').value = '';
-  document.getElementById('p-category').value = 'tshirts';
+  document.getElementById('p-category').value = 'clothing';
   document.getElementById('p-emoji').value = '';
   document.getElementById('p-desc').value = '';
   document.getElementById('p-hit').checked = false;
@@ -499,7 +498,7 @@ function editProduct(id) {
   document.getElementById('p-name').value = p.name || '';
   document.getElementById('p-price').value = p.price || '';
   document.getElementById('p-oldprice').value = p.oldPrice || '';
-  document.getElementById('p-category').value = p.category || 'tshirts';
+  document.getElementById('p-category').value = p.category || 'clothing';
   document.getElementById('p-emoji').value = p.emoji || '';
   document.getElementById('p-desc').value = p.description || '';
   document.getElementById('p-hit').checked = !!p.isHit;
