@@ -128,17 +128,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
   <aside class="sidebar">
     <div class="sidebar-title">// ФІЛЬТРИ</div>
 
-    <div class="filter-group">
+    <div class="filter-group filter-group-type">
       <span class="filter-label">ТИП ТОВАРУ</span>
-      <button class="filter-btn active" onclick="setFilter('all',this)">Всі товари</button>
+      <button class="filter-btn" onclick="setFilter('all',this)">Всі товари</button>
       <button class="filter-btn" onclick="setFilter('hit',this)">⭐ Хіти продажів</button>
       <button class="filter-btn" onclick="setFilter('new',this)">🆕 Новинки</button>
       <button class="filter-btn" onclick="setFilter('sale',this)">🔥 Акції</button>
     </div>
 
-    <div class="filter-group">
+    <div class="filter-group filter-group-cat">
       <span class="filter-label">КАТЕГОРІЯ</span>
-      <button class="filter-btn active" onclick="setCat('',this)">Всі категорії</button>
+      <button class="filter-btn" onclick="setCat('',this)">Всі категорії</button>
       <button class="filter-btn" onclick="setCat('tshirts',this)">👕 Футболки</button>
       <button class="filter-btn" onclick="setCat('hoodies',this)">🧥 Худі</button>
       <button class="filter-btn" onclick="setCat('caps',this)">🧢 Кепки</button>
@@ -260,23 +260,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
   window._priceMin = null;
   window._priceMax = null;
 
-  // Highlight correct filter button
-  if (initFilter !== 'all') {
-    document.querySelectorAll('.sidebar .filter-group:first-of-type .filter-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.sidebar .filter-group:first-of-type .filter-btn').forEach(btn => {
-      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'"+initFilter+"'")) {
-        btn.classList.add('active');
-      }
-    });
-  }
-  if (initCat) {
-    document.querySelectorAll('.sidebar .filter-group:nth-of-type(2) .filter-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.sidebar .filter-group:nth-of-type(2) .filter-btn').forEach(btn => {
-      if (btn.getAttribute('onclick') && btn.getAttribute('onclick').includes("'"+initCat+"'")) {
-        btn.classList.add('active');
-      }
-    });
-  }
+  // Set active button on load
+  document.querySelectorAll('.filter-group-type .filter-btn').forEach(btn => {
+    const oc = btn.getAttribute('onclick') || '';
+    if (oc.includes("'"+initFilter+"'")) btn.classList.add('active');
+  });
+  document.querySelectorAll('.filter-group-cat .filter-btn').forEach(btn => {
+    const oc = btn.getAttribute('onclick') || '';
+    const val = initCat === '' ? "''" : "'"+initCat+"'";
+    if (oc.includes(val)) btn.classList.add('active');
+  });
 
   loadProducts();
 </script>
@@ -290,14 +283,14 @@ window._priceMax = null;
 
 function setFilter(f, btn) {
   window._activeFilter = f;
-  document.querySelectorAll('.sidebar .filter-group:first-of-type .filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-group-type .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderProducts();
 }
 
 function setCat(c, btn) {
   window._activeCat = c;
-  document.querySelectorAll('.sidebar .filter-group:nth-of-type(2) .filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-group-cat .filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderProducts();
 }
