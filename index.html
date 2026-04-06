@@ -163,10 +163,14 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
 <body>
 
 <div id="preloader">
+  <div style="font-size:100px;animation:tuxFloat 2s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(255,102,0,0.5));margin-bottom:10px;">🐧</div>
   <div class="preloader-text">LINUX<span>SHOP</span></div>
   <div class="progress-bar"><div class="progress-fill"></div></div>
   <div class="preloader-sub">// ЗАВАНТАЖЕННЯ...</div>
 </div>
+<style>
+@keyframes tuxFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
+</style>
 
 <div id="site">
 <nav>
@@ -179,6 +183,7 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
     <li><a href="#contacts">Контакти</a></li>
   </ul>
   <a href="catalog.html" class="nav-btn">🛒 Каталог</a>
+  <button class="nav-btn" id="navHeartBtn" onclick="openFavoritesModal()" style="background:transparent;border:1px solid var(--border);color:var(--gray);font-size:18px;padding:10px 16px;cursor:pointer;transition:all 0.2s;clip-path:none;margin-left:8px;" title="Улюблені">♡ <span id="favCount" style="font-size:12px;font-family:'Space Mono',monospace;"></span></button>
 </nav>
 
 <!-- HERO -->
@@ -197,7 +202,7 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
       <a href="#about" class="btn-secondary">ПРО НАС</a>
     </div>
     <div class="hero-stats">
-      <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Товарів</span></div>
+      <div class="stat"><span class="stat-num">30+</span><span class="stat-label">Товарів</span></div>
       <div class="stat"><span class="stat-num">2K+</span><span class="stat-label">Клієнтів</span></div>
       <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Рейтинг</span></div>
     </div>
@@ -320,7 +325,7 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
   </div>
   <div class="contacts-wrap">
     <div class="contact-info">
-      <div class="contact-item"><span class="contact-icon">📧</span><div class="contact-item-info"><h4>Email</h4><p>info@linuxshop.ua</p></div></div>
+      <div class="contact-item"><span class="contact-icon">📧</span><div class="contact-item-info"><h4>Email</h4><p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="93fafdf5fcd3fffafde6ebe0fbfce3bde6f2">[email&#160;protected]</a></p></div></div>
       <div class="contact-item"><span class="contact-icon">📱</span><div class="contact-item-info"><h4>Телефон</h4><p>+38 (050) 123-45-67</p></div></div>
       <div class="contact-item"><span class="contact-icon">💬</span><div class="contact-item-info"><h4>Telegram</h4><p>@linuxshop_ua</p></div></div>
       <div class="contact-item"><span class="contact-icon">🕐</span><div class="contact-item-info"><h4>Графік роботи</h4><p>Пн-Пт: 9:00 — 18:00</p></div></div>
@@ -354,7 +359,7 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
       <li><a href="#about">Про нас</a></li>
     </ul></div>
     <div class="footer-col"><h4>Контакти</h4><ul>
-      <li><a href="#contacts">info@linuxshop.ua</a></li>
+      <li><a href="#contacts"><span class="__cf_email__" data-cfemail="c8a1a6aea788a4a1a6bdb0bba0a7b8e6bda9">[email&#160;protected]</span></a></li>
       <li><a href="#contacts">+38 (050) 123-45-67</a></li>
       <li><a href="#contacts">@linuxshop_ua</a></li>
     </ul></div>
@@ -369,8 +374,136 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
 <div class="toast" id="toast"></div>
 <button class="scroll-top" id="scrollTop" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
+<!-- FAVORITES MODAL -->
+<div id="favsModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:3000;align-items:flex-start;justify-content:flex-end;">
+  <div style="background:var(--dark);border-left:1px solid var(--border);width:420px;max-width:100vw;height:100vh;overflow-y:auto;padding:32px;display:flex;flex-direction:column;gap:20px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;">♥ УЛЮБЛЕНІ</div>
+      <button onclick="closeFavoritesModal()" style="background:transparent;border:1px solid var(--border);color:var(--gray);width:36px;height:36px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;">✕</button>
+    </div>
+    <div id="favsModalList" style="flex:1;display:flex;flex-direction:column;gap:12px;"></div>
+  </div>
+</div>
+
+<!-- POPUP NEWSLETTER -->
+<div id="newsletterPopup" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:4000;align-items:center;justify-content:center;">
+  <div style="background:var(--dark);border:1px solid var(--border);max-width:500px;width:90%;padding:48px;position:relative;animation:popIn 0.3s ease;">
+    <button onclick="closeNewsletterPopup()" style="position:absolute;top:16px;right:20px;background:none;border:none;color:var(--gray);font-size:22px;cursor:pointer;line-height:1;">✕</button>
+    <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:900;margin-bottom:16px;letter-spacing:0.05em;">БУДЬ ЧАСТИНОЮ НАС!</div>
+    <p style="color:var(--gray);font-size:14px;line-height:1.7;margin-bottom:28px;">Підпишіться на ексклюзивну розсилку та отримуйте <span style="color:var(--orange);font-weight:700;">-10% знижку</span> на перше замовлення, новинки та акції <span style="color:var(--orange);">Linux Shop</span> першими.</p>
+    <input id="popupEmailInput" type="email" placeholder="Ваша електронна адреса" style="width:100%;background:var(--card);border:1px solid var(--border);color:var(--white);padding:14px 16px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;margin-bottom:12px;transition:border-color 0.2s;">
+    <button onclick="submitNewsletterPopup()" style="width:100%;background:var(--orange);color:#000;border:none;padding:14px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.1em;transition:background 0.2s;">ПІДПИСАТИСЯ</button>
+    <p style="font-size:11px;color:#555;text-align:center;margin-top:12px;">* Щоб отримати знижку, підпишіться за 4 дні до замовлення.</p>
+  </div>
+</div>
+
+<!-- CHAT SUPPORT WIDGET -->
+<div id="chatWidget" style="position:fixed;bottom:28px;right:28px;z-index:2000;">
+  <div id="chatWindow" style="display:none;position:absolute;bottom:76px;right:0;width:320px;background:var(--dark);border:1px solid var(--border);animation:popIn 0.3s ease;overflow:hidden;">
+    <div style="background:var(--orange);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;">🐧</div>
+        <div>
+          <div style="font-family:'Orbitron',monospace;font-size:13px;font-weight:700;color:#000;">Linux Shop</div>
+          <div style="font-size:11px;color:#6b2a00;">● Онлайн — відповімо за 5 хв</div>
+        </div>
+      </div>
+      <button onclick="toggleChat()" style="background:none;border:none;color:#000;font-size:18px;cursor:pointer;opacity:0.7;">✕</button>
+    </div>
+    <div style="padding:20px;">
+      <div style="background:var(--card);border-radius:0 12px 12px 12px;padding:12px 16px;font-size:13px;color:var(--light);line-height:1.6;margin-bottom:16px;">
+        Привіт! 👋 Є питання щодо товарів або замовлення?<br><br>
+        Залиште свій номер — <span style="color:var(--orange);font-weight:700;">менеджер зв'яжеться</span> найближчим часом!
+      </div>
+    </div>
+    <div id="chatFormWrap" style="padding:0 20px 20px;display:flex;flex-direction:column;gap:8px;">
+      <input id="chatNameInput" type="text" placeholder="Ваше ім'я" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;width:100%;">
+      <input id="chatPhoneInput" type="tel" placeholder="+380 __ ___ ____" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;width:100%;">
+      <select id="chatTopicSelect" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:10px 14px;font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;width:100%;cursor:pointer;">
+        <option value="">Тема звернення</option>
+        <option>Питання про товар</option>
+        <option>Оформлення замовлення</option>
+        <option>Доставка та оплата</option>
+        <option>Повернення / обмін</option>
+        <option>Інше</option>
+      </select>
+      <button onclick="submitChatForm()" style="background:var(--orange);color:#000;border:none;padding:12px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.1em;transition:background 0.2s;width:100%;">ПЕРЕДЗВОНІТЬ МЕНІ →</button>
+    </div>
+    <div id="chatSuccessWrap" style="display:none;padding:0 20px 28px;text-align:center;">
+      <div style="font-size:40px;margin-bottom:12px;">✅</div>
+      <p style="color:var(--light);font-size:13px;line-height:1.7;">Дякуємо, <strong id="chatSuccessName" style="color:var(--orange);"></strong>!<br>Наш менеджер зв'яжеться з вами за номером <strong id="chatSuccessPhone" style="color:var(--orange);"></strong>.</p>
+    </div>
+  </div>
+  <div style="position:relative;">
+    <div id="chatPulse" style="position:absolute;inset:0;border-radius:50%;background:var(--orange);opacity:0.35;animation:chatPulse 2s infinite;"></div>
+    <button onclick="toggleChat()" style="position:relative;background:var(--orange);border:none;border-radius:50%;width:60px;height:60px;font-size:26px;cursor:pointer;box-shadow:0 4px 20px rgba(255,102,0,0.4);transition:transform 0.2s;display:flex;align-items:center;justify-content:center;" title="Підтримка">📞</button>
+  </div>
+</div>
+
+<style>
+@keyframes popIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
+@keyframes chatPulse{0%{transform:scale(1);opacity:0.35}70%{transform:scale(1.5);opacity:0}100%{transform:scale(1.5);opacity:0}}
+</style>
+
+<script>
+/* === FAVORITES === */
+var _favs = JSON.parse(localStorage.getItem('linuxFavs') || '[]');
+function saveFavs(){ localStorage.setItem('linuxFavs', JSON.stringify(_favs)); updateFavBtn(); }
+function updateFavBtn(){
+  var btn = document.getElementById('navHeartBtn');
+  var cnt = document.getElementById('favCount');
+  if(!btn) return;
+  if(_favs.length > 0){ btn.style.color='var(--orange)'; btn.style.borderColor='var(--orange)'; btn.innerHTML='♥ <span id="favCount" style="font-size:12px;font-family:\'Space Mono\',monospace;">'+_favs.length+'</span>'; }
+  else { btn.style.color='var(--gray)'; btn.style.borderColor='var(--border)'; btn.innerHTML='♡ <span id="favCount" style="font-size:12px;font-family:\'Space Mono\',monospace;"></span>'; }
+}
+function toggleFav(id, name, price, emoji){
+  var idx = _favs.findIndex(function(f){ return f.id===id; });
+  if(idx>=0){ _favs.splice(idx,1); showToast('Видалено з улюблених'); }
+  else { _favs.push({id:id,name:name,price:price,emoji:emoji}); showToast('♥ Додано до улюблених!'); }
+  saveFavs();
+  document.querySelectorAll('.fav-heart-btn[data-id="'+id+'"]').forEach(function(b){
+    b.textContent = _favs.findIndex(function(f){ return f.id===id; })>=0 ? '♥' : '♡';
+    b.style.color = _favs.findIndex(function(f){ return f.id===id; })>=0 ? 'var(--orange)' : 'var(--gray)';
+  });
+}
+function openFavoritesModal(){
+  var m = document.getElementById('favsModal');
+  m.style.display='flex';
+  var list = document.getElementById('favsModalList');
+  if(_favs.length===0){ list.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--gray);font-family:\'Space Mono\',monospace;font-size:13px;"><div style="font-size:48px;margin-bottom:16px;">♡</div>Немає улюблених товарів</div>'; return; }
+  list.innerHTML = _favs.map(function(f){ return '<div style="background:var(--card);border:1px solid var(--border);padding:16px;display:flex;align-items:center;gap:14px;"><span style="font-size:36px;">'+f.emoji+'</span><div style="flex:1;"><div style="font-family:\'Orbitron\',monospace;font-size:13px;color:var(--white);margin-bottom:4px;">'+f.name+'</div><div style="font-family:\'Orbitron\',monospace;font-size:16px;color:var(--orange);">'+f.price+' грн</div></div><button onclick="toggleFav(\''+f.id+'\',\''+f.name+'\','+f.price+',\''+f.emoji+'\');openFavoritesModal();" style="background:transparent;border:none;color:var(--gray);font-size:20px;cursor:pointer;">✕</button></div>'; }).join('');
+}
+function closeFavoritesModal(){ document.getElementById('favsModal').style.display='none'; }
+updateFavBtn();
+
+/* === POPUP NEWSLETTER === */
+function closeNewsletterPopup(){ document.getElementById('newsletterPopup').style.display='none'; sessionStorage.setItem('popupShown','1'); }
+function submitNewsletterPopup(){
+  var e = document.getElementById('popupEmailInput').value;
+  if(!e || !e.includes('@')){ document.getElementById('popupEmailInput').style.borderColor='var(--orange)'; return; }
+  closeNewsletterPopup(); showToast('✅ Дякуємо за підписку! Знижку надіслано на email.');
+}
+if(!sessionStorage.getItem('popupShown')){ setTimeout(function(){ document.getElementById('newsletterPopup').style.display='flex'; }, 4000); }
+
+/* === CHAT === */
+var _chatOpen = false;
+function toggleChat(){
+  _chatOpen = !_chatOpen;
+  document.getElementById('chatWindow').style.display = _chatOpen ? 'block' : 'none';
+}
+function submitChatForm(){
+  var name = document.getElementById('chatNameInput').value.trim();
+  var phone = document.getElementById('chatPhoneInput').value.trim();
+  if(!name||!phone){ showToast('❌ Введіть ім\'я та номер телефону'); return; }
+  document.getElementById('chatFormWrap').style.display='none';
+  document.getElementById('chatSuccessWrap').style.display='block';
+  document.getElementById('chatSuccessName').textContent=name;
+  document.getElementById('chatSuccessPhone').textContent=phone;
+}
+</script>
+
 <!-- Firebase -->
-<script type="module">
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
   import { getFirestore, collection, query, where, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
@@ -412,8 +545,10 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
       p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : ''
     ].join('');
     const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
-    return `<div class="product-card">
-      <div class="product-img">${p.emoji || '📦'}</div>
+    const isFav = _favs && _favs.findIndex(f=>f.id===id)>=0;
+    const favHeart = `<button class="fav-heart-btn" data-id="${id}" onclick="toggleFav('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')" style="position:absolute;top:10px;right:10px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:${isFav?'var(--orange)':'var(--gray)'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.2s;z-index:1;">${isFav?'♥':'♡'}</button>`;
+    return `<div class="product-card" style="position:relative;">
+      <div class="product-img">${p.emoji || '📦'}${favHeart}</div>
       <div class="product-info">
         <div class="product-badges">${badges}</div>
         <div class="product-name">${p.name}</div>
@@ -456,15 +591,4 @@ async function sendContact(btn) {
     document.getElementById('c-msg').value = '';
     btn.textContent = 'НАДІСЛАТИ'; btn.disabled = false;
     showToast('✅ Повідомлення надіслано! Дякуємо.');
-  }, 1000);
-}
-window.addEventListener('scroll', () => {
-  document.getElementById('scrollTop').classList.toggle('show', window.scrollY > 400);
-});
-setTimeout(() => {
-  document.getElementById('preloader').style.display = 'none';
-  document.getElementById('site').classList.add('visible');
-}, 3200);
-</script>
-</body>
-</html>
+  }, 1
