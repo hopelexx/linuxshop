@@ -149,6 +149,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
       <button class="filter-btn" onclick="setCat('tech',this)">💻 Техніка</button>
       <button class="filter-btn" onclick="setCat('accessories',this)">🎒 Аксесуари</button>
       <button class="filter-btn" onclick="setCat('lifestyle',this)">✨ Лайфстайл</button>
+      <button class="filter-btn" onclick="setCat('stationery',this)">🖊️ Канцелярія</button>
     </div>
 
     <div class="filter-group">
@@ -389,7 +390,7 @@ function renderProducts() {
       p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : ''
     ].join('');
     const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
-    const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',tshirts:'Одяг',hoodies:'Одяг',caps:'Аксесуари',mugs:'Посуд',stickers:'Лайфстайл'};
+    const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',stationery:'Канцелярія',tshirts:'Одяг',hoodies:'Одяг',caps:'Аксесуари',mugs:'Посуд',stickers:'Лайфстайл'};
     const catLabel = catNames[p.category] || p.category || '';
     const imgHtml = p.photo
       ? `<img src="${p.photo}" alt="${p.name}">`

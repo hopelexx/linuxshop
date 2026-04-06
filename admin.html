@@ -228,6 +228,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
         <option value="tech">💻 Техніка</option>
         <option value="accessories">🎒 Аксесуари</option>
         <option value="lifestyle">✨ Лайфстайл</option>
+        <option value="stationery">🖊️ Канцелярія</option>
       </select>
     </div>
     <div class="form-row">
@@ -391,7 +392,7 @@ function renderProductsTable() {
     tbody.innerHTML = '<tr><td colspan="6" class="loading">Товарів немає. Додайте перший товар →</td></tr>';
     return;
   }
-  const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери'};
+  const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',stationery:'Канцелярія',tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери'};
   tbody.innerHTML = products.map(p => `
     <tr>
       <td class="product-emoji-cell" style="text-align:center;">
