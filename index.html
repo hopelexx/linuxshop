@@ -171,6 +171,16 @@ footer { background:var(--dark); border-top:1px solid var(--border); }
 <style>
 @keyframes tuxFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-12px) rotate(3deg)}}
 </style>
+<script>
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    var pre = document.getElementById('preloader');
+    var site = document.getElementById('site');
+    if(pre){ pre.style.transition='opacity 0.6s ease'; pre.style.opacity='0'; setTimeout(function(){ pre.style.display='none'; }, 600); }
+    if(site){ site.classList.add('visible'); }
+  }, 3500);
+});
+</script>
 
 <div id="site">
 <nav>
