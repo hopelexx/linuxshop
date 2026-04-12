@@ -182,7 +182,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
         <div style="overflow-x:auto;">
           <table class="orders-table" id="ordersTable">
             <thead><tr>
-              <th>ID</th><th>КЛІЄНТ</th><th>ТЕЛЕФОН</th><th>МІСТО / НП</th><th>ТОВАРИ</th><th>СУМА</th><th>СТАТУС</th><th>ДАТА</th>
+              <th>ID</th><th>КЛІЄНТ</th><th>ТЕЛЕФОН</th><th>МІСТО / НП</th><th>ТОВАРИ</th><th>СУМА</th><th>СТАТУС</th><th>ДАТА</th><th>ДІЇ</th>
             </tr></thead>
             <tbody id="ordersTbody"><tr><td colspan="8" class="loading">Завантаження...</td></tr></tbody>
           </table>
@@ -396,6 +396,13 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
     if (o) o.status = status;
   };
 
+  // UPDATE ORDER ITEMS
+  window.updateOrderItems = async function(id, items, total) {
+    await updateDoc(doc(db, 'orders', id), {items, total});
+    const o = window._orders.find(o => o.id === id);
+    if (o) { o.items = items; o.total = total; }
+  };
+
   // Auto-load when admin logs in
   window.initAdminData = async function() {
     await Promise.all([loadProducts(), loadOrders()]);
@@ -506,6 +513,7 @@ function renderOrdersTable() {
         </select>
       </td>
       <td style="font-size:12px;color:var(--gray)">${date}</td>
+      <td><button class="edit-btn" onclick="openEditOrderModal('${o.id}')">✏️ Ред.</button></td>
     </tr>`;
   }).join('');
 }
@@ -746,6 +754,158 @@ function showToast(msg) {
   var t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+
+<!-- EDIT ORDER MODAL -->
+<style>
+.edit-order-modal{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:4000;display:none;align-items:center;justify-content:center;padding:20px;}
+.edit-order-modal.open{display:flex;}
+.edit-order-box{background:var(--dark);border:1px solid var(--border);width:100%;max-width:640px;max-height:90vh;overflow-y:auto;padding:36px;display:flex;flex-direction:column;gap:16px;}
+.edit-order-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:var(--orange);}
+.order-item-row{background:var(--card);border:1px solid var(--border);padding:14px;display:flex;align-items:center;gap:12px;}
+.order-item-emoji{font-size:28px;flex-shrink:0;}
+.order-item-name{flex:1;font-family:'Orbitron',monospace;font-size:13px;color:var(--white);}
+.order-item-price{font-family:'Space Mono',monospace;font-size:12px;color:var(--gray);white-space:nowrap;}
+.order-item-qty-wrap{display:flex;align-items:center;gap:6px;}
+.order-qty-btn{background:var(--border);border:none;color:var(--white);width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:background 0.2s;flex-shrink:0;}
+.order-qty-btn:hover{background:var(--orange);}
+.order-qty-num{font-family:'Space Mono',monospace;font-size:13px;color:var(--white);min-width:24px;text-align:center;}
+.order-item-del{background:transparent;border:none;color:var(--gray);cursor:pointer;font-size:18px;padding:4px;transition:color 0.2s;flex-shrink:0;}
+.order-item-del:hover{color:var(--red);}
+.order-total-bar{background:var(--card);border:1px solid var(--border);padding:16px;display:flex;justify-content:space-between;align-items:center;}
+.order-save-btn{background:var(--orange);color:#000;border:none;padding:13px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;width:100%;}
+.order-save-btn:hover{background:var(--orange-glow);}
+.order-cancel-btn{background:transparent;border:1px solid var(--border);color:var(--gray);padding:12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;width:100%;}
+.order-cancel-btn:hover{border-color:var(--orange);color:var(--orange);}
+</style>
+
+<div class="edit-order-modal" id="editOrderModal" onclick="if(event.target===this)closeEditOrderModal()">
+  <div class="edit-order-box">
+    <div class="edit-order-title">✏️ РЕДАГУВАННЯ ЗАМОВЛЕННЯ <span id="editOrderId" style="font-size:13px;color:var(--gray);"></span></div>
+    <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">Змініть кількість, видаліть товар або замініть на інший з каталогу.</p>
+    <div id="editOrderItems" style="display:flex;flex-direction:column;gap:8px;"></div>
+
+    <!-- Add product from catalog -->
+    <div style="background:var(--card);border:1px dashed var(--border);padding:14px;">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:10px;">+ ДОДАТИ ТОВАР З КАТАЛОГУ:</div>
+      <select id="addProductSelect" style="width:100%;background:var(--dark);border:1px solid var(--border);color:var(--white);padding:10px 12px;font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;margin-bottom:8px;">
+        <option value="">— Оберіть товар —</option>
+      </select>
+      <button onclick="addProductToOrder()" style="background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);padding:9px 16px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;width:100%;">+ ДОДАТИ</button>
+    </div>
+
+    <div class="order-total-bar">
+      <span style="font-family:'Space Mono',monospace;font-size:13px;color:var(--gray);">НОВА СУМА:</span>
+      <span id="editOrderTotal" style="font-family:'Orbitron',monospace;font-size:22px;color:var(--orange);font-weight:900;">0 грн</span>
+    </div>
+    <button class="order-save-btn" onclick="saveEditedOrder()">💾 ЗБЕРЕГТИ ЗМІНИ</button>
+    <button class="order-cancel-btn" onclick="closeEditOrderModal()">СКАСУВАТИ</button>
+  </div>
+</div>
+
+<script>
+window._editingOrder = null;
+
+function openEditOrderModal(orderId) {
+  const o = (window._orders || []).find(o => o.id === orderId);
+  if (!o) return;
+  window._editingOrder = JSON.parse(JSON.stringify(o)); // deep copy
+  document.getElementById('editOrderId').textContent = '#' + orderId.slice(-6).toUpperCase();
+
+  // Fill product select
+  const sel = document.getElementById('addProductSelect');
+  sel.innerHTML = '<option value="">— Оберіть товар —</option>';
+  (window._products || []).forEach(p => {
+    sel.innerHTML += `<option value="${p.id}" data-price="${p.price}" data-emoji="${p.emoji||'📦'}" data-name="${p.name.replace(/"/g,'&quot;')}">${p.emoji||'📦'} ${p.name} — ${p.price} грн</option>`;
+  });
+
+  renderEditOrderItems();
+  document.getElementById('editOrderModal').classList.add('open');
+}
+
+function renderEditOrderItems() {
+  const items = window._editingOrder.items || [];
+  const container = document.getElementById('editOrderItems');
+
+  if (items.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--gray);font-family:\'Space Mono\',monospace;font-size:12px;">Всі товари видалено</div>';
+  } else {
+    container.innerHTML = items.map((item, i) => `
+      <div class="order-item-row">
+        <span class="order-item-emoji">${item.emoji||'📦'}</span>
+        <div class="order-item-name">${item.name}<br><span style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">${item.price} грн / шт</span></div>
+        <div class="order-item-qty-wrap">
+          <button class="order-qty-btn" onclick="changeEditQty(${i}, -1)">−</button>
+          <span class="order-qty-num">${item.qty}</span>
+          <button class="order-qty-btn" onclick="changeEditQty(${i}, 1)">+</button>
+        </div>
+        <span class="order-item-price">${item.price * item.qty} грн</span>
+        <button class="order-item-del" onclick="removeEditItem(${i})" title="Видалити товар">✕</button>
+      </div>`).join('');
+  }
+
+  // Update total
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+  document.getElementById('editOrderTotal').textContent = total + ' грн';
+}
+
+function changeEditQty(idx, delta) {
+  window._editingOrder.items[idx].qty += delta;
+  if (window._editingOrder.items[idx].qty <= 0) {
+    window._editingOrder.items.splice(idx, 1);
+  }
+  renderEditOrderItems();
+}
+
+function removeEditItem(idx) {
+  const name = window._editingOrder.items[idx].name;
+  if (confirm(`Видалити "${name}" із замовлення?`)) {
+    window._editingOrder.items.splice(idx, 1);
+    renderEditOrderItems();
+  }
+}
+
+function addProductToOrder() {
+  const sel = document.getElementById('addProductSelect');
+  const opt = sel.options[sel.selectedIndex];
+  if (!sel.value) { showToast('❌ Оберіть товар'); return; }
+
+  const id = sel.value;
+  const price = parseFloat(opt.dataset.price);
+  const emoji = opt.dataset.emoji;
+  const name = opt.dataset.name;
+
+  const existing = window._editingOrder.items.findIndex(i => i.id === id);
+  if (existing >= 0) {
+    window._editingOrder.items[existing].qty++;
+  } else {
+    window._editingOrder.items.push({id, name, price, emoji, qty: 1});
+  }
+  sel.value = '';
+  renderEditOrderItems();
+}
+
+async function saveEditedOrder() {
+  const items = window._editingOrder.items;
+  if (items.length === 0) {
+    if (!confirm('Всі товари видалено. Зберегти порожнє замовлення?')) return;
+  }
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+  try {
+    await window.updateOrderItems(window._editingOrder.id, items, total);
+    renderOrdersTable();
+    renderRecentOrders();
+    closeEditOrderModal();
+    showToast('✅ Замовлення оновлено!');
+  } catch(e) {
+    showToast('❌ Помилка збереження: ' + e.message);
+  }
+}
+
+function closeEditOrderModal() {
+  document.getElementById('editOrderModal').classList.remove('open');
+  window._editingOrder = null;
 }
 </script>
 </body>
