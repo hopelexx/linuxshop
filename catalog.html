@@ -167,9 +167,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
       <span class="filter-label">СОРТУВАННЯ</span>
       <select class="sort-select" id="sortSelect" onchange="renderProducts()" style="width:100%">
         <option value="default">За замовчуванням</option>
-        <option value="price_asc">Ціна: зростання</option>
-        <option value="price_desc">Ціна: спадання</option>
-        <option value="name_asc">Назва А-Я</option>
+        <option value="price_asc">💰 Ціна: від низької</option>
+        <option value="price_desc">💎 Ціна: від високої</option>
+        <option value="name_asc">🔤 Назва А-Я</option>
+        <option value="name_desc">🔤 Назва Я-А</option>
+        <option value="hits_first">⭐ Спочатку хіти</option>
+        <option value="sale_first">🔥 Спочатку акції</option>
+        <option value="new_first">🆕 Спочатку новинки</option>
       </select>
     </div>
   </aside>
@@ -483,6 +487,10 @@ function renderProducts() {
   if (sort === 'price_asc') filtered.sort((a,b) => a.price - b.price);
   else if (sort === 'price_desc') filtered.sort((a,b) => b.price - a.price);
   else if (sort === 'name_asc') filtered.sort((a,b) => a.name.localeCompare(b.name));
+  else if (sort === 'name_desc') filtered.sort((a,b) => b.name.localeCompare(a.name));
+  else if (sort === 'hits_first') filtered.sort((a,b) => (b.isHit?1:0) - (a.isHit?1:0));
+  else if (sort === 'sale_first') filtered.sort((a,b) => (b.isSale?1:0) - (a.isSale?1:0));
+  else if (sort === 'new_first') filtered.sort((a,b) => (b.isNew?1:0) - (a.isNew?1:0));
 
   const grid = document.getElementById('productsGrid');
   const meta = document.getElementById('catalogMeta');

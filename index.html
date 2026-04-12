@@ -334,11 +334,11 @@ window.addEventListener('load', function(){
     </div>
   </div>
   <div class="contacts-wrap">
-    <div class="contact-info">
-      <div class="contact-item"><span class="contact-icon">📧</span><div class="contact-item-info"><h4>Email</h4><p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="93fafdf5fcd3fffafde6ebe0fbfce3bde6f2">[email&#160;protected]</a></p></div></div>
-      <div class="contact-item"><span class="contact-icon">📱</span><div class="contact-item-info"><h4>Телефон</h4><p>+38 (050) 123-45-67</p></div></div>
-      <div class="contact-item"><span class="contact-icon">💬</span><div class="contact-item-info"><h4>Telegram</h4><p>@linuxshop_ua</p></div></div>
-      <div class="contact-item"><span class="contact-icon">🕐</span><div class="contact-item-info"><h4>Графік роботи</h4><p>Пн-Пт: 9:00 — 18:00</p></div></div>
+    <div class="contact-info" id="contactInfo">
+      <div class="contact-item"><span class="contact-icon">📧</span><div class="contact-item-info"><h4>Email</h4><p id="c-info-email">info@linuxshop.ua</p></div></div>
+      <div class="contact-item"><span class="contact-icon">📱</span><div class="contact-item-info"><h4>Телефон</h4><p id="c-info-phone">+38 (050) 123-45-67</p></div></div>
+      <div class="contact-item"><span class="contact-icon">💬</span><div class="contact-item-info"><h4>Telegram</h4><p id="c-info-telegram">@linuxshop_ua</p></div></div>
+      <div class="contact-item"><span class="contact-icon">🕐</span><div class="contact-item-info"><h4>Графік роботи</h4><p id="c-info-schedule">Пн-Пт: 9:00 — 18:00</p></div></div>
     </div>
     <div class="contact-form">
       <input class="form-input" type="text" id="c-name" placeholder="Ваше ім'я">
@@ -569,6 +569,21 @@ function submitChatForm(){
   }
 
   loadFeatured();
+
+  // Load dynamic contacts from Firebase
+  async function loadContacts() {
+    try {
+      const snap = await getDocs(collection(db, 'settings'));
+      snap.forEach(d => {
+        const s = d.data();
+        if (s.email) document.getElementById('c-info-email').textContent = s.email;
+        if (s.phone) document.getElementById('c-info-phone').textContent = s.phone;
+        if (s.telegram) document.getElementById('c-info-telegram').textContent = s.telegram;
+        if (s.schedule) document.getElementById('c-info-schedule').textContent = s.schedule;
+      });
+    } catch(e) {}
+  }
+  loadContacts();
 </script>
 
 <script>

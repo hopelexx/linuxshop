@@ -138,6 +138,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       <button class="admin-menu-item" onclick="showTab('products',this)">📦 Товари</button>
       <button class="admin-menu-item" onclick="showTab('orders',this)">🛒 Замовлення</button>
       <button class="admin-menu-item" onclick="showTab('promo',this)">🎯 Акції</button>
+      <button class="admin-menu-item" onclick="showTab('settings',this)">⚙️ Налаштування</button>
     </aside>
 
     <div class="admin-content">
@@ -150,7 +151,8 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
           <div class="stat-card"><div class="stat-label">ВИРУЧКА</div><div class="stat-value" id="s-revenue">—</div><div class="stat-sub">загальна сума</div></div>
         </div>
         <div style="background:var(--card);border:1px solid var(--border);padding:24px;">
-          <h3 style="font-family:'Orbitron',monospace;font-size:16px;margin-bottom:16px;color:var(--orange)">// ОСТАННІ ЗАМОВЛЕННЯ</h3>
+          <h3 style="font-family:'Orbitron',monospace;font-size:16px;margin-bottom:4px;color:var(--orange)">// ОСТАННІ ЗАРЕЄСТРОВАНІ ЗАМОВЛЕННЯ</h3>
+          <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:16px;">5 найновіших замовлень за датою реєстрації (включно з невиконаними)</p>
           <div id="recentOrders"><div class="loading">Завантаження...</div></div>
         </div>
       </div>
@@ -191,7 +193,16 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       <div class="tab-content" id="tab-promo">
         <div class="section-head"><h2>УПРАВЛІННЯ АКЦІЯМИ</h2></div>
         <div style="background:var(--card);border:1px solid var(--border);padding:28px;max-width:600px;">
-          <p style="color:var(--gray);font-family:'Space Mono',monospace;font-size:12px;margin-bottom:20px;">Щоб поставити або зняти мітку «АКЦІЯ» з товару — перейдіть в розділ <strong style="color:var(--orange)">Товари</strong> і натисніть «Редагувати». Там можна зняти галочку «Акція», встановити стару ціну тощо.</p>
+          <p style="color:var(--gray);font-family:'Space Mono',monospace;font-size:12px;margin-bottom:16px;">Щоб додати товар до акції — перейдіть в розділ <strong style="color:var(--orange)">Товари</strong> і натисніть «Редагувати». Поставте галочку «АКЦІЯ» та заповніть поля:</p>
+          <div style="background:var(--dark);border:1px solid var(--border);padding:16px;margin-bottom:16px;font-family:'Space Mono',monospace;font-size:12px;">
+            <div style="margin-bottom:8px;color:var(--white);">📌 Як правильно встановити акційну ціну:</div>
+            <div style="color:var(--gray);line-height:1.8;">
+              1. <strong style="color:var(--orange)">ЦІНА (ГРН)</strong> — вкажіть нову акційну ціну (нижчу)<br>
+              2. <strong style="color:var(--orange)">СТАРА ЦІНА</strong> — вкажіть стару ціну до знижки<br>
+              3. Поставте галочку <strong style="color:var(--orange)">🔥 АКЦІЯ</strong><br>
+              <span style="color:#ff6600;margin-top:4px;display:block;">⚠️ Якщо стара ціна не вказана — перекреслена ціна не відображатиметься</span>
+            </div>
+          </div>
           <div style="background:var(--dark);border:1px solid var(--border);padding:20px;margin-bottom:16px;">
             <div style="font-family:'Orbitron',monospace;font-size:13px;color:var(--white);margin-bottom:8px;">ПОТОЧНИЙ ПРОМОКОД</div>
             <div style="font-family:'Orbitron',monospace;font-size:28px;color:var(--orange);border:2px dashed var(--orange);display:inline-block;padding:10px 24px;letter-spacing:0.2em;">LINUX20</div>
@@ -200,11 +211,52 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
           <button class="add-btn" onclick="showToast('✅ Функція збереження промокодів в розробці')">ОНОВИТИ ПРОМОКОД</button>
         </div>
       </div>
+      <!-- SETTINGS -->
+      <div class="tab-content" id="tab-settings">
+        <div class="section-head"><h2>НАЛАШТУВАННЯ КОНТАКТІВ</h2></div>
+        <div style="background:var(--card);border:1px solid var(--border);padding:28px;max-width:560px;display:flex;flex-direction:column;gap:16px;">
+          <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">Ці дані відображаються у розділі «Контакти» на головній сторінці сайту.</p>
+          <div class="form-row">
+            <label class="form-label">EMAIL</label>
+            <input class="form-input" type="email" id="s-email" placeholder="info@linuxshop.ua">
+          </div>
+          <div class="form-row">
+            <label class="form-label">ТЕЛЕФОН</label>
+            <input class="form-input" type="text" id="s-phone" placeholder="+38 (050) 123-45-67">
+          </div>
+          <div class="form-row">
+            <label class="form-label">TELEGRAM</label>
+            <input class="form-input" type="text" id="s-telegram" placeholder="@linuxshop_ua">
+          </div>
+          <div class="form-row">
+            <label class="form-label">ГРАФІК РОБОТИ</label>
+            <input class="form-input" type="text" id="s-schedule" placeholder="Пн-Пт: 9:00 — 18:00">
+          </div>
+          <button class="save-btn" onclick="saveSettings()" style="clip-path:none;">💾 ЗБЕРЕГТИ КОНТАКТИ</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- PRODUCT MODAL -->
+<!-- CLIENT ORDERS MODAL -->
+<div class="modal-overlay" id="clientOrdersModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-box" style="max-width:680px;">
+    <div class="modal-title">ЗАМОВЛЕННЯ КЛІЄНТА: <span id="clientOrdersName"></span></div>
+    <table style="width:100%;border-collapse:collapse;">
+      <thead><tr style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">
+        <th style="padding:8px 12px;text-align:left;">ID</th>
+        <th style="padding:8px 12px;text-align:left;">ТОВАРИ</th>
+        <th style="padding:8px 12px;text-align:left;">СУМА</th>
+        <th style="padding:8px 12px;text-align:left;">СТАТУС / ДАТА</th>
+      </tr></thead>
+      <tbody id="clientOrdersTbody"></tbody>
+    </table>
+    <div style="margin-top:20px;">
+      <button class="cancel-btn" onclick="document.getElementById('clientOrdersModal').classList.remove('open')">ЗАКРИТИ</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="productModal">
   <div class="modal-box">
     <div class="modal-title" id="modalTitle">ДОДАТИ ТОВАР</div>
@@ -291,6 +343,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
   window._products = [];
   window._orders = [];
   window._editingId = null;
+  window._settingsId = null;
 
   // LOAD PRODUCTS
   window.loadProducts = async function() {
@@ -382,6 +435,7 @@ function showTab(tab, btn) {
   btn.classList.add('active');
   if (tab === 'products') renderProductsTable();
   if (tab === 'orders') renderOrdersTable();
+  if (tab === 'settings') loadSettings();
 }
 
 // PRODUCTS TABLE
@@ -434,10 +488,12 @@ function renderOrdersTable() {
     const d = o.customer || {};
     const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('uk-UA') : '—';
     const items = (o.items || []).map(i => `${i.emoji||'📦'} ${i.name} ×${i.qty}`).join('<br>');
-    const statusClass = {new:'status-new',processing:'status-processing',done:'status-done'}[o.status] || 'status-new';
     return `<tr>
       <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
-      <td><strong>${d.name||'—'}</strong>${d.email?`<br><small style="color:var(--gray)">${d.email}</small>`:''}</td>
+      <td>
+        <strong style="cursor:pointer;color:var(--orange);text-decoration:underline;" onclick="showClientOrders('${(d.name||'').replace(/'/g,"\\'")}','${(d.phone||'').replace(/'/g,"\\'")}')">${d.name||'—'}</strong>
+        ${d.email?`<br><small style="color:var(--gray)">${d.email}</small>`:''}
+      </td>
       <td style="font-family:'Space Mono',monospace;font-size:12px;">${d.phone||'—'}</td>
       <td>${d.city||'—'}<br><small style="color:var(--gray)">${d.branch||'—'}</small></td>
       <td class="order-items-list">${items}</td>
@@ -519,17 +575,23 @@ async function saveProduct() {
   const price = parseFloat(document.getElementById('p-price').value);
   if (!name || isNaN(price)) { showToast('❌ Вкажіть назву та ціну'); return; }
 
+  const isSale = document.getElementById('p-sale').checked;
+  const oldPriceVal = parseFloat(document.getElementById('p-oldprice').value);
+  if (isSale && (!oldPriceVal || oldPriceVal <= price)) {
+    if (!confirm('⚠️ Ви позначили товар як акційний, але стара ціна не вказана або менша/рівна новій.\n\nБез старої ціни перекреслена ціна не відображатиметься на сайті.\n\nПродовжити?')) return;
+  }
+
   const data = {
     name,
     price,
-    oldPrice: parseFloat(document.getElementById('p-oldprice').value) || null,
+    oldPrice: oldPriceVal || null,
     category: document.getElementById('p-category').value,
     emoji: document.getElementById('p-emoji').value.trim() || '📦',
     photo: window._currentPhoto || null,
     description: document.getElementById('p-desc').value.trim(),
     isHit: document.getElementById('p-hit').checked,
     isNew: document.getElementById('p-new').checked,
-    isSale: document.getElementById('p-sale').checked
+    isSale
   };
 
   try {
@@ -542,9 +604,17 @@ async function saveProduct() {
 }
 
 function confirmDelete(id, name) {
-  if (confirm(`Видалити товар "${name}"?`)) {
-    window.deleteProductFromDB(id).then(() => showToast('✅ Товар видалено'));
+  // Check if product has active (non-done) orders
+  const activeOrders = (window._orders || []).filter(o =>
+    o.status !== 'done' && (o.items || []).some(i => i.id === id)
+  );
+  if (activeOrders.length > 0) {
+    const ids = activeOrders.map(o => '#' + o.id.slice(-6).toUpperCase()).join(', ');
+    if (!confirm(`⚠️ Товар "${name}" є в ${activeOrders.length} невиконаному(их) замовленні(нях): ${ids}.\n\nДані замовлення НЕ будуть видалені — вони збережуться в розділі Замовлення.\n\nВидалити товар з каталогу?`)) return;
+  } else {
+    if (!confirm(`Видалити товар "${name}"?`)) return;
   }
+  window.deleteProductFromDB(id).then(() => showToast('✅ Товар видалено з каталогу'));
 }
 
 async function changeOrderStatus(id, status) {
@@ -609,6 +679,67 @@ function handlePhotoUpload(input) {
 function handlePhotoUrl(url) {
   if (url.startsWith('http')) setPhotoPreview(url);
   else if (!url) clearPhoto();
+}
+
+function showClientOrders(name, phone) {
+  const all = (window._orders || []).filter(o => {
+    const d = o.customer || {};
+    return d.name === name || (phone && d.phone === phone);
+  });
+  const modal = document.getElementById('clientOrdersModal');
+  document.getElementById('clientOrdersName').textContent = name;
+  const tbody = document.getElementById('clientOrdersTbody');
+  if (all.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px;color:var(--gray);font-family:\'Space Mono\',monospace;font-size:12px;">Замовлень не знайдено</td></tr>';
+  } else {
+    tbody.innerHTML = all.map(o => {
+      const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('uk-UA') : '—';
+      const items = (o.items||[]).map(i=>`${i.emoji||'📦'} ${i.name} ×${i.qty}`).join(', ');
+      const statusLabel = {new:'🆕 Новий',processing:'⚙️ В роботі',done:'✅ Виконано'}[o.status]||'Новий';
+      return `<tr style="border-top:1px solid var(--border)">
+        <td style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
+        <td style="padding:10px 12px;font-size:13px;">${items}</td>
+        <td style="padding:10px 12px;font-family:'Orbitron',monospace;color:var(--orange);font-weight:900;">${o.total||0} грн</td>
+        <td style="padding:10px 12px;font-size:12px;">${statusLabel}<br><small style="color:var(--gray)">${date}</small></td>
+      </tr>`;
+    }).join('');
+  }
+  modal.classList.add('open');
+}
+
+// SETTINGS / CONTACTS
+async function loadSettings() {
+  try {
+    const snap = await getDocs(collection(window._db, 'settings'));
+    snap.forEach(d => {
+      const s = d.data();
+      document.getElementById('s-email').value = s.email || '';
+      document.getElementById('s-phone').value = s.phone || '';
+      document.getElementById('s-telegram').value = s.telegram || '';
+      document.getElementById('s-schedule').value = s.schedule || '';
+      window._settingsId = d.id;
+    });
+  } catch(e) {}
+}
+
+async function saveSettings() {
+  const data = {
+    email: document.getElementById('s-email').value.trim(),
+    phone: document.getElementById('s-phone').value.trim(),
+    telegram: document.getElementById('s-telegram').value.trim(),
+    schedule: document.getElementById('s-schedule').value.trim()
+  };
+  try {
+    if (window._settingsId) {
+      await updateDoc(doc(window._db, 'settings', window._settingsId), data);
+    } else {
+      const ref = await addDoc(collection(window._db, 'settings'), data);
+      window._settingsId = ref.id;
+    }
+    showToast('✅ Контакти збережено!');
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message);
+  }
 }
 
 function showToast(msg) {
