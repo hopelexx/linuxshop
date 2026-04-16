@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Відстежити замовлення — Linux Shop</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0a0a0a;--dark:#111;--card:#161616;--border:#2a2a2a;
+  --orange:#ff6600;--orange-dim:rgba(255,102,0,0.15);
+  --white:#f0f0f0;--gray:#888;--light:#ccc;--red:#ff3333;--green:#33ff66;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-serif;min-height:100vh;}
+
+/* NAV */
+.nav{background:var(--dark);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;}
+.nav-logo{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;text-decoration:none;color:var(--white);}
+.nav-logo span{color:var(--orange);}
+.nav-back{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);text-decoration:none;letter-spacing:0.1em;transition:color 0.2s;}
+.nav-back:hover{color:var(--orange);}
+
+/* MAIN */
+.main{max-width:680px;margin:0 auto;padding:60px 20px;}
+
+.page-title{font-family:'Orbitron',monospace;font-size:28px;font-weight:900;margin-bottom:8px;}
+.page-title span{color:var(--orange);}
+.page-sub{font-family:'Space Mono',monospace;font-size:12px;color:var(--gray);letter-spacing:0.05em;margin-bottom:40px;line-height:1.6;}
+
+/* SEARCH BOX */
+.search-box{background:var(--dark);border:1px solid var(--border);padding:32px;margin-bottom:32px;}
+.search-label{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);letter-spacing:0.1em;display:block;margin-bottom:8px;}
+.search-row{display:flex;gap:12px;}
+.search-input{flex:1;background:var(--card);border:1px solid var(--border);color:var(--white);padding:14px 16px;font-family:'Rajdhani',sans-serif;font-size:16px;outline:none;transition:border-color 0.2s;}
+.search-input:focus{border-color:var(--orange);}
+.search-btn{background:var(--orange);color:#000;border:none;padding:14px 24px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.08em;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);transition:all 0.2s;white-space:nowrap;}
+.search-btn:hover{background:#ff8833;}
+.search-error{color:var(--red);font-family:'Space Mono',monospace;font-size:12px;margin-top:12px;display:none;}
+
+/* RESULTS */
+#results{display:none;}
+.results-title{font-family:'Orbitron',monospace;font-size:14px;color:var(--gray);letter-spacing:0.1em;margin-bottom:16px;}
+.results-name{color:var(--orange);}
+
+/* ORDER CARD */
+.order-card{background:var(--dark);border:1px solid var(--border);margin-bottom:20px;overflow:hidden;}
+.order-card-head{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.order-id{font-family:'Space Mono',monospace;font-size:13px;color:var(--orange);}
+.order-date{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);}
+.order-total-badge{font-family:'Orbitron',monospace;font-size:16px;font-weight:900;color:var(--orange);}
+
+.order-items-block{padding:16px 24px;border-bottom:1px solid var(--border);display:flex;flex-wrap:wrap;gap:8px;}
+.order-item-chip{background:var(--card);border:1px solid var(--border);padding:6px 12px;font-size:13px;display:flex;align-items:center;gap:6px;}
+.order-item-qty{font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);}
+
+/* TRACKER */
+.tracker{padding:28px 24px 24px;}
+.tracker-label{font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.12em;margin-bottom:20px;}
+
+.steps-wrap{position:relative;display:flex;flex-direction:column;gap:0;}
+
+.step{display:flex;align-items:flex-start;gap:16px;position:relative;}
+.step:not(:last-child)::before{
+  content:'';position:absolute;left:16px;top:36px;width:2px;
+  height:calc(100% - 4px);background:var(--border);
+}
+.step.done:not(:last-child)::before{background:var(--orange);}
+.step.active:not(:last-child)::before{background:linear-gradient(to bottom, var(--orange) 30%, var(--border) 100%);}
+
+.step-icon-wrap{width:34px;height:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;}
+.step-circle{width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--dark);display:flex;align-items:center;justify-content:center;font-size:14px;transition:all 0.3s;}
+.step.done .step-circle{border-color:var(--orange);background:var(--orange);color:#000;}
+.step.active .step-circle{border-color:var(--orange);background:var(--orange-dim);color:var(--orange);box-shadow:0 0 12px rgba(255,102,0,0.35);}
+.step.pending .step-circle{border-color:var(--border);color:var(--gray);}
+
+.step-body{padding-bottom:24px;flex:1;}
+.step-name{font-family:'Orbitron',monospace;font-size:12px;font-weight:700;margin-bottom:2px;line-height:1.3;}
+.step.done .step-name{color:var(--orange);}
+.step.active .step-name{color:var(--white);}
+.step.pending .step-name{color:var(--gray);}
+.step-desc{font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);line-height:1.5;}
+.step.active .step-desc{color:var(--light);}
+
+.active-pulse{display:inline-block;width:6px;height:6px;background:var(--orange);border-radius:50%;margin-right:5px;animation:pulse 1.4s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
+
+/* CANCELLED */
+.cancelled-banner{margin:16px 24px 24px;background:rgba(255,51,51,0.08);border:1px solid rgba(255,51,51,0.3);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+.cancelled-icon{font-size:22px;}
+.cancelled-text{font-family:'Space Mono',monospace;font-size:11px;color:#ff6666;line-height:1.5;}
+
+/* NO RESULTS */
+.no-results{text-align:center;padding:60px 20px;}
+.no-results-icon{font-size:48px;margin-bottom:16px;}
+.no-results-text{font-family:'Space Mono',monospace;font-size:13px;color:var(--gray);line-height:1.8;}
+
+@media(max-width:500px){
+  .search-row{flex-direction:column;}
+  .search-btn{clip-path:none;width:100%;}
+  .order-card-head{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="nav-logo" href="/">🐧 LINUX<span>SHOP</span></a>
+  <a class="nav-back" href="/">← НА ГОЛОВНУ</a>
+</nav>
+
+<div class="main">
+  <h1 class="page-title">ВІДСТЕЖИТИ <span>ЗАМОВЛЕННЯ</span></h1>
+  <p class="page-sub">Введіть номер телефону, який ви вказували при оформленні.<br>Всі ваші замовлення будуть показані нижче.</p>
+
+  <div class="search-box">
+    <label class="search-label">ВАШ НОМЕР ТЕЛЕФОНУ</label>
+    <div class="search-row">
+      <input class="search-input" type="tel" id="phoneInput" placeholder="+38 (050) 000-00-00" autocomplete="tel"
+        onkeypress="if(event.key==='Enter')searchOrders()">
+      <button class="search-btn" onclick="searchOrders()">ЗНАЙТИ →</button>
+    </div>
+    <div class="search-error" id="searchError"></div>
+  </div>
+
+  <div id="results">
+    <div class="results-title">ЗАМОВЛЕННЯ ДЛЯ: <span class="results-name" id="resultsName"></span></div>
+    <div id="ordersList"></div>
+  </div>
+</div>
+
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE",
+  authDomain: "linux-shop-b5b3e.firebaseapp.com",
+  projectId: "linux-shop-b5b3e",
+  storageBucket: "linux-shop-b5b3e.firebasestorage.app",
+  messagingSenderId: "889010336562",
+  appId: "1:889010336562:web:2f60090b33fa29c0ed5d2b"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+window._trackDB = db;
+window._allOrders = null;
+
+window.fetchAllOrders = async function() {
+  if (window._allOrders) return window._allOrders;
+  const snap = await getDocs(collection(db, 'orders'));
+  window._allOrders = [];
+  snap.forEach(d => window._allOrders.push({id: d.id, ...d.data()}));
+  return window._allOrders;
+};
+</script>
+
+<script>
+// All 7 statuses definition
+const STATUS_STEPS = [
+  { key: 'new',        icon: '🆕', name: 'Замовлення прийнято',     desc: 'Ми отримали ваше замовлення та розпочинаємо обробку' },
+  { key: 'processing', icon: '⚙️', name: 'Обробляється',            desc: 'Менеджер перевіряє наявність товарів та підтверджує замовлення' },
+  { key: 'packing',    icon: '📦', name: 'Комплектується',           desc: 'Ваше замовлення пакується та готується до відправки' },
+  { key: 'shipped',    icon: '🚚', name: 'Передано в доставку',      desc: 'Замовлення передане у службу доставки Нова Пошта' },
+  { key: 'delivering', icon: '🛵', name: 'Доставляється',            desc: 'Кур\'єр доставляє ваше замовлення на відділення' },
+  { key: 'done',       icon: '✅', name: 'Доставлено',               desc: 'Ваше замовлення доставлено. Дякуємо за покупку!' },
+];
+
+function normalizePhone(p) {
+  return p.replace(/\D/g, '');
+}
+
+async function searchOrders() {
+  const raw = document.getElementById('phoneInput').value.trim();
+  const errEl = document.getElementById('searchError');
+  errEl.style.display = 'none';
+
+  if (raw.length < 9) {
+    errEl.textContent = '❌ Введіть номер телефону';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const norm = normalizePhone(raw);
+  const btn = document.querySelector('.search-btn');
+  btn.textContent = 'ШУКАЄМО...';
+  btn.disabled = true;
+
+  try {
+    const orders = await window.fetchAllOrders();
+    const found = orders.filter(o => {
+      const phone = normalizePhone((o.customer?.phone || ''));
+      return phone && phone.endsWith(norm.slice(-9));
+    });
+
+    found.sort((a,b) => {
+      const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+      const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+      return tb - ta;
+    });
+
+    renderResults(found, raw);
+  } catch(e) {
+    errEl.textContent = '❌ Помилка підключення. Спробуйте ще раз.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'ЗНАЙТИ →';
+    btn.disabled = false;
+  }
+}
+
+function renderResults(orders, phone) {
+  const resultsEl = document.getElementById('results');
+  const listEl = document.getElementById('ordersList');
+  const nameEl = document.getElementById('resultsName');
+
+  resultsEl.style.display = 'block';
+  nameEl.textContent = phone;
+
+  if (orders.length === 0) {
+    listEl.innerHTML = `
+      <div class="no-results">
+        <div class="no-results-icon">🔍</div>
+        <div class="no-results-text">
+          Замовлень з цим номером не знайдено.<br>
+          Перевірте правильність введеного номера<br>
+          або зверніться до підтримки.
+        </div>
+      </div>`;
+    return;
+  }
+
+  listEl.innerHTML = orders.map(o => renderOrderCard(o)).join('');
+}
+
+function renderOrderCard(o) {
+  const d = o.customer || {};
+  const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('uk-UA', {day:'2-digit',month:'long',year:'numeric'}) : '—';
+  const items = (o.items || []).map(i =>
+    `<div class="order-item-chip">${i.emoji||'📦'} ${i.name}<span class="order-item-qty">×${i.qty}</span></div>`
+  ).join('');
+
+  const isCancelled = o.status === 'cancelled';
+
+  return `
+  <div class="order-card">
+    <div class="order-card-head">
+      <div>
+        <div class="order-id">ЗАМОВЛЕННЯ #${o.id.slice(-6).toUpperCase()}</div>
+        <div class="order-date">${date}${d.city ? ' · ' + d.city : ''}${d.branch ? ' · ' + d.branch : ''}</div>
+      </div>
+      <div class="order-total-badge">${o.total||0} грн</div>
+    </div>
+    <div class="order-items-block">${items}</div>
+    ${isCancelled ? renderCancelled() : renderTracker(o.status)}
+  </div>`;
+}
+
+function renderCancelled() {
+  return `
+  <div class="cancelled-banner">
+    <div class="cancelled-icon">❌</div>
+    <div class="cancelled-text">
+      Замовлення скасовано.<br>
+      Якщо у вас є питання — зверніться до підтримки.
+    </div>
+  </div>`;
+}
+
+function renderTracker(status) {
+  const currentIdx = STATUS_STEPS.findIndex(s => s.key === status);
+  const activeIdx = currentIdx < 0 ? 0 : currentIdx;
+
+  const stepsHtml = STATUS_STEPS.map((step, i) => {
+    let cls = 'pending';
+    if (i < activeIdx) cls = 'done';
+    if (i === activeIdx) cls = 'active';
+
+    const activeDot = (cls === 'active') ? `<span class="active-pulse"></span>` : '';
+
+    return `
+    <div class="step ${cls}">
+      <div class="step-icon-wrap">
+        <div class="step-circle">${cls === 'done' ? '✓' : step.icon}</div>
+      </div>
+      <div class="step-body">
+        <div class="step-name">${activeDot}${step.name}</div>
+        <div class="step-desc">${step.desc}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="tracker">
+    <div class="tracker-label">// СТАТУС ЗАМОВЛЕННЯ</div>
+    <div class="steps-wrap">${stepsHtml}</div>
+  </div>`;
+}
+</script>
+</body>
+</html>

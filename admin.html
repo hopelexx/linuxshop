@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Адмін-панель — Linux Shop</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 :root{--black:#0a0a0a;--dark:#111;--card:#161616;--border:#2a2a2a;--orange:#ff6600;--orange-dim:rgba(255,102,0,0.15);--white:#f0f0f0;--gray:#888;--light:#ccc;--red:#ff3333;--green:#33ff66;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -61,6 +62,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
 .badge-hit{background:rgba(255,102,0,0.2);color:var(--orange);border:1px solid rgba(255,102,0,0.4);}
 .badge-new{background:rgba(51,255,102,0.15);color:#33ff66;border:1px solid rgba(51,255,102,0.3);}
 .badge-sale{background:rgba(255,51,51,0.15);color:#ff3333;border:1px solid rgba(255,51,51,0.3);}
+.badge-out{background:rgba(120,120,120,0.2);color:#aaa;border:1px solid rgba(120,120,120,0.4);}
 .action-btns{display:flex;gap:8px;}
 .edit-btn{background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);padding:6px 12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;}
 .edit-btn:hover{background:var(--orange);color:#000;}
@@ -76,7 +78,11 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
 .order-status{font-family:'Space Mono',monospace;font-size:11px;padding:4px 10px;border-radius:2px;}
 .status-new{background:rgba(255,102,0,0.2);color:var(--orange);border:1px solid rgba(255,102,0,0.4);}
 .status-processing{background:rgba(51,51,255,0.2);color:#6699ff;border:1px solid rgba(51,51,255,0.4);}
+.status-packing{background:rgba(180,100,255,0.2);color:#cc88ff;border:1px solid rgba(180,100,255,0.4);}
+.status-shipped{background:rgba(0,180,255,0.15);color:#33ccff;border:1px solid rgba(0,180,255,0.3);}
+.status-delivering{background:rgba(255,200,0,0.2);color:#ffcc00;border:1px solid rgba(255,200,0,0.4);}
 .status-done{background:rgba(51,255,102,0.15);color:#33ff66;border:1px solid rgba(51,255,102,0.3);}
+.status-cancelled{background:rgba(255,51,51,0.15);color:#ff4444;border:1px solid rgba(255,51,51,0.3);}
 .status-select{background:var(--card);border:1px solid var(--border);color:var(--white);padding:4px 8px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;outline:none;}
 .order-items-list{font-size:12px;color:var(--gray);margin-top:4px;}
 
@@ -166,7 +172,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
         <div style="overflow-x:auto;">
           <table class="products-table" id="productsTable">
             <thead><tr>
-              <th>EMOJI</th><th>НАЗВА</th><th>КАТЕГОРІЯ</th><th>ЦІНА</th><th>МІТКИ</th><th>ДІЇ</th>
+              <th>EMOJI</th><th>НАЗВА</th><th>КАТЕГОРІЯ</th><th>ЦІНА</th><th>МІТКИ</th><th>НАЯВНІСТЬ</th><th>ДІЇ</th>
             </tr></thead>
             <tbody id="productsTbody"><tr><td colspan="6" class="loading">Завантаження...</td></tr></tbody>
           </table>
@@ -213,9 +219,38 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       </div>
       <!-- SETTINGS -->
       <div class="tab-content" id="tab-settings">
-        <div class="section-head"><h2>НАЛАШТУВАННЯ КОНТАКТІВ</h2></div>
+        <div class="section-head"><h2>НАЛАШТУВАННЯ</h2></div>
+
+        <!-- EmailJS block -->
+        <div style="background:var(--card);border:1px solid var(--border);padding:28px;max-width:560px;margin-bottom:24px;">
+          <h3 style="font-family:'Orbitron',monospace;font-size:14px;color:var(--orange);margin-bottom:4px;">📧 EMAILJS — EMAIL-СПОВІЩЕННЯ</h3>
+          <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:16px;line-height:1.7;">
+            При зміні статусу замовлення клієнт автоматично отримує email.<br>
+            Знайдіть ключі на <strong style="color:var(--white)">emailjs.com</strong> і вставте у файл <strong style="color:var(--orange)">admin.html</strong>:
+          </p>
+          <div style="background:var(--dark);border:1px solid var(--border);padding:16px;font-family:'Space Mono',monospace;font-size:12px;line-height:2;border-left:3px solid var(--orange);">
+            <div><span style="color:var(--gray)">EMAILJS_PUBLIC_KEY</span>  → Account → General → Public Key</div>
+            <div><span style="color:var(--gray)">EMAILJS_SERVICE_ID</span>  → Email Services → Service ID</div>
+            <div><span style="color:var(--gray)">EMAILJS_TEMPLATE_ID</span> → Email Templates → Template ID</div>
+          </div>
+          <div style="margin-top:16px;background:var(--dark);border:1px solid var(--border);padding:16px;">
+            <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:10px;">ЗМІННІ ДЛЯ ШАБЛОНУ (Email Templates → Edit):</div>
+            <div style="font-family:'Space Mono',monospace;font-size:11px;line-height:2;color:var(--light);">
+              <span style="color:var(--orange)">{{to_name}}</span> — ім'я клієнта<br>
+              <span style="color:var(--orange)">{{order_id}}</span> — номер замовлення<br>
+              <span style="color:var(--orange)">{{status_emoji}}</span> — іконка статусу<br>
+              <span style="color:var(--orange)">{{status_text}}</span> — назва статусу<br>
+              <span style="color:var(--orange)}>{{status_desc}}</span> — опис статусу<br>
+              <span style="color:var(--orange)">{{items_list}}</span> — список товарів<br>
+              <span style="color:var(--orange)">{{order_total}}</span> — сума замовлення<br>
+              <span style="color:var(--orange)">{{track_url}}</span> — посилання на трекер
+            </div>
+          </div>
+          <div id="emailjsStatus" style="margin-top:12px;font-family:'Space Mono',monospace;font-size:11px;"></div>
+          <button class="add-btn" style="margin-top:16px;clip-path:none;" onclick="testEmailJS()">🧪 ТЕСТ — НАДІСЛАТИ ТЕСТОВИЙ ЛИСТ</button>
+        </div>
         <div style="background:var(--card);border:1px solid var(--border);padding:28px;max-width:560px;display:flex;flex-direction:column;gap:16px;">
-          <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">Ці дані відображаються у розділі «Контакти» на головній сторінці сайту.</p>
+          <p style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">КОНТАКТИ — відображаються у розділі «Контакти» на головній сторінці сайту.</p>
           <div class="form-row">
             <label class="form-label">EMAIL</label>
             <input class="form-input" type="email" id="s-email" placeholder="info@linuxshop.ua">
@@ -312,6 +347,9 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       <div class="checkbox-row">
         <input type="checkbox" id="p-sale"><label for="p-sale">🔥 АКЦІЯ</label>
       </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="p-out"><label for="p-out" style="color:#aaa;">🚫 НЕМАЄ В НАЯВНОСТІ</label>
+      </div>
     </div>
     <div class="form-btns">
       <button class="save-btn" onclick="saveProduct()">💾 ЗБЕРЕГТИ</button>
@@ -365,7 +403,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       return tb - ta;
     });
     renderOrdersTable();
-    const newCount = window._orders.filter(o => o.status === 'new').length;
+    const newCount = window._orders.filter(o => o.status === 'new' || !o.status).length;
     const revenue = window._orders.reduce((s,o) => s + (o.total || 0), 0);
     document.getElementById('s-orders').textContent = window._orders.length;
     document.getElementById('s-new').textContent = newCount;
@@ -450,7 +488,7 @@ function renderProductsTable() {
   const tbody = document.getElementById('productsTbody');
   const products = window._products || [];
   if (products.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="6" class="loading">Товарів немає. Додайте перший товар →</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" class="loading">Товарів немає. Додайте перший товар →</td></tr>';
     return;
   }
   const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',stationery:'Канцелярія',tshirts:'Футболки',hoodies:'Худі',caps:'Кепки',mugs:'Кружки',stickers:'Стікери'};
@@ -471,6 +509,11 @@ function renderProductsTable() {
         ${p.isHit ? '<span class="badge-small badge-hit">ХІТ</span>' : ''}
         ${p.isNew ? '<span class="badge-small badge-new">НОВЕ</span>' : ''}
         ${p.isSale ? '<span class="badge-small badge-sale">АКЦІЯ</span>' : ''}
+      </td>
+      <td>
+        ${p.isOutOfStock
+          ? '<span class="badge-small badge-out">🚫 НЕМАЄ</span>'
+          : '<span style="color:#33ff66;font-family:\'Space Mono\',monospace;font-size:11px;">✅ В наявності</span>'}
       </td>
       <td>
         <div class="action-btns">
@@ -506,10 +549,14 @@ function renderOrdersTable() {
       <td class="order-items-list">${items}</td>
       <td style="font-family:'Orbitron',monospace;color:var(--orange);font-weight:900;white-space:nowrap">${o.total||0} грн</td>
       <td>
-        <select class="status-select" onchange="changeOrderStatus('${o.id}',this.value)">
+        <select class="status-select" onchange="changeOrderStatus('${o.id}',this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:5px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;outline:none;min-width:160px;">
           <option value="new" ${o.status==='new'?'selected':''}>🆕 Новий</option>
-          <option value="processing" ${o.status==='processing'?'selected':''}>⚙️ В роботі</option>
-          <option value="done" ${o.status==='done'?'selected':''}>✅ Виконано</option>
+          <option value="processing" ${o.status==='processing'?'selected':''}>⚙️ Обробляється</option>
+          <option value="packing" ${o.status==='packing'?'selected':''}>📦 Комплектується</option>
+          <option value="shipped" ${o.status==='shipped'?'selected':''}>🚚 Передано в доставку</option>
+          <option value="delivering" ${o.status==='delivering'?'selected':''}>🛵 Доставляється</option>
+          <option value="done" ${o.status==='done'?'selected':''}>✅ Доставлено</option>
+          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Скасовано</option>
         </select>
       </td>
       <td style="font-size:12px;color:var(--gray)">${date}</td>
@@ -532,7 +579,7 @@ function renderRecentOrders() {
         <td style="padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
         <td style="padding:8px 12px">${d.name||'—'}</td>
         <td style="padding:8px 12px;font-family:'Orbitron',monospace;color:var(--orange)">${o.total||0} грн</td>
-        <td style="padding:8px 12px"><span class="order-status status-${o.status||'new'}">${{new:'Новий',processing:'В роботі',done:'Виконано'}[o.status]||'Новий'}</span></td>
+        <td style="padding:8px 12px"><span class="order-status status-${o.status||'new'}">${{new:'🆕 Новий',processing:'⚙️ Обробляється',packing:'📦 Комплектується',shipped:'🚚 Передано',delivering:'🛵 Доставляється',done:'✅ Доставлено',cancelled:'❌ Скасовано'}[o.status]||'🆕 Новий'}</span></td>
       </tr>`;
     }).join('')}
   </table>`;
@@ -551,6 +598,7 @@ function openProductModal(id) {
   document.getElementById('p-hit').checked = false;
   document.getElementById('p-new').checked = false;
   document.getElementById('p-sale').checked = false;
+  document.getElementById('p-out').checked = false;
   clearPhoto();
   document.getElementById('productModal').classList.add('open');
 }
@@ -569,6 +617,7 @@ function editProduct(id) {
   document.getElementById('p-hit').checked = !!p.isHit;
   document.getElementById('p-new').checked = !!p.isNew;
   document.getElementById('p-sale').checked = !!p.isSale;
+  document.getElementById('p-out').checked = !!p.isOutOfStock;
   clearPhoto();
   if (p.photo) { setPhotoPreview(p.photo); document.getElementById('p-photo-url').value = p.photo; }
   document.getElementById('productModal').classList.add('open');
@@ -599,7 +648,8 @@ async function saveProduct() {
     description: document.getElementById('p-desc').value.trim(),
     isHit: document.getElementById('p-hit').checked,
     isNew: document.getElementById('p-new').checked,
-    isSale
+    isSale,
+    isOutOfStock: document.getElementById('p-out').checked
   };
 
   try {
@@ -614,7 +664,7 @@ async function saveProduct() {
 function confirmDelete(id, name) {
   // Check if product has active (non-done) orders
   const activeOrders = (window._orders || []).filter(o =>
-    o.status !== 'done' && (o.items || []).some(i => i.id === id)
+    o.status !== 'done' && o.status !== 'cancelled' && (o.items || []).some(i => i.id === id)
   );
   if (activeOrders.length > 0) {
     const ids = activeOrders.map(o => '#' + o.id.slice(-6).toUpperCase()).join(', ');
@@ -625,10 +675,70 @@ function confirmDelete(id, name) {
   window.deleteProductFromDB(id).then(() => showToast('✅ Товар видалено з каталогу'));
 }
 
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+// EMAILJS CONFIG — замініть на свої ключі
+// Реєстрація: https://emailjs.com
+// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+const EMAILJS_PUBLIC_KEY  = 'zfaEQm7vzUgIzCAax';   // Account → General → Public Key
+const EMAILJS_SERVICE_ID  = 'service_linux';         // Email Services → Service ID
+const EMAILJS_TEMPLATE_ID = '20eertg';               // Email Templates → Template ID
+
+// Ініціалізація EmailJS (відбувається один раз)
+(function initEJS(){
+  try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(e) {}
+})();
+
+// Людські назви статусів для листа
+const STATUS_LABELS = {
+  new:        { emoji:'🆕', text:'Замовлення прийнято',   desc:'Ми отримали ваше замовлення та розпочинаємо обробку.' },
+  processing: { emoji:'⚙️', text:'Обробляється',          desc:'Менеджер перевіряє наявність товарів та підтверджує замовлення.' },
+  packing:    { emoji:'📦', text:'Комплектується',         desc:'Ваше замовлення пакується та готується до відправки.' },
+  shipped:    { emoji:'🚚', text:'Передано в доставку',    desc:'Замовлення передане у службу доставки Нова Пошта.' },
+  delivering: { emoji:'🛵', text:'Доставляється',          desc:"Кур'єр доставляє ваше замовлення на відділення." },
+  done:       { emoji:'✅', text:'Доставлено',             desc:'Ваше замовлення доставлено. Дякуємо за покупку! 🎉' },
+  cancelled:  { emoji:'❌', text:'Скасовано',              desc:'Ваше замовлення було скасовано. Зверніться до підтримки якщо це помилка.' },
+};
+
+async function sendStatusEmail(order, newStatus) {
+  const s = STATUS_LABELS[newStatus];
+  if (!s) return;
+  const customer = order.customer || {};
+  const email = customer.email;
+  if (!email) return; // немає email — не відправляємо
+
+  const orderId = '#' + order.id.slice(-6).toUpperCase();
+  const itemsList = (order.items || []).map(i => `${i.emoji||'📦'} ${i.name} × ${i.qty} — ${i.price * i.qty} грн`).join('\n');
+
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email:      email,
+      to_name:       customer.name || 'Клієнт',
+      order_id:      orderId,
+      status_emoji:  s.emoji,
+      status_text:   s.text,
+      status_desc:   s.desc,
+      items_list:    itemsList,
+      order_total:   (order.total || 0) + ' грн',
+      track_url:     window.location.origin + '/track.html',
+    });
+    showToast('✅ Статус оновлено · Email надіслано на ' + email);
+  } catch(e) {
+    // Email не відправився — але статус все одно змінився
+    showToast('✅ Статус оновлено · ⚠️ Email не надіслано (' + (e.text || e.message || 'перевірте ключі EmailJS') + ')');
+  }
+}
+
 async function changeOrderStatus(id, status) {
   await window.updateOrderStatus(id, status);
-  showToast('✅ Статус оновлено');
   renderRecentOrders();
+
+  // Знаходимо замовлення і відправляємо email
+  const order = (window._orders || []).find(o => o.id === id);
+  if (order) {
+    await sendStatusEmail(order, status);
+  } else {
+    showToast('✅ Статус оновлено');
+  }
 }
 
 // PHOTO FUNCTIONS
@@ -703,7 +813,7 @@ function showClientOrders(name, phone) {
     tbody.innerHTML = all.map(o => {
       const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('uk-UA') : '—';
       const items = (o.items||[]).map(i=>`${i.emoji||'📦'} ${i.name} ×${i.qty}`).join(', ');
-      const statusLabel = {new:'🆕 Новий',processing:'⚙️ В роботі',done:'✅ Виконано'}[o.status]||'Новий';
+      const statusLabel = {new:'🆕 Новий',processing:'⚙️ Обробляється',packing:'📦 Комплектується',shipped:'🚚 Передано в доставку',delivering:'🛵 Доставляється',done:'✅ Доставлено',cancelled:'❌ Скасовано'}[o.status]||'🆕 Новий';
       return `<tr style="border-top:1px solid var(--border)">
         <td style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
         <td style="padding:10px 12px;font-size:13px;">${items}</td>
@@ -747,6 +857,30 @@ async function saveSettings() {
     showToast('✅ Контакти збережено!');
   } catch(e) {
     showToast('❌ Помилка: ' + e.message);
+  }
+}
+
+async function testEmailJS() {
+  const el = document.getElementById('emailjsStatus');
+  el.style.color = 'var(--gray)';
+  el.textContent = '⏳ Відправляємо тестовий лист...';
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+      to_email:      'test@test.com',
+      to_name:       'Тестовий клієнт',
+      order_id:      '#TEST01',
+      status_emoji:  '📦',
+      status_text:   'Комплектується',
+      status_desc:   'Це тестовий лист для перевірки EmailJS.',
+      items_list:    '🐧 Тестовий товар × 1 — 100 грн',
+      order_total:   '100 грн',
+      track_url:     window.location.origin + '/track.html',
+    });
+    el.style.color = 'var(--green)';
+    el.textContent = '✅ Тестовий лист успішно надіслано! Перевірте папку вхідних.';
+  } catch(e) {
+    el.style.color = 'var(--red)';
+    el.textContent = '❌ Помилка: ' + (e.text || e.message || JSON.stringify(e));
   }
 }
 
