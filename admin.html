@@ -719,7 +719,7 @@ async function sendStatusEmail(order, newStatus) {
       status_desc:   s.desc,
       items_list:    itemsList,
       order_total:   (order.total || 0) + ' грн',
-      track_url:     window.location.origin + '/track.html',
+      track_url:     'https://hopelexx.github.io/linuxshop/track.html',
     });
     showToast('✅ Статус оновлено · Email надіслано на ' + email);
   } catch(e) {
@@ -874,7 +874,7 @@ async function testEmailJS() {
       status_desc:   'Це тестовий лист для перевірки EmailJS.',
       items_list:    '🐧 Тестовий товар × 1 — 100 грн',
       order_total:   '100 грн',
-      track_url:     window.location.origin + '/track.html',
+      track_url:     'https://hopelexx.github.io/linuxshop/track.html',
     });
     el.style.color = 'var(--green)';
     el.textContent = '✅ Тестовий лист успішно надіслано! Перевірте папку вхідних.';
