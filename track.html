@@ -105,8 +105,8 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
 <body>
 
 <nav class="nav">
-  <a class="nav-logo" href="/">🐧 LINUX<span>SHOP</span></a>
-  <a class="nav-back" href="/">← НА ГОЛОВНУ</a>
+  <a class="nav-logo" href="https://hopelexx.github.io/linuxshop/">🐧 LINUX<span>SHOP</span></a>
+  <a class="nav-back" href="https://hopelexx.github.io/linuxshop/">← НА ГОЛОВНУ</a>
 </nav>
 
 <div class="main">
@@ -147,15 +147,14 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 window._trackDB = db;
-
+window._allOrders = null;
 
 window.fetchAllOrders = async function() {
-  
+  if (window._allOrders) return window._allOrders;
   const snap = await getDocs(collection(db, 'orders'));
-  
-  const orders = [];
-  snap.forEach(d => orders.push({id: d.id, ...d.data()}));
-  return orders;
+  window._allOrders = [];
+  snap.forEach(d => window._allOrders.push({id: d.id, ...d.data()}));
+  return window._allOrders;
 };
 </script>
 
