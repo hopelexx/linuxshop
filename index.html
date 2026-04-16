@@ -102,6 +102,10 @@ section { padding:80px 40px; max-width:1400px; margin:0 auto; }
 .badge-hit { background:rgba(255,102,0,0.2); color:var(--orange); border:1px solid rgba(255,102,0,0.4); }
 .badge-new { background:rgba(51,255,102,0.15); color:#33ff66; border:1px solid rgba(51,255,102,0.3); }
 .badge-sale { background:rgba(255,51,51,0.15); color:#ff3333; border:1px solid rgba(255,51,51,0.3); }
+.badge-out { background:rgba(120,120,120,0.2); color:#aaa; border:1px solid rgba(120,120,120,0.4); }
+.product-card.out-of-stock { opacity:0.65; }
+.product-card.out-of-stock .product-img { filter:grayscale(60%); }
+.product-btn-disabled { width:100%; margin-top:14px; background:rgba(120,120,120,0.1); border:1px solid #444; color:#666; padding:10px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.1em; cursor:not-allowed; }
 .product-name { font-family:'Orbitron',monospace; font-size:14px; color:var(--white); margin-bottom:8px; }
 .product-price { font-family:'Orbitron',monospace; font-size:20px; color:var(--orange); font-weight:900; }
 .product-old-price { font-size:13px; color:var(--gray); text-decoration:line-through; margin-left:8px; }
@@ -549,21 +553,26 @@ function submitChatForm(){
   }
 
   function renderCard(id, p) {
+    const isOut = p.isOut === true;
     const badges = [
       p.isHit ? '<span class="badge badge-hit">ХІТ</span>' : '',
       p.isNew ? '<span class="badge badge-new">НОВИНКА</span>' : '',
-      p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : ''
+      p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : '',
+      isOut ? '<span class="badge badge-out">🚫 НЕМАЄ В НАЯВНОСТІ</span>' : ''
     ].join('');
     const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
     const isFav = _favs && _favs.findIndex(f=>f.id===id)>=0;
     const favHeart = `<button class="fav-heart-btn" data-id="${id}" onclick="toggleFav('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')" style="position:absolute;top:10px;right:10px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:${isFav?'var(--orange)':'var(--gray)'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.2s;z-index:1;">${isFav?'♥':'♡'}</button>`;
-    return `<div class="product-card" style="position:relative;">
+    const cartBtn = isOut
+      ? '<button class="product-btn-disabled" disabled>НЕМАЄ В НАЯВНОСТІ</button>'
+      : `<button class="product-btn" onclick="addToCart('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')">В КОШИК</button>`;
+    return `<div class="product-card${isOut ? ' out-of-stock' : ''}" style="position:relative;">
       <div class="product-img">${p.emoji || '📦'}${favHeart}</div>
       <div class="product-info">
         <div class="product-badges">${badges}</div>
         <div class="product-name">${p.name}</div>
         <div><span class="product-price">${p.price} грн</span>${oldPrice}</div>
-        <button class="product-btn" onclick="addToCart('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')">В КОШИК</button>
+        ${cartBtn}
       </div>
     </div>`;
   }
