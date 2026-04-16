@@ -71,6 +71,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(10,10,10,0.
 .product-old-price{font-size:13px;color:var(--gray);text-decoration:line-through;}
 .product-btn{width:100%;background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);padding:10px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;}
 .product-btn:hover{background:var(--orange);color:#000;}
+.badge-out{background:rgba(120,120,120,0.2);color:#aaa;border:1px solid rgba(120,120,120,0.4);}
+.product-card.out-of-stock{opacity:0.65;}
+.product-card.out-of-stock .product-img{filter:grayscale(60%);}
+.product-btn-disabled{width:100%;background:rgba(120,120,120,0.1);border:1px solid #444;color:#666;padding:10px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:0.1em;cursor:not-allowed;}
 .no-products{text-align:center;padding:80px 20px;color:var(--gray);font-family:'Space Mono',monospace;}
 .no-products div{font-size:60px;margin-bottom:20px;}
 .loading{text-align:center;padding:80px;color:var(--gray);font-family:'Space Mono',monospace;font-size:13px;}
@@ -505,10 +509,12 @@ function renderProducts() {
   filtered.forEach(p => { window._productsMap[p.id] = p; });
 
   grid.innerHTML = filtered.map(p => {
+    const isOut = p.isOut === true;
     const badges = [
       p.isHit ? '<span class="badge badge-hit">ХІТ</span>' : '',
       p.isNew ? '<span class="badge badge-new">НОВИНКА</span>' : '',
-      p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : ''
+      p.isSale ? '<span class="badge badge-sale">АКЦІЯ</span>' : '',
+      isOut ? '<span class="badge badge-out">🚫 НЕМАЄ В НАЯВНОСТІ</span>' : ''
     ].join('');
     const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
     const catNames = {clothing:'Одяг',dishes:'Посуд',tech:'Техніка',accessories:'Аксесуари',lifestyle:'Лайфстайл',tshirts:'Одяг',hoodies:'Одяг',caps:'Аксесуари',mugs:'Посуд',stickers:'Лайфстайл'};
@@ -517,8 +523,11 @@ function renderProducts() {
       ? `<img src="${p.photo}" alt="${p.name}">`
       : (p.emoji || '📦');
     const isFav = (window._favs||[]).findIndex(f=>f.id===p.id)>=0;
-    const favBtn = `<button class="fav-heart-btn" data-id="${p.id}" onclick="toggleFav('${p.id}','${p.name.replace(/'/g,"\\'")}',${p.price},'${p.emoji||'📦'}')" style="position:absolute;top:10px;right:10px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:${isFav?'var(--orange)':'var(--gray)'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.2s;z-index:1;">${isFav?'♥':'♡'}</button>`;
-    return `<div class="product-card" style="position:relative;">
+    const favBtn = `<button class="fav-heart-btn" data-id="${p.id}" onclick="toggleFav('${p.id}','${p.name.replace(/'/g,"\\'")},',${p.price},'${p.emoji||'📦'}')" style="position:absolute;top:10px;right:10px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:${isFav?'var(--orange)':'var(--gray)'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.2s;z-index:1;">${isFav?'♥':'♡'}</button>`;
+    const cartBtn = isOut
+      ? '<button class="product-btn-disabled" disabled>НЕМАЄ В НАЯВНОСТІ</button>'
+      : `<button class="product-btn" data-pid="${p.id}" onclick="addToCartById(this.dataset.pid)">В КОШИК</button>`;
+    return `<div class="product-card${isOut ? ' out-of-stock' : ''}" style="position:relative;">
       <div class="product-img" style="position:relative;">${imgHtml}${favBtn}</div>
       <div class="product-info">
         <div class="product-badges">${badges}</div>
@@ -527,7 +536,7 @@ function renderProducts() {
         <div class="product-price-row">
           <span class="product-price">${p.price} грн</span>${oldPrice}
         </div>
-        <button class="product-btn" data-pid="${p.id}" onclick="addToCartById(this.dataset.pid)">В КОШИК</button>
+        ${cartBtn}
       </div>
     </div>`;
   }).join('');
