@@ -147,14 +147,15 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 window._trackDB = db;
-window._allOrders = null;
+
 
 window.fetchAllOrders = async function() {
-  if (window._allOrders) return window._allOrders;
+  
   const snap = await getDocs(collection(db, 'orders'));
-  window._allOrders = [];
-  snap.forEach(d => window._allOrders.push({id: d.id, ...d.data()}));
-  return window._allOrders;
+  
+  const orders = [];
+  snap.forEach(d => orders.push({id: d.id, ...d.data()}));
+  return orders;
 };
 </script>
 
