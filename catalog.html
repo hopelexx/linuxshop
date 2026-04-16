@@ -509,7 +509,7 @@ function renderProducts() {
   filtered.forEach(p => { window._productsMap[p.id] = p; });
 
   grid.innerHTML = filtered.map(p => {
-    const isOut = p.isOut === true;
+    const isOut = p.isOutOfStock === true || p.isOut === true;
     const badges = [
       p.isHit ? '<span class="badge badge-hit">ХІТ</span>' : '',
       p.isNew ? '<span class="badge badge-new">НОВИНКА</span>' : '',
