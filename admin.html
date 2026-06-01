@@ -583,13 +583,28 @@ const ADMIN_PASS = '120322';
 function doLogin() {
   const u = document.getElementById('loginUser').value.trim();
   const p = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  errEl.style.display = 'none';
+
   if (u === ADMIN_USER && p === ADMIN_PASS) {
     document.getElementById('loginPage').style.display = 'none';
     document.getElementById('adminPage').style.display = 'block';
-    if (window.initAdminData) window.initAdminData();
-    else setTimeout(() => window.initAdminData && window.initAdminData(), 500);
+
+    function tryInit(attempts) {
+      if (window.initAdminData) {
+        window.initAdminData().catch(e => {
+          console.error('Firebase init error:', e);
+          showToast('⚠️ Firebase недоступний: ' + e.message);
+        });
+      } else if (attempts > 0) {
+        setTimeout(() => tryInit(attempts - 1), 300);
+      } else {
+        showToast('⚠️ Firebase не ініціалізовано. Відкрийте файл через веб-сервер.');
+      }
+    }
+    tryInit(10);
   } else {
-    document.getElementById('loginError').style.display = 'block';
+    errEl.style.display = 'block';
   }
 }
 
