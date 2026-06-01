@@ -374,7 +374,7 @@ function submitChatC(){
 <!-- Firebase -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getFirestore, collection, getDocs, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, addDoc, updateDoc, doc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE",
@@ -407,6 +407,40 @@ function submitChatC(){
       ...orderData,
       createdAt: serverTimestamp(),
       status: 'new'
+    });
+  };
+
+  // Check promo code: returns {valid, discount, docId, reason}
+  window.checkPromoCode = async function(code, email) {
+    code = (code||'').trim().toUpperCase();
+    email = (email||'').trim().toLowerCase();
+
+    // Static promos (LINUX20 - no email restriction)
+    if (code === 'LINUX20') {
+      return { valid: true, discount: 20, docId: null, type: 'static' };
+    }
+
+    // LINUX10 - check subscriber record in Firestore
+    if (code === 'LINUX10') {
+      if (!email) return { valid: false, reason: 'Введіть email для перевірки промокоду LINUX10' };
+      const snap = await getDocs(query(collection(db, 'subscribers'), where('email','==',email), where('promoCode','==','LINUX10')));
+      if (snap.empty) return { valid: false, reason: 'Промокод LINUX10 не знайдено для цього email' };
+      const subDoc = snap.docs[0];
+      const data = subDoc.data();
+      if (data.promoUsed) return { valid: false, reason: 'Промокод LINUX10 вже був використаний' };
+      return { valid: true, discount: 10, docId: subDoc.id, type: 'subscriber' };
+    }
+
+    return { valid: false, reason: 'Невірний промокод' };
+  };
+
+  // Mark promo as used after successful order
+  window.markPromoUsed = async function(docId, orderId) {
+    if (!docId) return; // static promo, no record to update
+    await updateDoc(doc(db, 'subscribers', docId), {
+      promoUsed: true,
+      usedAt: serverTimestamp(),
+      orderId: orderId || ''
     });
   };
 
@@ -553,6 +587,7 @@ function addToCartById(pid) {
 // CART
 window._promoApplied = null;
 window._promoDiscount = 0;
+window._promoDocId = null;
 const VALID_PROMOS = { 'LINUX20': 20, 'LINUX10': 10 };
 
 function addToCart(id, name, price, emoji, isSale, oldPrice, photo) {
@@ -681,22 +716,49 @@ function getCartTotal(cart) {
   return raw;
 }
 
-function applyPromo() {
+async function applyPromo() {
   const code = document.getElementById('promoInput').value.trim().toUpperCase();
-  if (VALID_PROMOS[code]) {
-    window._promoApplied = code;
-    window._promoDiscount = VALID_PROMOS[code];
-    document.getElementById('cartPromoDisplay').textContent = `${code} (-${VALID_PROMOS[code]}%)`;
-    document.getElementById('cartPromoDisplay').style.color = '#33ff66';
-    showToast(`✅ Промокод ${code} застосовано! Знижка ${VALID_PROMOS[code]}%`);
-    renderCart();
-  } else {
-    showToast('❌ Невірний промокод');
-    document.getElementById('cartPromoDisplay').textContent = 'не застосовано';
-    document.getElementById('cartPromoDisplay').style.color = 'var(--gray)';
-    window._promoApplied = null;
-    window._promoDiscount = 0;
+  const email = (document.getElementById('o-email') ? document.getElementById('o-email').value.trim().toLowerCase() : '');
+  const applyBtn = document.querySelector('button[onclick="applyPromo()"]');
+
+  if (!code) { showToast('❌ Введіть промокод'); return; }
+
+  if (applyBtn) { applyBtn.textContent = '...'; applyBtn.disabled = true; }
+
+  try {
+    const result = await window.checkPromoCode(code, email);
+    if (result.valid) {
+      window._promoApplied = code;
+      window._promoDiscount = result.discount;
+      window._promoDocId = result.docId; // save doc ID for later marking as used
+      document.getElementById('cartPromoDisplay').textContent = `${code} (-${result.discount}%)`;
+      document.getElementById('cartPromoDisplay').style.color = '#33ff66';
+      showToast(`✅ Промокод ${code} застосовано! Знижка ${result.discount}%`);
+      renderCart();
+    } else {
+      showToast('❌ ' + (result.reason || 'Невірний промокод'));
+      document.getElementById('cartPromoDisplay').textContent = 'не застосовано';
+      document.getElementById('cartPromoDisplay').style.color = 'var(--gray)';
+      window._promoApplied = null;
+      window._promoDiscount = 0;
+      window._promoDocId = null;
+    }
+  } catch(e) {
+    // Fallback to static check if Firestore unavailable
+    if (VALID_PROMOS[code]) {
+      window._promoApplied = code;
+      window._promoDiscount = VALID_PROMOS[code];
+      window._promoDocId = null;
+      document.getElementById('cartPromoDisplay').textContent = `${code} (-${VALID_PROMOS[code]}%)`;
+      document.getElementById('cartPromoDisplay').style.color = '#33ff66';
+      showToast(`✅ Промокод ${code} застосовано! Знижка ${VALID_PROMOS[code]}%`);
+      renderCart();
+    } else {
+      showToast('❌ Невірний промокод');
+    }
   }
+
+  if (applyBtn) { applyBtn.textContent = 'ЗАСТОС.'; applyBtn.disabled = false; }
 }
 
 function renderCart() {
@@ -835,9 +897,16 @@ async function submitOrder() {
 
   try {
     await window.submitOrderToDB(orderData);
+
+    // Mark promo as used in Firestore (only for subscriber promos)
+    if (window._promoDocId) {
+      try { await window.markPromoUsed(window._promoDocId); } catch(e2) { console.warn('markPromoUsed error:', e2); }
+    }
+
     localStorage.removeItem('cart');
     window._promoApplied = null;
     window._promoDiscount = 0;
+    window._promoDocId = null;
     updateCartCount();
     closeOrderModal();
     closeCart();

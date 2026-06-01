@@ -143,6 +143,9 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       <button class="admin-menu-item active" onclick="showTab('dashboard',this)">📊 Дашборд</button>
       <button class="admin-menu-item" onclick="showTab('products',this)">📦 Товари</button>
       <button class="admin-menu-item" onclick="showTab('orders',this)">🛒 Замовлення</button>
+      <button class="admin-menu-item" onclick="showTab('callbacks',this)">📞 Зворотні дзвінки</button>
+      <button class="admin-menu-item" onclick="showTab('messages',this)">✉️ Повідомлення</button>
+      <button class="admin-menu-item" onclick="showTab('subscribers',this)">📧 Підписники</button>
       <button class="admin-menu-item" onclick="showTab('promo',this)">🎯 Акції</button>
       <button class="admin-menu-item" onclick="showTab('settings',this)">⚙️ Налаштування</button>
     </aside>
@@ -154,6 +157,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
           <div class="stat-card"><div class="stat-label">ТОВАРІВ</div><div class="stat-value" id="s-products">—</div><div class="stat-sub">в каталозі</div></div>
           <div class="stat-card"><div class="stat-label">ЗАМОВЛЕНЬ</div><div class="stat-value" id="s-orders">—</div><div class="stat-sub">всього</div></div>
           <div class="stat-card"><div class="stat-label">НОВИХ</div><div class="stat-value" id="s-new">—</div><div class="stat-sub">очікують обробки</div></div>
+          <div class="stat-card"><div class="stat-label">ДЗВІНКИ</div><div class="stat-value" id="s-callbacks">—</div><div class="stat-sub">нових звернень</div></div>
           <div class="stat-card"><div class="stat-label">ВИРУЧКА</div><div class="stat-value" id="s-revenue">—</div><div class="stat-sub">загальна сума</div></div>
         </div>
         <div style="background:var(--card);border:1px solid var(--border);padding:24px;">
@@ -191,6 +195,63 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
               <th>ID</th><th>КЛІЄНТ</th><th>ТЕЛЕФОН</th><th>МІСТО / НП</th><th>ТОВАРИ</th><th>СУМА</th><th>СТАТУС</th><th>ДАТА</th><th>ДІЇ</th>
             </tr></thead>
             <tbody id="ordersTbody"><tr><td colspan="8" class="loading">Завантаження...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- CALLBACKS -->
+      <div class="tab-content" id="tab-callbacks">
+        <div class="section-head">
+          <h2>ЗВОРОТНІ ДЗВІНКИ</h2>
+          <span id="callbacksCount" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray)"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="orders-table" id="callbacksTable">
+            <thead><tr>
+              <th>ІМ'Я</th><th>ТЕЛЕФОН</th><th>ТЕМА</th><th>СТАТУС</th><th>ДАТА</th><th>ДІЇ</th>
+            </tr></thead>
+            <tbody id="callbacksTbody"><tr><td colspan="6" class="loading">Завантаження...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MESSAGES -->
+      <div class="tab-content" id="tab-messages">
+        <div class="section-head">
+          <h2>ПОВІДОМЛЕННЯ З ФОРМИ КОНТАКТІВ</h2>
+          <span id="messagesCount" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray)"></span>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="orders-table" id="messagesTable">
+            <thead><tr>
+              <th>ІМ'Я</th><th>EMAIL</th><th>ТЕМА</th><th>ПОВІДОМЛЕННЯ</th><th>СТАТУС</th><th>ДАТА</th><th>ДІЇ</th>
+            </tr></thead>
+            <tbody id="messagesTbody"><tr><td colspan="7" class="loading">Завантаження...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SUBSCRIBERS -->
+      <div class="tab-content" id="tab-subscribers">
+        <div class="section-head">
+          <h2>ПІДПИСНИКИ</h2>
+          <span id="subscribersCount" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray)"></span>
+        </div>
+        <div style="background:var(--card);border:1px solid rgba(255,102,0,0.3);padding:16px 20px;margin-bottom:20px;font-family:'Space Mono',monospace;font-size:12px;line-height:1.8;">
+          <div style="color:var(--orange);font-weight:700;margin-bottom:6px;">📧 НАЛАШТУВАННЯ EMAILJS ДЛЯ ПРОМОКОДУ:</div>
+          <div style="color:var(--gray);">
+            1. Зайдіть на <strong style="color:var(--white)">emailjs.com</strong> → Email Templates → Create Template<br>
+            2. ID шаблону: <strong style="color:var(--orange)">template_promo10</strong><br>
+            3. Змінні шаблону: <span style="color:var(--orange)">{{to_email}}</span>, <span style="color:var(--orange)">{{promo_code}}</span>, <span style="color:var(--orange)">{{discount}}</span><br>
+            4. Приклад тексту листа: "Ваш промокод: {{promo_code}} — знижка {{discount}} на перше замовлення"
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="orders-table" id="subscribersTable">
+            <thead><tr>
+              <th>EMAIL</th><th>ПРОМОКОД</th><th>СТАТУС</th><th>ДАТА ПІДПИСКИ</th><th>ДАТА ВИКОРИСТАННЯ</th>
+            </tr></thead>
+            <tbody id="subscribersTbody"><tr><td colspan="5" class="loading">Завантаження...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -441,9 +502,76 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
     if (o) { o.items = items; o.total = total; }
   };
 
+  // LOAD CALLBACKS
+  window.loadCallbacks = async function() {
+    const snap = await getDocs(query(collection(db, 'callbacks'), orderBy('createdAt','desc')));
+    window._callbacks = [];
+    snap.forEach(d => window._callbacks.push({id: d.id, ...d.data()}));
+    renderCallbacksTable();
+    const newCount = window._callbacks.filter(c => c.status === 'new' || !c.status).length;
+    const totalEl = document.getElementById('callbacksCount');
+    if (totalEl) totalEl.textContent = window._callbacks.length + ' всього / ' + newCount + ' нових';
+    const dashEl = document.getElementById('s-callbacks');
+    if (dashEl) dashEl.textContent = newCount;
+  };
+
+  // UPDATE CALLBACK STATUS
+  window.updateCallbackStatus = async function(id, status) {
+    await updateDoc(doc(db, 'callbacks', id), {status});
+    const c = (window._callbacks||[]).find(c => c.id === id);
+    if (c) c.status = status;
+  };
+
+  // DELETE CALLBACK
+  window.deleteCallback = async function(id) {
+    if (!confirm('Видалити це звернення?')) return;
+    await deleteDoc(doc(db, 'callbacks', id));
+    await loadCallbacks();
+    showToast('✅ Звернення видалено');
+  };
+
+  // LOAD SUBSCRIBERS
+  window.loadSubscribers = async function() {
+    try {
+      const snap = await getDocs(query(collection(db, 'subscribers'), orderBy('subscribedAt','desc')));
+      window._subscribers = [];
+      snap.forEach(d => window._subscribers.push({id: d.id, ...d.data()}));
+      renderSubscribersTable();
+      const unused = window._subscribers.filter(s => !s.promoUsed).length;
+      const el = document.getElementById('subscribersCount');
+      if (el) el.textContent = window._subscribers.length + ' всього / ' + unused + ' не використали промокод';
+    } catch(e) { console.warn('Subscribers load error:', e); }
+  };
+
+  // LOAD MESSAGES (contact form)
+  window.loadMessages = async function() {
+    try {
+      const snap = await getDocs(query(collection(db, 'messages'), orderBy('createdAt','desc')));
+      window._messages = [];
+      snap.forEach(d => window._messages.push({id: d.id, ...d.data()}));
+      renderMessagesTable();
+      const newCount = window._messages.filter(m => m.status === 'new' || !m.status).length;
+      const el = document.getElementById('messagesCount');
+      if (el) el.textContent = window._messages.length + ' всього / ' + newCount + ' нових';
+    } catch(e) { console.warn('Messages load error:', e); }
+  };
+
+  window.updateMessageStatus = async function(id, status) {
+    await updateDoc(doc(db, 'messages', id), {status});
+    const m = (window._messages||[]).find(m => m.id === id);
+    if (m) m.status = status;
+  };
+
+  window.deleteMessage = async function(id) {
+    if (!confirm('Видалити це повідомлення?')) return;
+    await deleteDoc(doc(db, 'messages', id));
+    await window.loadMessages();
+    showToast('✅ Повідомлення видалено');
+  };
+
   // Auto-load when admin logs in
   window.initAdminData = async function() {
-    await Promise.all([loadProducts(), loadOrders()]);
+    await Promise.all([loadProducts(), loadOrders(), loadCallbacks(), window.loadMessages(), window.loadSubscribers()]);
   };
 </script>
 
@@ -480,6 +608,9 @@ function showTab(tab, btn) {
   btn.classList.add('active');
   if (tab === 'products') renderProductsTable();
   if (tab === 'orders') renderOrdersTable();
+  if (tab === 'callbacks') { if(window.loadCallbacks) window.loadCallbacks(); else renderCallbacksTable(); }
+  if (tab === 'messages') { if(window.loadMessages) window.loadMessages(); else renderMessagesTable(); }
+  if (tab === 'subscribers') { if(window.loadSubscribers) window.loadSubscribers(); else renderSubscribersTable(); }
   if (tab === 'settings') loadSettings();
 }
 
@@ -525,8 +656,119 @@ function renderProductsTable() {
   `).join('');
 }
 
-// ORDERS TABLE
-function renderOrdersTable() {
+// CALLBACKS TABLE
+function renderCallbacksTable() {
+  const tbody = document.getElementById('callbacksTbody');
+  const callbacks = window._callbacks || [];
+  if (!tbody) return;
+  if (callbacks.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="loading">Звернень ще немає.</td></tr>';
+    return;
+  }
+  const statusLabels = {new:'🆕 Нове', processing:'📞 В роботі', done:'✅ Оброблено', cancelled:'❌ Скасовано'};
+  tbody.innerHTML = callbacks.map(c => {
+    const date = c.createdAt?.toDate ? c.createdAt.toDate().toLocaleString('uk-UA') : '—';
+    const st = c.status || 'new';
+    return `<tr>
+      <td><strong>${c.name || '—'}</strong></td>
+      <td style="font-family:'Space Mono',monospace;font-size:12px;">${c.phone || '—'}</td>
+      <td style="color:var(--gray);font-size:13px;">${c.topic || '—'}</td>
+      <td>
+        <select class="status-select" onchange="changeCallbackStatus('${c.id}',this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:5px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;outline:none;min-width:140px;">
+          <option value="new" ${st==='new'?'selected':''}>🆕 Нове</option>
+          <option value="processing" ${st==='processing'?'selected':''}>📞 В роботі</option>
+          <option value="done" ${st==='done'?'selected':''}>✅ Оброблено</option>
+          <option value="cancelled" ${st==='cancelled'?'selected':''}>❌ Скасовано</option>
+        </select>
+      </td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">${date}</td>
+      <td>
+        <div class="action-btns">
+          <button class="del-btn" onclick="window.deleteCallback && window.deleteCallback('${c.id}')">🗑 Видалити</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function renderSubscribersTable() {
+  const tbody = document.getElementById('subscribersTbody');
+  const subs = window._subscribers || [];
+  if (!tbody) return;
+  if (subs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="loading">Підписників ще немає.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = subs.map(s => {
+    const subDate = s.subscribedAt?.toDate ? s.subscribedAt.toDate().toLocaleDateString('uk-UA') : '—';
+    const usedDate = s.usedAt?.toDate ? s.usedAt.toDate().toLocaleDateString('uk-UA') : '—';
+    const statusHtml = s.promoUsed
+      ? '<span class="order-status status-done">✅ Використано</span>'
+      : '<span class="order-status status-new">🆕 Не використано</span>';
+    return `<tr>
+      <td style="font-family:'Space Mono',monospace;font-size:12px;">${s.email||'—'}</td>
+      <td style="font-family:'Orbitron',monospace;color:var(--orange);font-weight:700;">${s.promoCode||'LINUX10'}</td>
+      <td>${statusHtml}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">${subDate}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">${s.promoUsed ? usedDate : '—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderMessagesTable() {
+  const tbody = document.getElementById('messagesTbody');
+  const messages = window._messages || [];
+  if (!tbody) return;
+  if (messages.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="loading">Повідомлень ще немає.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = messages.map(m => {
+    const date = m.createdAt?.toDate ? m.createdAt.toDate().toLocaleString('uk-UA') : '—';
+    const st = m.status || 'new';
+    const msgPreview = (m.message||'').length > 80 ? m.message.slice(0,80)+'…' : (m.message||'—');
+    return `<tr>
+      <td><strong>${m.name || '—'}</strong></td>
+      <td style="font-size:13px;color:var(--gray)">${m.email || '—'}</td>
+      <td style="color:var(--light);font-size:13px;">${m.subject || '—'}</td>
+      <td style="font-size:13px;color:var(--gray);max-width:260px;">${msgPreview}</td>
+      <td>
+        <select class="status-select" onchange="changeMsgStatus('${m.id}',this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:5px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;outline:none;min-width:120px;">
+          <option value="new" ${st==='new'?'selected':''}>🆕 Нове</option>
+          <option value="read" ${st==='read'?'selected':''}>👁 Прочитано</option>
+          <option value="replied" ${st==='replied'?'selected':''}>✅ Відповів</option>
+        </select>
+      </td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">${date}</td>
+      <td>
+        <div class="action-btns">
+          <button class="del-btn" onclick="window.deleteMessage && window.deleteMessage('${m.id}')">🗑 Видалити</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function changeMsgStatus(id, status) {
+  if (window.updateMessageStatus) {
+    window.updateMessageStatus(id, status);
+    showToast('✅ Статус оновлено');
+  }
+}
+
+function changeCallbackStatus(id, status) {
+  if (window.updateCallbackStatus) {
+    window.updateCallbackStatus(id, status);
+    const c = (window._callbacks||[]).find(c => c.id === id);
+    if (c) c.status = status;
+    showToast('✅ Статус оновлено');
+    const newCount = (window._callbacks||[]).filter(c => c.status === 'new' || !c.status).length;
+    const el = document.getElementById('callbacksCount');
+    if (el) el.textContent = (window._callbacks||[]).length + ' всього / ' + newCount + ' нових';
+  }
+}
+
+
   const tbody = document.getElementById('ordersTbody');
   const orders = window._orders || [];
   document.getElementById('ordersCount').textContent = `Всього: ${orders.length}`;

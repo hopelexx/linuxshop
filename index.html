@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Linux Shop — Офіційний мерч магазин</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -65,8 +66,9 @@ nav { position:fixed; top:0; left:0; right:0; z-index:1000; background:rgba(10,1
 .promo-banner h3 { font-family:'Orbitron',monospace; font-size:22px; }
 .promo-banner h3 span { color:var(--orange); }
 .promo-banner p { color:var(--gray); font-family:'Space Mono',monospace; font-size:12px; margin-top:6px; }
-.promo-code-display { font-family:'Orbitron',monospace; font-size:28px; font-weight:900; color:var(--orange); border:2px dashed var(--orange); padding:12px 28px; cursor:pointer; letter-spacing:0.2em; transition:all 0.2s; }
-.promo-code-display:hover { background:var(--orange-dim); }
+.promo-code-display { font-family:'Orbitron',monospace; font-size:28px; font-weight:900; color:var(--orange); border:2px dashed var(--orange); padding:12px 28px; cursor:pointer; letter-spacing:0.2em; transition:all 0.3s; position:relative; user-select:none; }
+.promo-code-display:hover { background:var(--orange-dim); transform:scale(1.03); }
+.promo-code-display.copied { background:rgba(51,255,102,0.15); border-color:#33ff66; color:#33ff66; }
 
 /* SECTIONS */
 section { padding:80px 40px; max-width:1400px; margin:0 auto; }
@@ -472,10 +474,10 @@ function updateFavBtn(){
   if(_favs.length > 0){ btn.style.color='var(--orange)'; btn.style.borderColor='var(--orange)'; btn.innerHTML='♥ <span id="favCount" style="font-size:12px;font-family:\'Space Mono\',monospace;">'+_favs.length+'</span>'; }
   else { btn.style.color='var(--gray)'; btn.style.borderColor='var(--border)'; btn.innerHTML='♡ <span id="favCount" style="font-size:12px;font-family:\'Space Mono\',monospace;"></span>'; }
 }
-function toggleFav(id, name, price, emoji){
+function toggleFav(id, name, price, emoji, photo){
   var idx = _favs.findIndex(function(f){ return f.id===id; });
   if(idx>=0){ _favs.splice(idx,1); showToast('Видалено з улюблених'); }
-  else { _favs.push({id:id,name:name,price:price,emoji:emoji}); showToast('♥ Додано до улюблених!'); }
+  else { _favs.push({id:id,name:name,price:price,emoji:emoji,photo:photo||''}); showToast('♥ Додано до улюблених!'); }
   saveFavs();
   document.querySelectorAll('.fav-heart-btn[data-id="'+id+'"]').forEach(function(b){
     b.textContent = _favs.findIndex(function(f){ return f.id===id; })>=0 ? '♥' : '♡';
@@ -487,18 +489,99 @@ function openFavoritesModal(){
   m.style.display='flex';
   var list = document.getElementById('favsModalList');
   if(_favs.length===0){ list.innerHTML='<div style="text-align:center;padding:60px 20px;color:var(--gray);font-family:\'Space Mono\',monospace;font-size:13px;"><div style="font-size:48px;margin-bottom:16px;">♡</div>Немає улюблених товарів</div>'; return; }
-  list.innerHTML = _favs.map(function(f){ return '<div style="background:var(--card);border:1px solid var(--border);padding:16px;display:flex;align-items:center;gap:14px;"><span style="font-size:36px;">'+f.emoji+'</span><div style="flex:1;"><div style="font-family:\'Orbitron\',monospace;font-size:13px;color:var(--white);margin-bottom:4px;">'+f.name+'</div><div style="font-family:\'Orbitron\',monospace;font-size:16px;color:var(--orange);">'+f.price+' грн</div></div><button onclick="toggleFav(\''+f.id+'\',\''+f.name+'\','+f.price+',\''+f.emoji+'\');openFavoritesModal();" style="background:transparent;border:none;color:var(--gray);font-size:20px;cursor:pointer;">✕</button></div>'; }).join('');
+  list.innerHTML = _favs.map(function(f){
+    var imgHtml = f.photo
+      ? '<img src="'+f.photo+'" style="width:52px;height:52px;object-fit:cover;border:1px solid var(--border);border-radius:2px;flex-shrink:0;">'
+      : '<span style="font-size:36px;width:52px;text-align:center;flex-shrink:0;">'+f.emoji+'</span>';
+    return '<div style="background:var(--card);border:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;gap:14px;">'
+      + imgHtml
+      + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-family:\'Orbitron\',monospace;font-size:13px;color:var(--white);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+f.name+'</div>'
+        + '<div style="font-family:\'Orbitron\',monospace;font-size:16px;color:var(--orange);">'+f.price+' грн</div>'
+      + '</div>'
+      + '<button onclick="removeFav(\''+f.id+'\');" style="background:rgba(255,51,51,0.1);border:1px solid rgba(255,51,51,0.3);color:#ff4444;width:32px;height:32px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;" title="Видалити">✕</button>'
+      + '</div>';
+  }).join('');
+}
+function removeFav(id){
+  _favs = _favs.filter(function(f){ return f.id !== id; });
+  saveFavs();
+  openFavoritesModal(); // re-render the list
+  showToast('Видалено з улюблених');
 }
 function closeFavoritesModal(){ document.getElementById('favsModal').style.display='none'; }
 updateFavBtn();
 
 /* === POPUP NEWSLETTER === */
+// EmailJS config (same as admin.html)
+const _EJSPK  = 'zfaEQm7vzUgIzCAax';
+const _EJSSID = 'service_linux';
+const _EJSTID_PROMO = 'template_promo10'; // Create this template on emailjs.com
+
 function closeNewsletterPopup(){ document.getElementById('newsletterPopup').style.display='none'; sessionStorage.setItem('popupShown','1'); }
-function submitNewsletterPopup(){
-  var e = document.getElementById('popupEmailInput').value;
-  if(!e || !e.includes('@')){ document.getElementById('popupEmailInput').style.borderColor='var(--orange)'; return; }
-  closeNewsletterPopup(); showToast('✅ Дякуємо за підписку! Знижку надіслано на email.');
+
+async function submitNewsletterPopup(){
+  var emailInput = document.getElementById('popupEmailInput');
+  var email = emailInput.value.trim().toLowerCase();
+  if(!email || !email.includes('@')){ emailInput.style.borderColor='var(--orange)'; return; }
+
+  var btn = document.querySelector('#newsletterPopup button');
+  btn.textContent = 'ВІДПРАВЛЯЄМО...'; btn.disabled = true;
+
+  try {
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+    const { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    const firebaseConfig = {
+      apiKey: "AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE",
+      authDomain: "linux-shop-b5b3e.firebaseapp.com",
+      projectId: "linux-shop-b5b3e",
+      storageBucket: "linux-shop-b5b3e.firebasestorage.app",
+      messagingSenderId: "889010336562",
+      appId: "1:889010336562:web:2f60090b33fa29c0ed5d2b"
+    };
+    const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Check if already subscribed
+    const existing = await getDocs(query(collection(db, 'subscribers'), where('email','==',email)));
+    if (!existing.empty) {
+      showToast('⚠️ Цей email вже підписаний!');
+      btn.textContent = 'ПІДПИСАТИСЯ'; btn.disabled = false;
+      closeNewsletterPopup();
+      return;
+    }
+
+    // Save subscriber with promo code info
+    await addDoc(collection(db, 'subscribers'), {
+      email: email,
+      promoCode: 'LINUX10',
+      promoUsed: false,
+      subscribedAt: serverTimestamp()
+    });
+
+    // Send promo code via EmailJS
+    try {
+      emailjs.init({ publicKey: _EJSPK });
+      await emailjs.send(_EJSSID, _EJSTID_PROMO, {
+        to_email: email,
+        promo_code: 'LINUX10',
+        discount: '10%'
+      });
+      showToast('✅ Промокод LINUX10 надіслано на ' + email + '!');
+    } catch(ejsErr) {
+      console.warn('EmailJS error:', ejsErr);
+      showToast('✅ Підписку збережено! Промокод: LINUX10 (email не відправлено — налаштуйте EmailJS)');
+    }
+
+  } catch(e) {
+    console.error(e);
+    showToast('❌ Помилка. Спробуйте ще раз.');
+  }
+
+  btn.textContent = 'ПІДПИСАТИСЯ'; btn.disabled = false;
+  closeNewsletterPopup();
 }
+
 if(!sessionStorage.getItem('popupShown')){ setTimeout(function(){ document.getElementById('newsletterPopup').style.display='flex'; }, 4000); }
 
 /* === CHAT === */
@@ -564,7 +647,8 @@ function submitChatForm(){
     ].join('');
     const oldPrice = p.isSale && p.oldPrice ? `<span class="product-old-price">${p.oldPrice} грн</span>` : '';
     const isFav = _favs && _favs.findIndex(f=>f.id===id)>=0;
-    const favHeart = `<button class="fav-heart-btn" data-id="${id}" onclick="toggleFav('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')" style="position:absolute;top:10px;right:10px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:${isFav?'var(--orange)':'var(--gray)'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.2s;z-index:1;">${isFav?'♥':'♡'}</button>`;
+    const photoEsc = (p.photo||'').replace(/'/g,"\\'");
+    const favHeart = `<button class="fav-heart-btn" data-id="${id}" onclick="toggleFav('${id}','${(p.name||'').replace(/'/g,"\\'")}',${p.price},'${p.emoji||'📦'}','${photoEsc}')" style="position:absolute;top:10px;right:10px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:${isFav?'var(--orange)':'var(--gray)'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.2s;z-index:1;">${isFav?'♥':'♡'}</button>`;
     const cartBtn = isOut
       ? '<button class="product-btn-disabled" disabled>НЕМАЄ В НАЯВНОСТІ</button>'
       : `<button class="product-btn" onclick="addToCart('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')">В КОШИК</button>`;
@@ -607,7 +691,15 @@ function addToCart(id, name, price, emoji) {
   showToast('✅ Додано до кошика: ' + name);
 }
 function copyPromo() {
-  if (navigator.clipboard) navigator.clipboard.writeText('LINUX20');
+  var el = document.querySelector('.promo-code-display');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText('LINUX20');
+  } else {
+    var ta = document.createElement('textarea');
+    ta.value = 'LINUX20'; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+  }
+  if (el) { el.classList.add('copied'); setTimeout(function(){ el.classList.remove('copied'); }, 2000); }
   showToast('✅ Промокод LINUX20 скопійовано!');
 }
 function showToast(msg) {
@@ -617,14 +709,48 @@ function showToast(msg) {
 }
 async function sendContact(btn) {
   var name = document.getElementById('c-name').value.trim();
+  var email = document.getElementById('c-email').value.trim();
+  var subject = document.getElementById('c-subject').value.trim();
   var msg = document.getElementById('c-msg').value.trim();
-  if (!name || !msg) { showToast('❌ Введіть імʼя та повідомлення'); return; }
+  if (!name || !msg) { showToast('\u274C Введіть im\u2019я та повідомлення'); return; }
   btn.textContent = 'НАДСИЛАЄМО...'; btn.disabled = true;
-  setTimeout(() => {
+  try {
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js");
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js");
+    const firebaseConfig = {
+      apiKey: "AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE",
+      authDomain: "linux-shop-b5b3e.firebaseapp.com",
+      projectId: "linux-shop-b5b3e",
+      storageBucket: "linux-shop-b5b3e.firebasestorage.app",
+      messagingSenderId: "889010336562",
+      appId: "1:889010336562:web:2f60090b33fa29c0ed5d2b"
+    };
+    const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    await addDoc(collection(db, 'messages'), {
+      name: name,
+      email: email || '',
+      subject: subject || '',
+      message: msg,
+      status: 'new',
+      createdAt: serverTimestamp()
+    });
     document.getElementById('c-name').value = '';
     document.getElementById('c-email').value = '';
     document.getElementById('c-subject').value = '';
     document.getElementById('c-msg').value = '';
-    btn.textContent = 'НАДІСЛАТИ'; btn.disabled = false;
-    showToast('✅ Повідомлення надіслано! Дякуємо.');
-  }, 1
+    showToast('\u2705 Повідомлення надіслано! Дякуємо.');
+  } catch(e) {
+    console.error(e);
+    showToast('\u274C Помилка відправки. Спробуйте ще раз.');
+  }
+  btn.textContent = '\u041D\u0410\u0414\u0406\u0421\u041B\u0410\u0422\u0418'; btn.disabled = false;
+}
+
+window.addEventListener('scroll', function(){
+  var s = document.getElementById('scrollTop');
+  if(s){ s.classList.toggle('show', window.scrollY > 400); }
+});
+</script>
+</body>
+</html>
