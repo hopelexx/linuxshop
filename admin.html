@@ -105,11 +105,40 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
 .cancel-btn{flex:1;background:transparent;color:var(--gray);border:1px solid var(--border);padding:14px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;letter-spacing:0.1em;transition:all 0.2s;}
 .cancel-btn:hover{border-color:var(--orange);color:var(--orange);}
 
+
+/* PREORDER */
+.status-preorder{background:rgba(160,80,255,0.2);color:#cc88ff;border:1px solid rgba(160,80,255,0.5);}
+.preorder-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(160,80,255,0.15);border:1px solid rgba(160,80,255,0.4);color:#cc88ff;font-family:'Space Mono',monospace;font-size:10px;padding:3px 8px;}
+.preorder-alert-bar{background:rgba(160,80,255,0.08);border:1px solid rgba(160,80,255,0.35);border-left:3px solid #cc88ff;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.preorder-alert-icon{font-size:22px;flex-shrink:0;}
+.preorder-alert-text{flex:1;}
+.preorder-alert-title{font-family:'Orbitron',monospace;font-size:13px;color:#cc88ff;margin-bottom:3px;}
+.preorder-alert-sub{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);line-height:1.6;}
+.preorder-alert-count{font-family:'Orbitron',monospace;font-size:24px;color:#cc88ff;font-weight:900;flex-shrink:0;}
+.preorder-row td{background:rgba(160,80,255,0.04) !important;}
+.preorder-row:hover td{background:rgba(160,80,255,0.09) !important;}
 .tab-content{display:none;}
 .tab-content.active{display:block;}
 .loading{color:var(--gray);font-family:'Space Mono',monospace;font-size:13px;padding:40px;text-align:center;}
 .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--card);border:1px solid var(--orange);color:var(--white);padding:14px 28px;font-family:'Space Mono',monospace;font-size:13px;z-index:9999;transition:transform 0.3s;opacity:0;}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* STOCK */
+.stock-ok{font-family:'Space Mono',monospace;font-size:12px;color:#33ff66;}
+.stock-low{font-family:'Space Mono',monospace;font-size:12px;color:#ffcc00;}
+.stock-zero{font-family:'Space Mono',monospace;font-size:12px;color:#ff4444;}
+.stock-btn{background:rgba(51,255,102,0.1);border:1px solid rgba(51,255,102,0.3);color:#33ff66;padding:5px 10px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.stock-btn:hover{background:rgba(51,255,102,0.25);border-color:#33ff66;}
+/* STOCK MODAL */
+.stock-modal{position:fixed;inset:0;background:rgba(0,0,0,0.88);z-index:5000;display:none;align-items:center;justify-content:center;padding:20px;}
+.stock-modal.open{display:flex;}
+.stock-modal-box{background:var(--dark);border:1px solid var(--border);border-top:3px solid #33ff66;padding:36px;width:100%;max-width:480px;}
+.stock-modal-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:#33ff66;margin-bottom:6px;}
+.stock-history{max-height:200px;overflow-y:auto;margin-top:12px;}
+.stock-history-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-family:'Space Mono',monospace;font-size:11px;}
+.stock-history-row:last-child{border-bottom:none;}
+.stock-plus{color:#33ff66;}
+.stock-minus{color:#ff4444;}
 </style>
 </head>
 <body>
@@ -155,6 +184,8 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
           <div class="stat-card"><div class="stat-label">ЗАМОВЛЕНЬ</div><div class="stat-value" id="s-orders">—</div><div class="stat-sub">всього</div></div>
           <div class="stat-card"><div class="stat-label">НОВИХ</div><div class="stat-value" id="s-new">—</div><div class="stat-sub">очікують обробки</div></div>
           <div class="stat-card"><div class="stat-label">ВИРУЧКА</div><div class="stat-value" id="s-revenue">—</div><div class="stat-sub">загальна сума</div></div>
+          <div class="stat-card" style="cursor:pointer;border-color:rgba(160,80,255,0.35);" onclick="showTab('orders',document.querySelectorAll('.admin-menu-item')[2]);setTimeout(()=>filterPreorders(),100)"><div class="stat-label" style="color:#cc88ff;">ПЕРЕДЗАМОВЛЕНЬ</div><div class="stat-value" id="s-preorders" style="color:#cc88ff;">—</div><div class="stat-sub">очікують поставки</div></div>
+          <div class="stat-card" style="cursor:pointer;" onclick="showTab('products',document.querySelectorAll('.admin-menu-item')[1])"><div class="stat-label">ЗАКІНЧУЄТЬСЯ</div><div class="stat-value" id="s-lowstock" style="color:#ffcc00;">—</div><div class="stat-sub">товарів ≤ 5 шт</div></div>
         </div>
         <div style="background:var(--card);border:1px solid var(--border);padding:24px;">
           <h3 style="font-family:'Orbitron',monospace;font-size:16px;margin-bottom:4px;color:var(--orange)">// ОСТАННІ ЗАРЕЄСТРОВАНІ ЗАМОВЛЕННЯ</h3>
@@ -172,9 +203,9 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
         <div style="overflow-x:auto;">
           <table class="products-table" id="productsTable">
             <thead><tr>
-              <th>EMOJI</th><th>НАЗВА</th><th>КАТЕГОРІЯ</th><th>ЦІНА</th><th>МІТКИ</th><th>НАЯВНІСТЬ</th><th>ДІЇ</th>
+              <th>EMOJI</th><th>НАЗВА</th><th>КАТЕГОРІЯ</th><th>ЦІНА</th><th>МІТКИ</th><th>НАЯВНІСТЬ</th><th>СКЛАД</th><th>ДІЇ</th>
             </tr></thead>
-            <tbody id="productsTbody"><tr><td colspan="6" class="loading">Завантаження...</td></tr></tbody>
+            <tbody id="productsTbody"><tr><td colspan="8" class="loading">Завантаження...</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -184,6 +215,19 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
         <div class="section-head">
           <h2>ЗАМОВЛЕННЯ</h2>
           <span id="ordersCount" style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray)"></span>
+        </div>
+        <div id="preorderAlertBar" class="preorder-alert-bar" style="display:none;">
+          <div class="preorder-alert-icon">🕐</div>
+          <div class="preorder-alert-text">
+            <div class="preorder-alert-title">ОЧІКУЮТЬ ПОПОВНЕННЯ СКЛАДУ</div>
+            <div class="preorder-alert-sub">Клієнти оформили передзамовлення на відсутні товари. Як тільки товар надійде на склад — обробіть ці замовлення та відправте.</div>
+          </div>
+          <div class="preorder-alert-count"><span id="preorderAlertCount">0</span></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <button id="filterAllBtn" onclick="filterOrders('all')" style="background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);padding:7px 16px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;font-weight:700;">ВСІ</button>
+          <button id="filterPreBtn" onclick="filterOrders('preorder')" style="background:rgba(160,80,255,0.15);border:1px solid rgba(160,80,255,0.4);color:#cc88ff;padding:7px 16px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;">🕐 ПЕРЕДЗАМОВЛЕННЯ</button>
+          <button id="filterActiveBtn" onclick="filterOrders('active')" style="background:transparent;border:1px solid var(--border);color:var(--gray);padding:7px 16px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;">⚙️ АКТИВНІ</button>
         </div>
         <div style="overflow-x:auto;">
           <table class="orders-table" id="ordersTable">
@@ -351,6 +395,11 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
         <input type="checkbox" id="p-out"><label for="p-out" style="color:#aaa;">🚫 НЕМАЄ В НАЯВНОСТІ</label>
       </div>
     </div>
+    <div class="form-row">
+      <label class="form-label">КІЛЬКІСТЬ НА СКЛАДІ (шт)</label>
+      <input class="form-input" type="number" id="p-stock" placeholder="0" min="0" style="border-color:rgba(51,255,102,0.4);">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-top:4px;">≤ 5 шт — попередження, 0 — автоматично "Немає в наявності"</div>
+    </div>
     <div class="form-btns">
       <button class="save-btn" onclick="saveProduct()">💾 ЗБЕРЕГТИ</button>
       <button class="cancel-btn" onclick="closeProductModal()">СКАСУВАТИ</button>
@@ -390,6 +439,39 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
     snap.forEach(d => window._products.push({id: d.id, ...d.data()}));
     renderProductsTable();
     document.getElementById('s-products').textContent = window._products.length;
+    const lowStock = window._products.filter(p => p.stock !== null && p.stock !== undefined && p.stock <= 5).length;
+    const el = document.getElementById('s-lowstock');
+    if (el) {
+      el.textContent = lowStock;
+      el.style.color = lowStock > 0 ? '#ffcc00' : '#33ff66';
+    }
+  };
+
+  // UPDATE STOCK
+  window.updateProductStock = async function(id, newStock) {
+    const autoOut = newStock === 0;
+    await updateDoc(doc(db, 'products', id), {
+      stock: newStock,
+      isOutOfStock: autoOut
+    });
+    const p = window._products.find(p => p.id === id);
+    if (p) { p.stock = newStock; p.isOutOfStock = autoOut; }
+  };
+
+  // DEDUCT STOCK for order items (called when order goes to 'processing')
+  window.deductStockForOrder = async function(items) {
+    for (const item of items) {
+      const p = window._products.find(p => p.id === item.id);
+      if (!p || p.stock === null || p.stock === undefined) continue;
+      const newStock = Math.max(0, p.stock - item.qty);
+      await window.updateProductStock(p.id, newStock);
+      // Log deduction
+      const log = JSON.parse(localStorage.getItem('stockLog') || '[]');
+      log.unshift({productId: p.id, delta: -item.qty, reason: 'Замовлення', date: new Date().toISOString()});
+      localStorage.setItem('stockLog', JSON.stringify(log.slice(0, 200)));
+    }
+    renderProductsTable();
+    window.loadProducts();
   };
 
   // LOAD ORDERS
@@ -403,7 +485,13 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       return tb - ta;
     });
     renderOrdersTable();
+    if (window._currentOrderFilter && window._currentOrderFilter !== 'all') {
+      setTimeout(() => filterOrders(window._currentOrderFilter), 50);
+    }
     const newCount = window._orders.filter(o => o.status === 'new' || !o.status).length;
+    const preorderCount2 = window._orders.filter(o => o.status === 'preorder').length;
+    const sPreEl = document.getElementById('s-preorders');
+    if (sPreEl) { sPreEl.textContent = preorderCount2; }
     const revenue = window._orders.reduce((s,o) => s + (o.total || 0), 0);
     document.getElementById('s-orders').textContent = window._orders.length;
     document.getElementById('s-new').textContent = newCount;
@@ -429,9 +517,27 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
 
   // UPDATE ORDER STATUS
   window.updateOrderStatus = async function(id, status) {
-    await updateDoc(doc(db, 'orders', id), {status});
     const o = window._orders.find(o => o.id === id);
+    const prevStatus = o ? o.status : null;
+    await updateDoc(doc(db, 'orders', id), {status});
     if (o) o.status = status;
+    // Deduct stock when order moves to 'processing' for the first time
+    if (status === 'processing' && prevStatus !== 'processing' && o && o.items) {
+      try { await window.deductStockForOrder(o.items); } catch(e) { console.warn('Stock deduct error:', e); }
+    }
+    // Restore stock when order is cancelled (only if was processing or further)
+    if (status === 'cancelled' && ['processing','packing','shipped','delivering'].includes(prevStatus) && o && o.items) {
+      for (const item of o.items) {
+        const p = window._products.find(p => p.id === item.id);
+        if (!p || p.stock === null || p.stock === undefined) continue;
+        const newStock = p.stock + item.qty;
+        await window.updateProductStock(p.id, newStock);
+        const log = JSON.parse(localStorage.getItem('stockLog') || '[]');
+        log.unshift({productId: p.id, delta: +item.qty, reason: 'Скасування', date: new Date().toISOString()});
+        localStorage.setItem('stockLog', JSON.stringify(log.slice(0, 200)));
+      }
+      renderProductsTable();
+    }
   };
 
   // UPDATE ORDER ITEMS
@@ -516,8 +622,19 @@ function renderProductsTable() {
           : '<span style="color:#33ff66;font-family:\'Space Mono\',monospace;font-size:11px;">✅ В наявності</span>'}
       </td>
       <td>
-        <div class="action-btns">
+        ${(p.stock === undefined || p.stock === null)
+          ? '<span style="color:var(--gray);font-family:\'Space Mono\',monospace;font-size:11px;">—</span>'
+          : p.stock === 0
+            ? '<span class="stock-zero">0 шт ⚠️</span>'
+            : p.stock <= 5
+              ? `<span class="stock-low">${p.stock} шт</span>`
+              : `<span class="stock-ok">${p.stock} шт</span>`}
+      </td>
+      <td>
+        <div class="action-btns" style="flex-wrap:wrap;gap:6px;">
           <button class="edit-btn" onclick="editProduct('${p.id}')">✏️ Ред.</button>
+          <button class="stock-btn" onclick="openStockModal('${p.id}')">📦 Склад</button>
+          ${p.isOutOfStock ? `<button onclick="window._demoPreorderId='${p.id}';document.getElementById('preorderDemoSection').style.display='block';" style="background:rgba(160,80,255,0.1);border:1px solid rgba(160,80,255,0.4);color:#cc88ff;padding:5px 10px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;">🕐 Demo</button>` : ''}
           <button class="del-btn" onclick="confirmDelete('${p.id}','${p.name.replace(/'/g,"\\'")}')">🗑 Вид.</button>
         </div>
       </td>
@@ -530,6 +647,16 @@ function renderOrdersTable() {
   const tbody = document.getElementById('ordersTbody');
   const orders = window._orders || [];
   document.getElementById('ordersCount').textContent = `Всього: ${orders.length}`;
+  const preorderCount = orders.filter(o => o.status === 'preorder').length;
+  const alertBar = document.getElementById('preorderAlertBar');
+  if (alertBar) {
+    alertBar.style.display = preorderCount > 0 ? 'flex' : 'none';
+    const cnt = document.getElementById('preorderAlertCount');
+    if (cnt) cnt.textContent = preorderCount;
+  }
+  const sPreorders = document.getElementById('s-preorders');
+  if (sPreorders) sPreorders.textContent = preorderCount;
+  window._currentOrderFilter = window._currentOrderFilter || 'all';
   if (orders.length === 0) {
     tbody.innerHTML = '<tr><td colspan="8" class="loading">Замовлень ще немає.</td></tr>';
     return;
@@ -538,7 +665,7 @@ function renderOrdersTable() {
     const d = o.customer || {};
     const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('uk-UA') : '—';
     const items = (o.items || []).map(i => `${i.emoji||'📦'} ${i.name} ×${i.qty}`).join('<br>');
-    return `<tr>
+    return `<tr class="${o.status==='preorder'?'preorder-row':''}">
       <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
       <td>
         <strong style="cursor:pointer;color:var(--orange);text-decoration:underline;" onclick="showClientOrders('${(d.name||'').replace(/'/g,"\\'")}','${(d.phone||'').replace(/'/g,"\\'")}')">${d.name||'—'}</strong>
@@ -550,6 +677,7 @@ function renderOrdersTable() {
       <td style="font-family:'Orbitron',monospace;color:var(--orange);font-weight:900;white-space:nowrap">${o.total||0} грн</td>
       <td>
         <select class="status-select" onchange="changeOrderStatus('${o.id}',this.value)" style="background:var(--card);border:1px solid var(--border);color:var(--white);padding:5px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;outline:none;min-width:160px;">
+          <option value="preorder" ${o.status==='preorder'?'selected':''}>🕐 Передзамовлення</option>
           <option value="new" ${o.status==='new'?'selected':''}>🆕 Новий</option>
           <option value="processing" ${o.status==='processing'?'selected':''}>⚙️ Обробляється</option>
           <option value="packing" ${o.status==='packing'?'selected':''}>📦 Комплектується</option>
@@ -565,6 +693,62 @@ function renderOrdersTable() {
   }).join('');
 }
 
+function filterOrders(type) {
+  window._currentOrderFilter = type;
+  const allOrders = window._orders || [];
+  let filtered;
+  if (type === 'preorder') filtered = allOrders.filter(o => o.status === 'preorder');
+  else if (type === 'active') filtered = allOrders.filter(o => !['done','cancelled','preorder'].includes(o.status));
+  else filtered = allOrders;
+
+  const btnAll = document.getElementById('filterAllBtn');
+  const btnPre = document.getElementById('filterPreBtn');
+  const btnAct = document.getElementById('filterActiveBtn');
+  if (btnAll) { btnAll.style.background = type==='all'?'var(--orange-dim)':'transparent'; btnAll.style.borderColor = type==='all'?'var(--orange)':'var(--border)'; btnAll.style.color = type==='all'?'var(--orange)':'var(--gray)'; }
+  if (btnPre) { btnPre.style.background = type==='preorder'?'rgba(160,80,255,0.25)':'rgba(160,80,255,0.08)'; btnPre.style.fontWeight = type==='preorder'?'700':'400'; }
+  if (btnAct) { btnAct.style.background = type==='active'?'rgba(255,102,0,0.1)':'transparent'; btnAct.style.borderColor = type==='active'?'var(--orange)':'var(--border)'; btnAct.style.color = type==='active'?'var(--orange)':'var(--gray)'; }
+
+  const tbody = document.getElementById('ordersTbody');
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="9" class="loading">${type==='preorder'?'Передзамовлень немає':'Замовлень немає'}</td></tr>`;
+    return;
+  }
+  const statusLabels = {preorder:'🕐 Передзамовлення',new:'🆕 Новий',processing:'⚙️ Обробляється',packing:'📦 Комплектується',shipped:'🚚 Передано',delivering:'🛵 Доставляється',done:'✅ Доставлено',cancelled:'❌ Скасовано'};
+  tbody.innerHTML = filtered.map(o => {
+    const d = o.customer || {};
+    const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString('uk-UA') : '—';
+    const items = (o.items || []).map(i => `${i.emoji||'📦'} ${i.name} ×${i.qty}`).join('<br>');
+    const isPreorder = o.status === 'preorder';
+    return `<tr class="${isPreorder?'preorder-row':''}">
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}${isPreorder?'<br><span class="preorder-badge">🕐 ПЕРЕДЗАМОВЛЕННЯ</span>':''}</td>
+      <td>
+        <strong style="cursor:pointer;color:var(--orange);text-decoration:underline;" onclick="showClientOrders('${(d.name||'').replace(/'/g,"\'")}','${(d.phone||'').replace(/'/g,"\'")}')">${d.name||'—'}</strong>
+        ${d.email?`<br><small style="color:var(--gray)">${d.email}</small>`:''}
+      </td>
+      <td style="font-family:'Space Mono',monospace;font-size:12px;">${d.phone||'—'}</td>
+      <td>${d.city||'—'}<br><small style="color:var(--gray)">${d.branch||'—'}</small></td>
+      <td class="order-items-list">${items}${isPreorder?'<br><span style="font-family:\'Space Mono\',monospace;font-size:10px;color:#cc88ff;">⏳ Очікує поповнення</span>':''}</td>
+      <td style="font-family:'Orbitron',monospace;color:var(--orange);font-weight:900;white-space:nowrap">${o.total||0} грн</td>
+      <td>
+        <select class="status-select" onchange="changeOrderStatus('${o.id}',this.value)" style="background:var(--card);border:1px solid ${isPreorder?'rgba(160,80,255,0.5)':'var(--border)'};color:${isPreorder?'#cc88ff':'var(--white)'};padding:5px 8px;font-family:'Space Mono',monospace;font-size:10px;cursor:pointer;outline:none;min-width:160px;">
+          <option value="preorder" ${o.status==='preorder'?'selected':''}>🕐 Передзамовлення</option>
+          <option value="new" ${o.status==='new'?'selected':''}>🆕 Новий</option>
+          <option value="processing" ${o.status==='processing'?'selected':''}>⚙️ Обробляється</option>
+          <option value="packing" ${o.status==='packing'?'selected':''}>📦 Комплектується</option>
+          <option value="shipped" ${o.status==='shipped'?'selected':''}>🚚 Передано в доставку</option>
+          <option value="delivering" ${o.status==='delivering'?'selected':''}>🛵 Доставляється</option>
+          <option value="done" ${o.status==='done'?'selected':''}>✅ Доставлено</option>
+          <option value="cancelled" ${o.status==='cancelled'?'selected':''}>❌ Скасовано</option>
+        </select>
+      </td>
+      <td style="font-size:12px;color:var(--gray)">${date}</td>
+      <td><button class="edit-btn" onclick="openEditOrderModal('${o.id}')">✏️ Ред.</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function filterPreorders() { filterOrders('preorder'); }
+
 function renderRecentOrders() {
   const orders = (window._orders || []).slice(0, 5);
   const el = document.getElementById('recentOrders');
@@ -579,7 +763,7 @@ function renderRecentOrders() {
         <td style="padding:8px 12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--gray)">#${o.id.slice(-6).toUpperCase()}</td>
         <td style="padding:8px 12px">${d.name||'—'}</td>
         <td style="padding:8px 12px;font-family:'Orbitron',monospace;color:var(--orange)">${o.total||0} грн</td>
-        <td style="padding:8px 12px"><span class="order-status status-${o.status||'new'}">${{new:'🆕 Новий',processing:'⚙️ Обробляється',packing:'📦 Комплектується',shipped:'🚚 Передано',delivering:'🛵 Доставляється',done:'✅ Доставлено',cancelled:'❌ Скасовано'}[o.status]||'🆕 Новий'}</span></td>
+        <td style="padding:8px 12px"><span class="order-status status-${o.status||'new'}">${{preorder:'🕐 Передзамовлення',new:'🆕 Новий',processing:'⚙️ Обробляється',packing:'📦 Комплектується',shipped:'🚚 Передано',delivering:'🛵 Доставляється',done:'✅ Доставлено',cancelled:'❌ Скасовано'}[o.status]||'🆕 Новий'}</span></td>
       </tr>`;
     }).join('')}
   </table>`;
@@ -599,6 +783,7 @@ function openProductModal(id) {
   document.getElementById('p-new').checked = false;
   document.getElementById('p-sale').checked = false;
   document.getElementById('p-out').checked = false;
+  document.getElementById('p-stock').value = '';
   clearPhoto();
   document.getElementById('productModal').classList.add('open');
 }
@@ -618,6 +803,7 @@ function editProduct(id) {
   document.getElementById('p-new').checked = !!p.isNew;
   document.getElementById('p-sale').checked = !!p.isSale;
   document.getElementById('p-out').checked = !!p.isOutOfStock;
+  document.getElementById('p-stock').value = (p.stock !== undefined && p.stock !== null) ? p.stock : '';
   clearPhoto();
   if (p.photo) { setPhotoPreview(p.photo); document.getElementById('p-photo-url').value = p.photo; }
   document.getElementById('productModal').classList.add('open');
@@ -638,6 +824,9 @@ async function saveProduct() {
     if (!confirm('⚠️ Ви позначили товар як акційний, але стара ціна не вказана або менша/рівна новій.\n\nБез старої ціни перекреслена ціна не відображатиметься на сайті.\n\nПродовжити?')) return;
   }
 
+  const stockVal = document.getElementById('p-stock').value;
+  const stock = stockVal !== '' ? parseInt(stockVal, 10) : null;
+  const autoOut = stock !== null && stock === 0;
   const data = {
     name,
     price,
@@ -649,7 +838,8 @@ async function saveProduct() {
     isHit: document.getElementById('p-hit').checked,
     isNew: document.getElementById('p-new').checked,
     isSale,
-    isOutOfStock: document.getElementById('p-out').checked
+    isOutOfStock: autoOut || document.getElementById('p-out').checked,
+    stock: stock
   };
 
   try {
@@ -690,6 +880,7 @@ const EMAILJS_TEMPLATE_ID = 'template_er4h3ns';      // Email Templates → Temp
 
 // Людські назви статусів для листа
 const STATUS_LABELS = {
+  preorder:   { emoji:'🕐', text:'Передзамовлення оформлено', desc:'Товар тимчасово відсутній на складі. Ми зарезервували його для вас і надішлемо одразу після надходження.' },
   new:        { emoji:'🆕', text:'Замовлення прийнято',   desc:'Ми отримали ваше замовлення та розпочинаємо обробку.' },
   processing: { emoji:'⚙️', text:'Обробляється',          desc:'Менеджер перевіряє наявність товарів та підтверджує замовлення.' },
   packing:    { emoji:'📦', text:'Комплектується',         desc:'Ваше замовлення пакується та готується до відправки.' },
@@ -1042,5 +1233,378 @@ function closeEditOrderModal() {
   window._editingOrder = null;
 }
 </script>
+
+<!-- STOCK MODAL -->
+<div class="stock-modal" id="stockModal" onclick="if(event.target===this)closeStockModal()">
+  <div class="stock-modal-box">
+    <div class="stock-modal-title">📦 СКЛАД: <span id="stockModalName" style="font-size:14px;color:var(--white);"></span></div>
+    <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:20px;">Поточний залишок на складі</div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);padding:16px;margin-bottom:20px;">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray);">ЗАЛИШОК:</span>
+      <span id="stockModalCurrent" style="font-family:'Orbitron',monospace;font-size:28px;font-weight:900;color:#33ff66;">—</span>
+      <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray);">шт</span>
+    </div>
+    <div style="background:var(--card);border:1px solid rgba(51,255,102,0.3);padding:20px;margin-bottom:16px;">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:12px;">ПОПОВНИТИ СКЛАД (додати кількість):</div>
+      <div style="display:flex;gap:8px;margin-bottom:10px;">
+        <button onclick="quickAdd(5)"  style="flex:1;background:var(--dark);border:1px solid rgba(51,255,102,0.4);color:#33ff66;padding:10px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(51,255,102,0.15)'" onmouseout="this.style.background='var(--dark)'">+5</button>
+        <button onclick="quickAdd(10)" style="flex:1;background:var(--dark);border:1px solid rgba(51,255,102,0.4);color:#33ff66;padding:10px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(51,255,102,0.15)'" onmouseout="this.style.background='var(--dark)'">+10</button>
+        <button onclick="quickAdd(20)" style="flex:1;background:var(--dark);border:1px solid rgba(51,255,102,0.4);color:#33ff66;padding:10px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(51,255,102,0.15)'" onmouseout="this.style.background='var(--dark)'">+20</button>
+        <button onclick="quickAdd(50)" style="flex:1;background:var(--dark);border:1px solid rgba(51,255,102,0.4);color:#33ff66;padding:10px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.background='rgba(51,255,102,0.15)'" onmouseout="this.style.background='var(--dark)'">+50</button>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <input type="number" id="stockAddInput" min="1" placeholder="Своя кількість..." class="form-input" style="flex:1;border-color:rgba(51,255,102,0.3);" onkeypress="if(event.key==='Enter')addStockManual()">
+        <button onclick="addStockManual()" style="background:rgba(51,255,102,0.15);border:1px solid rgba(51,255,102,0.5);color:#33ff66;padding:12px 18px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;font-weight:700;transition:all 0.2s;" onmouseover="this.style.background='rgba(51,255,102,0.3)'" onmouseout="this.style.background='rgba(51,255,102,0.15)'">ДОДАТИ</button>
+      </div>
+    </div>
+    <div style="background:var(--card);border:1px solid rgba(255,51,51,0.2);padding:16px;margin-bottom:20px;">
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:10px;">ВСТАНОВИТИ ТОЧНЕ ЗНАЧЕННЯ:</div>
+      <div style="display:flex;gap:8px;">
+        <input type="number" id="stockSetInput" min="0" placeholder="Нова кількість..." class="form-input" style="flex:1;border-color:rgba(255,102,0,0.3);" onkeypress="if(event.key==='Enter')setStockManual()">
+        <button onclick="setStockManual()" style="background:var(--orange-dim);border:1px solid var(--orange);color:var(--orange);padding:12px 18px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;font-weight:700;transition:all 0.2s;" onmouseover="this.style.background='rgba(255,102,0,0.3)'" onmouseout="this.style.background='var(--orange-dim)'">SET</button>
+      </div>
+    </div>
+    <div>
+      <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:8px;">// ЖУРНАЛ ЗМІН</div>
+      <div class="stock-history" id="stockHistory">
+        <div style="color:var(--gray);font-family:'Space Mono',monospace;font-size:11px;text-align:center;padding:12px;">Немає записів</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button onclick="closeStockModal()" style="flex:1;background:transparent;border:1px solid var(--border);color:var(--gray);padding:12px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">ЗАКРИТИ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window._stockProductId = null;
+
+function openStockModal(id) {
+  const p = (window._products || []).find(p => p.id === id);
+  if (!p) return;
+  window._stockProductId = id;
+  document.getElementById('stockModalName').textContent = p.name;
+  document.getElementById('stockAddInput').value = '';
+  document.getElementById('stockSetInput').value = '';
+  updateStockModalDisplay(p.stock);
+  renderStockHistory(id);
+  document.getElementById('stockModal').classList.add('open');
+}
+
+function updateStockModalDisplay(val) {
+  const el = document.getElementById('stockModalCurrent');
+  if (val === null || val === undefined) { el.textContent = '—'; el.style.color = 'var(--gray)'; return; }
+  el.textContent = val;
+  el.style.color = val === 0 ? '#ff4444' : val <= 5 ? '#ffcc00' : '#33ff66';
+}
+
+function closeStockModal() {
+  document.getElementById('stockModal').classList.remove('open');
+  window._stockProductId = null;
+}
+
+async function quickAdd(amount) {
+  const id = window._stockProductId;
+  const p = (window._products || []).find(p => p.id === id);
+  if (!p) return;
+  const current = p.stock || 0;
+  const newStock = current + amount;
+  await applyStockChange(id, newStock, '+' + amount, 'Поповнення');
+}
+
+async function addStockManual() {
+  const val = parseInt(document.getElementById('stockAddInput').value, 10);
+  if (isNaN(val) || val <= 0) { showToast('❌ Введіть додатне число'); return; }
+  const id = window._stockProductId;
+  const p = (window._products || []).find(p => p.id === id);
+  if (!p) return;
+  const newStock = (p.stock || 0) + val;
+  await applyStockChange(id, newStock, '+' + val, 'Поповнення');
+  document.getElementById('stockAddInput').value = '';
+}
+
+async function setStockManual() {
+  const val = parseInt(document.getElementById('stockSetInput').value, 10);
+  if (isNaN(val) || val < 0) { showToast('❌ Введіть число ≥ 0'); return; }
+  const id = window._stockProductId;
+  const p = (window._products || []).find(p => p.id === id);
+  if (!p) return;
+  const delta = val - (p.stock || 0);
+  await applyStockChange(id, val, (delta >= 0 ? '+' : '') + delta, 'Коригування');
+  document.getElementById('stockSetInput').value = '';
+}
+
+async function applyStockChange(id, newStock, deltaStr, reason) {
+  try {
+    await window.updateProductStock(id, newStock);
+    const log = JSON.parse(localStorage.getItem('stockLog') || '[]');
+    log.unshift({productId: id, deltaStr, reason, date: new Date().toISOString()});
+    localStorage.setItem('stockLog', JSON.stringify(log.slice(0, 200)));
+    updateStockModalDisplay(newStock);
+    renderStockHistory(id);
+    renderProductsTable();
+    if (typeof window.loadProducts === 'function') window.loadProducts();
+    showToast('✅ Склад оновлено: ' + newStock + ' шт');
+    // Notify if preorders exist for this product
+    if (newStock > 0 && typeof window.notifyPreordersReady === 'function') {
+      window.notifyPreordersReady(id);
+    }
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message);
+  }
+}
+
+function renderStockHistory(id) {
+  const log = JSON.parse(localStorage.getItem('stockLog') || '[]');
+  const rows = log.filter(r => r.productId === id).slice(0, 20);
+  const el = document.getElementById('stockHistory');
+  if (rows.length === 0) {
+    el.innerHTML = '<div style="color:var(--gray);font-family:\'Space Mono\',monospace;font-size:11px;text-align:center;padding:12px;">Немає записів</div>';
+    return;
+  }
+  el.innerHTML = rows.map(r => {
+    const isPlus = r.deltaStr && r.deltaStr.startsWith('+');
+    const isMinus = r.deltaStr && r.deltaStr.startsWith('-');
+    const date = new Date(r.date).toLocaleString('uk-UA', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    return `<div class="stock-history-row">
+      <span class="${isPlus?'stock-plus':isMinus?'stock-minus':''}">${r.deltaStr || '—'} шт</span>
+      <span style="color:var(--light);">${r.reason || '—'}</span>
+      <span style="color:var(--gray);">${date}</span>
+    </div>`;
+  }).join('');
+}
+</script>
+
+
+<!-- ═══════════════════════════════════════════════════════════════
+     PREORDER STOREFRONT COMPONENTS
+     Вставте цей код на сторінку товару (shop.html / product page)
+     коли isOutOfStock === true
+═══════════════════════════════════════════════════════════════ -->
+
+<!-- PREORDER MODAL STYLES (для фронтенду) -->
+<style>
+.po-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.po-overlay.open{display:flex;}
+.po-box{background:#111;border:1px solid #2a2a2a;border-top:3px solid #cc88ff;width:100%;max-width:520px;overflow:hidden;position:relative;}
+.po-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:200px;height:1px;background:linear-gradient(90deg,transparent,#cc88ff,transparent);box-shadow:0 0 30px 8px rgba(160,80,255,0.25);}
+.po-header{padding:36px 36px 0;}
+.po-icon{width:56px;height:56px;background:rgba(160,80,255,0.15);border:1px solid rgba(160,80,255,0.4);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px;}
+.po-title{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:#f0f0f0;margin-bottom:8px;line-height:1.2;}
+.po-subtitle{font-family:'Space Mono',monospace;font-size:12px;color:#888;letter-spacing:0.05em;margin-bottom:24px;}
+.po-product-strip{background:#161616;border:1px solid #2a2a2a;padding:14px 16px;display:flex;align-items:center;gap:14px;margin:0 36px 24px;}
+.po-product-emoji{font-size:32px;}
+.po-product-info{flex:1;}
+.po-product-name{font-family:'Space Mono',monospace;font-size:13px;color:#f0f0f0;font-weight:700;}
+.po-product-price{font-family:'Orbitron',monospace;font-size:16px;color:#cc88ff;font-weight:900;margin-top:2px;}
+.po-body{padding:0 36px 36px;}
+.po-promise{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:24px;}
+.po-promise-item{background:#161616;border:1px solid #2a2a2a;padding:12px;text-align:center;}
+.po-promise-icon{font-size:20px;margin-bottom:6px;}
+.po-promise-text{font-family:'Space Mono',monospace;font-size:10px;color:#888;line-height:1.5;}
+.po-label{font-family:'Space Mono',monospace;font-size:11px;color:#888;letter-spacing:0.1em;display:block;margin-bottom:6px;}
+.po-input{width:100%;background:#161616;border:1px solid #2a2a2a;color:#f0f0f0;padding:14px 16px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
+.po-input:focus{border-color:#cc88ff;}
+.po-input::placeholder{color:#555;}
+.po-submit{width:100%;background:linear-gradient(135deg,#8833cc,#cc88ff);color:#fff;border:none;padding:16px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all 0.2s;margin-top:12px;position:relative;overflow:hidden;}
+.po-submit:hover{background:linear-gradient(135deg,#9944dd,#dd99ff);}
+.po-submit:active{transform:scale(0.98);}
+.po-close{position:absolute;top:16px;right:16px;background:transparent;border:none;color:#555;font-size:20px;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:color 0.2s;}
+.po-close:hover{color:#f0f0f0;}
+.po-terms{font-family:'Space Mono',monospace;font-size:10px;color:#555;text-align:center;margin-top:12px;line-height:1.6;}
+/* Success state */
+.po-success{display:none;padding:36px;text-align:center;}
+.po-success-icon{font-size:48px;margin-bottom:16px;}
+.po-success-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:#cc88ff;margin-bottom:10px;}
+.po-success-text{font-family:'Space Mono',monospace;font-size:12px;color:#888;line-height:1.8;}
+/* Out of stock button (на сторінці товару) */
+.btn-preorder{width:100%;background:transparent;border:2px solid rgba(160,80,255,0.5);color:#cc88ff;padding:16px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all 0.3s;position:relative;overflow:hidden;}
+.btn-preorder::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(160,80,255,0.1),rgba(204,136,255,0.05));transition:opacity 0.3s;}
+.btn-preorder:hover{border-color:#cc88ff;background:rgba(160,80,255,0.12);box-shadow:0 0 20px rgba(160,80,255,0.2);}
+.out-of-stock-notice{background:rgba(160,80,255,0.06);border:1px solid rgba(160,80,255,0.25);padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+.out-notice-dot{width:8px;height:8px;background:#cc88ff;border-radius:50%;flex-shrink:0;animation:pulse-dot 2s infinite;}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(0.8);}}
+.out-notice-text{font-family:'Space Mono',monospace;font-size:11px;color:#cc88ff;line-height:1.5;}
+</style>
+
+<!-- DEMO: як виглядатиме кнопка і модальне вікно на сторінці товару -->
+<div id="poModal" class="po-overlay" onclick="if(event.target===this)closePOModal()">
+  <div class="po-box">
+    <div class="po-glow"></div>
+    <button class="po-close" onclick="closePOModal()">✕</button>
+
+    <!-- Main form -->
+    <div id="poFormView">
+      <div class="po-header">
+        <div class="po-icon">🕐</div>
+        <div class="po-title">Товар тимчасово<br>відсутній</div>
+        <div class="po-subtitle">// ОФОРМИТИ ПЕРЕДЗАМОВЛЕННЯ</div>
+      </div>
+
+      <div class="po-product-strip" id="poProductStrip">
+        <div class="po-product-emoji" id="poEmoji">📦</div>
+        <div class="po-product-info">
+          <div class="po-product-name" id="poProductName">Товар</div>
+          <div class="po-product-price" id="poProductPrice">0 грн</div>
+        </div>
+      </div>
+
+      <div class="po-body">
+        <div class="po-promise">
+          <div class="po-promise-item">
+            <div class="po-promise-icon">📬</div>
+            <div class="po-promise-text">Повідомимо<br>на email/телефон</div>
+          </div>
+          <div class="po-promise-item">
+            <div class="po-promise-icon">🔒</div>
+            <div class="po-promise-text">Товар буде<br>зарезервовано</div>
+          </div>
+          <div class="po-promise-item">
+            <div class="po-promise-icon">💳</div>
+            <div class="po-promise-text">Оплата після<br>надходження</div>
+          </div>
+          <div class="po-promise-item">
+            <div class="po-promise-icon">⚡</div>
+            <div class="po-promise-text">Відправка в<br>день надходження</div>
+          </div>
+        </div>
+
+        <div style="margin-bottom:14px;">
+          <label class="po-label">ІМ'Я *</label>
+          <input class="po-input" type="text" id="po-name" placeholder="Ваше ім'я">
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="po-label">ТЕЛЕФОН *</label>
+          <input class="po-input" type="tel" id="po-phone" placeholder="+38 (___) ___-__-__">
+        </div>
+        <div style="margin-bottom:6px;">
+          <label class="po-label">EMAIL (необов'язково)</label>
+          <input class="po-input" type="email" id="po-email" placeholder="для email-сповіщення">
+        </div>
+        <button class="po-submit" onclick="submitPreorder()">
+          🕐 ОФОРМИТИ ПЕРЕДЗАМОВЛЕННЯ
+        </button>
+        <div class="po-terms">
+          Натискаючи кнопку, ви погоджуєтесь на обробку персональних даних.<br>
+          Ми не стягуємо передоплату — лише резервуємо товар для вас.
+        </div>
+      </div>
+    </div>
+
+    <!-- Success -->
+    <div id="poSuccessView" class="po-success">
+      <div class="po-success-icon">✅</div>
+      <div class="po-success-title">ПЕРЕДЗАМОВЛЕННЯ<br>ОФОРМЛЕНО!</div>
+      <div class="po-success-text" id="poSuccessText">
+        Ми зарезервували товар для вас.<br>
+        Як тільки він надійде на склад — <br>
+        ми одразу зв'яжемося з вами<br>і відправимо замовлення.
+      </div>
+      <div style="margin-top:24px;background:#161616;border:1px solid rgba(160,80,255,0.3);padding:16px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:#555;margin-bottom:6px;">ВАШЕ ЗАМОВЛЕННЯ</div>
+        <div style="font-family:'Orbitron',monospace;font-size:18px;color:#cc88ff;" id="poSuccessOrderId">—</div>
+      </div>
+      <button onclick="closePOModal()" style="margin-top:20px;background:transparent;border:1px solid #2a2a2a;color:#888;padding:12px 32px;font-family:'Space Mono',monospace;font-size:12px;cursor:pointer;transition:all 0.2s;width:100%;" onmouseover="this.style.borderColor='#cc88ff';this.style.color='#cc88ff'" onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#888'">ЗАКРИТИ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────
+// PREORDER MODAL (фронтенд + адмін-тест)
+// ─────────────────────────────────────────
+window._poProduct = null;
+
+function openPreorderModal(productId) {
+  const p = (window._products || []).find(p => p.id === productId);
+  if (!p) { showToast('❌ Товар не знайдено'); return; }
+  window._poProduct = p;
+  document.getElementById('poEmoji').textContent = p.emoji || '📦';
+  document.getElementById('poProductName').textContent = p.name;
+  document.getElementById('poProductPrice').textContent = p.price + ' грн';
+  document.getElementById('po-name').value = '';
+  document.getElementById('po-phone').value = '';
+  document.getElementById('po-email').value = '';
+  document.getElementById('poFormView').style.display = '';
+  document.getElementById('poSuccessView').style.display = 'none';
+  document.getElementById('poModal').classList.add('open');
+}
+
+function closePOModal() {
+  document.getElementById('poModal').classList.remove('open');
+  window._poProduct = null;
+}
+
+async function submitPreorder() {
+  const name  = document.getElementById('po-name').value.trim();
+  const phone = document.getElementById('po-phone').value.trim();
+  const email = document.getElementById('po-email').value.trim();
+  if (!name || !phone) { showToast('❌ Вкажіть ім\'я та телефон'); return; }
+
+  const btn = document.querySelector('.po-submit');
+  btn.disabled = true;
+  btn.textContent = '⏳ Зберігаємо...';
+
+  try {
+    const { addDoc, collection, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+    const p = window._poProduct;
+    const orderRef = await addDoc(collection(window._db, 'orders'), {
+      status: 'preorder',
+      isPreorder: true,
+      customer: { name, phone, email: email || null, city: '—', branch: '—' },
+      items: [{ id: p.id, name: p.name, price: p.price, emoji: p.emoji || '📦', qty: 1 }],
+      total: p.price,
+      createdAt: serverTimestamp()
+    });
+
+    // Show success
+    document.getElementById('poFormView').style.display = 'none';
+    document.getElementById('poSuccessView').style.display = 'block';
+    document.getElementById('poSuccessText').innerHTML =
+      `Ми зарезервували <strong style="color:#cc88ff">${p.name}</strong> для вас, ${name}.<br><br>
+       Як тільки товар надійде на склад —<br>
+       ми зв'яжемося з вами за номером <strong style="color:#f0f0f0">${phone}</strong>${email?'<br>та надішлемо підтвердження на <strong style="color:#f0f0f0">'+email+'</strong>':''}.`;
+    document.getElementById('poSuccessOrderId').textContent = '#' + orderRef.id.slice(-6).toUpperCase();
+
+    // Refresh admin orders list
+    if (window.loadOrders) await window.loadOrders();
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message);
+    btn.disabled = false;
+    btn.textContent = '🕐 ОФОРМИТИ ПЕРЕДЗАМОВЛЕННЯ';
+  }
+}
+
+// When stock is replenished for a preorder product — auto-highlight those orders
+window.notifyPreordersReady = function(productId) {
+  const preorders = (window._orders || []).filter(o =>
+    o.status === 'preorder' && (o.items || []).some(i => i.id === productId)
+  );
+  if (preorders.length > 0) {
+    showToast(`📦 Є ${preorders.length} передзамовлень на цей товар — обробіть їх у розділі Замовлення!`);
+    setTimeout(() => {
+      const ordersBtn = document.querySelectorAll('.admin-menu-item')[2];
+      if (ordersBtn) { showTab('orders', ordersBtn); setTimeout(() => filterOrders('preorder'), 200); }
+    }, 2500);
+  }
+};
+</script>
+
+<!-- DEMO SECTION: Як виглядає на сторінці товару -->
+<div id="preorderDemoSection" style="display:none;position:fixed;bottom:80px;right:24px;z-index:3000;max-width:320px;">
+  <div style="background:#111;border:1px solid rgba(160,80,255,0.4);padding:20px;">
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:#555;margin-bottom:12px;letter-spacing:0.1em;">// PREVIEW: ЯК ВИГЛЯДАЄ НА САЙТІ</div>
+    <div class="out-of-stock-notice">
+      <div class="out-notice-dot"></div>
+      <div class="out-notice-text">Зараз немає в наявності.<br>Очікуємо надходження.</div>
+    </div>
+    <button class="btn-preorder" onclick="openPreorderModal(window._demoPreorderId||'')" style="width:100%">
+      🕐 ПЕРЕДЗАМОВИТИ
+    </button>
+    <div style="font-family:'Space Mono',monospace;font-size:10px;color:#555;margin-top:10px;text-align:center;">Безкоштовно · Без передоплати · Одразу після надходження</div>
+    <button onclick="document.getElementById('preorderDemoSection').style.display='none'" style="position:absolute;top:8px;right:8px;background:transparent;border:none;color:#555;cursor:pointer;font-size:14px;">✕</button>
+  </div>
+</div>
+
 </body>
 </html>
