@@ -117,6 +117,43 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
 .preorder-alert-count{font-family:'Orbitron',monospace;font-size:24px;color:#cc88ff;font-weight:900;flex-shrink:0;}
 .preorder-row td{background:rgba(160,80,255,0.04) !important;}
 .preorder-row:hover td{background:rgba(160,80,255,0.09) !important;}
+
+/* ═══════════ НАКЛАДНІ ═══════════ */
+.inv-table{width:100%;border-collapse:collapse;}
+.inv-table th{font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);letter-spacing:0.15em;padding:10px 14px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+.inv-table td{padding:13px 14px;border-bottom:1px solid rgba(42,42,42,0.6);vertical-align:middle;}
+.inv-table tr:hover td{background:rgba(255,255,255,0.02);}
+.inv-status{font-family:'Space Mono',monospace;font-size:10px;padding:3px 8px;border:1px solid;}
+.inv-status-draft{background:rgba(136,136,136,0.15);color:#888;border-color:rgba(136,136,136,0.3);}
+.inv-status-confirmed{background:rgba(255,204,0,0.12);color:#ffcc00;border-color:rgba(255,204,0,0.4);}
+.inv-status-posted{background:rgba(51,255,102,0.1);color:#33ff66;border-color:rgba(51,255,102,0.35);}
+.inv-status-cancelled{background:rgba(255,51,51,0.1);color:#ff4444;border-color:rgba(255,51,51,0.3);}
+/* Modal */
+.inv-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:5000;display:none;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;backdrop-filter:blur(3px);}
+.inv-modal.open{display:flex;}
+.inv-modal-box{background:var(--dark);border:1px solid var(--border);border-top:3px solid var(--orange);width:100%;max-width:860px;padding:36px;}
+.inv-modal-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--white);margin-bottom:4px;}
+.inv-modal-sub{font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);margin-bottom:28px;}
+.inv-form-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:20px;}
+@media(max-width:700px){.inv-form-grid{grid-template-columns:1fr;}}
+/* Items table inside modal */
+.inv-items-table{width:100%;border-collapse:collapse;margin-bottom:8px;}
+.inv-items-table th{font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;}
+.inv-items-table td{padding:8px 6px;border-bottom:1px solid rgba(42,42,42,0.5);vertical-align:middle;}
+.inv-item-select{background:var(--card);border:1px solid var(--border);color:var(--white);padding:8px 10px;font-family:'Rajdhani',sans-serif;font-size:14px;outline:none;width:100%;transition:border-color 0.2s;}
+.inv-item-select:focus{border-color:var(--orange);}
+.inv-item-input{background:var(--card);border:1px solid var(--border);color:var(--white);padding:8px 10px;font-family:'Space Mono',monospace;font-size:12px;outline:none;width:100%;transition:border-color 0.2s;}
+.inv-item-input:focus{border-color:var(--orange);}
+.inv-del-row{background:transparent;border:none;color:var(--gray);cursor:pointer;font-size:16px;padding:4px 8px;transition:color 0.2s;}
+.inv-del-row:hover{color:#ff4444;}
+.inv-total-row{display:flex;justify-content:flex-end;gap:16px;align-items:center;padding:12px 0;border-top:1px solid var(--border);margin-top:8px;}
+.inv-total-label{font-family:'Space Mono',monospace;font-size:12px;color:var(--gray);}
+.inv-total-val{font-family:'Orbitron',monospace;font-size:22px;color:var(--orange);font-weight:900;}
+/* Detail modal */
+.inv-detail-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:5500;display:none;align-items:flex-start;justify-content:center;padding:24px;overflow-y:auto;}
+.inv-detail-modal.open{display:flex;}
+.inv-detail-box{background:var(--dark);border:1px solid var(--border);border-top:3px solid #33ff66;width:100%;max-width:700px;padding:36px;}
+
 .tab-content{display:none;}
 .tab-content.active{display:block;}
 .loading{color:var(--gray);font-family:'Space Mono',monospace;font-size:13px;padding:40px;text-align:center;}
@@ -173,6 +210,7 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       <button class="admin-menu-item" onclick="showTab('products',this)">📦 Товари</button>
       <button class="admin-menu-item" onclick="showTab('orders',this)">🛒 Замовлення</button>
       <button class="admin-menu-item" onclick="showTab('promo',this)">🎯 Акції</button>
+      <button class="admin-menu-item" onclick="showTab('invoices',this)" id="menuInvoices">📋 Накладні</button>
       <button class="admin-menu-item" onclick="showTab('settings',this)">⚙️ Налаштування</button>
     </aside>
 
@@ -240,6 +278,66 @@ body{background:var(--black);color:var(--white);font-family:'Rajdhani',sans-seri
       </div>
 
       <!-- PROMO -->
+
+      <!-- ═══════════ TAB: НАКЛАДНІ НА ПРИХІД ═══════════ -->
+      <div class="tab-content" id="tab-invoices">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:12px;">
+          <div>
+            <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:0.2em;margin-bottom:6px;">// СКЛАД</div>
+            <h2 style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;">НАКЛАДНІ НА ПРИХІД</h2>
+          </div>
+          <button onclick="openInvModal()" style="background:var(--orange);color:#000;border:none;padding:12px 24px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all 0.2s;" onmouseover="this.style.background='#ff8833'" onmouseout="this.style.background='var(--orange)'">+ НОВА НАКЛАДНА</button>
+        </div>
+
+        <!-- stats strip -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;" id="invStatsStrip">
+          <div style="background:var(--card);border:1px solid var(--border);padding:16px 20px;">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:6px;">ВСЬОГО</div>
+            <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;" id="inv-stat-total">—</div>
+          </div>
+          <div style="background:var(--card);border:1px solid rgba(255,204,0,0.3);padding:16px 20px;">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#ffcc00;margin-bottom:6px;">ПІДТВЕРДЖЕНО</div>
+            <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:#ffcc00;" id="inv-stat-confirmed">—</div>
+          </div>
+          <div style="background:var(--card);border:1px solid rgba(51,255,102,0.3);padding:16px 20px;">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:#33ff66;margin-bottom:6px;">ПРОВЕДЕНО</div>
+            <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:#33ff66;" id="inv-stat-posted">—</div>
+          </div>
+          <div style="background:var(--card);border:1px solid rgba(255,102,0,0.3);padding:16px 20px;">
+            <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--orange);margin-bottom:6px;">СУМА (грн)</div>
+            <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;color:var(--orange);" id="inv-stat-sum">—</div>
+          </div>
+        </div>
+
+        <!-- filters -->
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="tab-filter-btn active" id="invFAll"   onclick="filterInvoices('all',this)">ВСІ</button>
+          <button class="tab-filter-btn" id="invFDraft"        onclick="filterInvoices('draft',this)">⬜ ЧЕРНЕТКА</button>
+          <button class="tab-filter-btn" id="invFConfirmed"    onclick="filterInvoices('confirmed',this)">🟡 ПІДТВЕРДЖЕНО</button>
+          <button class="tab-filter-btn" id="invFPosted"       onclick="filterInvoices('posted',this)">🟢 ПРОВЕДЕНО</button>
+          <button class="tab-filter-btn" id="invFCancelled"    onclick="filterInvoices('cancelled',this)">🔴 СКАСОВАНО</button>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="inv-table">
+            <thead><tr>
+              <th>№ НАКЛАДНОЇ</th>
+              <th>ПОСТАЧАЛЬНИК</th>
+              <th>ДАТА</th>
+              <th>ПОЗИЦІЙ</th>
+              <th>ОДИНИЦЬ</th>
+              <th>СУМА (грн)</th>
+              <th>СТАТУС</th>
+              <th>КОМЕНТАР</th>
+              <th>ДІЇ</th>
+            </tr></thead>
+            <tbody id="invoicesTbody">
+              <tr><td colspan="9" class="loading">Завантаження...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="tab-content" id="tab-promo">
         <div class="section-head"><h2>УПРАВЛІННЯ АКЦІЯМИ</h2></div>
         <div style="background:var(--card);border:1px solid var(--border);padding:28px;max-width:600px;">
@@ -587,6 +685,7 @@ function showTab(tab, btn) {
   if (tab === 'products') renderProductsTable();
   if (tab === 'orders') renderOrdersTable();
   if (tab === 'settings') loadSettings();
+  if (tab === 'invoices' && typeof window.loadInvoices === 'function') window.loadInvoices();
 }
 
 // PRODUCTS TABLE
@@ -1605,6 +1704,486 @@ window.notifyPreordersReady = function(productId) {
     <button onclick="document.getElementById('preorderDemoSection').style.display='none'" style="position:absolute;top:8px;right:8px;background:transparent;border:none;color:#555;cursor:pointer;font-size:14px;">✕</button>
   </div>
 </div>
+
+
+<!-- ═══════════ НАКЛАДНА: MODAL CREATE/EDIT ═══════════ -->
+<div class="inv-modal" id="invModal" onclick="if(event.target===this)closeInvModal()">
+  <div class="inv-modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;">
+      <div>
+        <div class="inv-modal-title" id="invModalTitle">НОВА НАКЛАДНА</div>
+        <div class="inv-modal-sub" id="invModalSub">Заповніть дані та додайте товари</div>
+      </div>
+      <button onclick="closeInvModal()" style="background:transparent;border:1px solid var(--border);color:var(--gray);width:36px;height:36px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">✕</button>
+    </div>
+
+    <!-- Header fields -->
+    <div class="inv-form-grid">
+      <div>
+        <label class="form-label">№ НАКЛАДНОЇ *</label>
+        <input class="form-input" type="text" id="inv-number" placeholder="НК-2024-001">
+      </div>
+      <div>
+        <label class="form-label">ПОСТАЧАЛЬНИК *</label>
+        <input class="form-input" type="text" id="inv-supplier" placeholder="ТОВ Постачальник">
+      </div>
+      <div>
+        <label class="form-label">ДАТА НАКЛАДНОЇ *</label>
+        <input class="form-input" type="date" id="inv-date">
+      </div>
+      <div>
+        <label class="form-label">ДАТА ОЧІКУВАНОГО ПРИХОДУ</label>
+        <input class="form-input" type="date" id="inv-expected-date">
+      </div>
+      <div>
+        <label class="form-label">СТАТУС</label>
+        <select class="form-input" id="inv-status">
+          <option value="draft">⬜ Чернетка</option>
+          <option value="confirmed">🟡 Підтверджено</option>
+          <option value="posted">🟢 Проведено (оновить склад)</option>
+          <option value="cancelled">🔴 Скасовано</option>
+        </select>
+      </div>
+      <div>
+        <label class="form-label">КОМЕНТАР</label>
+        <input class="form-input" type="text" id="inv-comment" placeholder="Необов'язково">
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div style="font-family:'Space Mono',monospace;font-size:11px;color:var(--orange);letter-spacing:0.15em;margin-bottom:12px;">// ТОВАРИ В НАКЛАДНІЙ</div>
+    <div style="overflow-x:auto;">
+      <table class="inv-items-table">
+        <thead><tr>
+          <th style="width:40%">ТОВАР</th>
+          <th style="width:15%">К-СТЬ (шт)</th>
+          <th style="width:18%">ЦІНА ЗАКУПКИ (грн)</th>
+          <th style="width:18%">СУМА (грн)</th>
+          <th style="width:9%"></th>
+        </tr></thead>
+        <tbody id="invItemsBody"></tbody>
+      </table>
+    </div>
+    <button onclick="addInvItem()" style="background:transparent;border:1px dashed rgba(255,102,0,0.4);color:var(--orange);padding:10px 20px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;width:100%;margin-top:4px;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--orange)';this.style.background='var(--orange-dim)'" onmouseout="this.style.borderColor='rgba(255,102,0,0.4)';this.style.background='transparent'">+ ДОДАТИ РЯДОК</button>
+
+    <div class="inv-total-row">
+      <span class="inv-total-label">ЗАГАЛЬНА СУМА:</span>
+      <span class="inv-total-val" id="invModalTotal">0 грн</span>
+    </div>
+
+    <div style="background:rgba(51,255,102,0.06);border:1px solid rgba(51,255,102,0.25);padding:14px 18px;margin-bottom:20px;font-family:'Space Mono',monospace;font-size:11px;color:#33ff66;line-height:1.7;">
+      ⚡ При статусі <strong>«Проведено»</strong> — залишки на складі автоматично збільшаться на вказану кількість.<br>
+      ↩️ При скасуванні проведеної накладної — залишки будуть відновлені.
+    </div>
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+      <button onclick="closeInvModal()" style="background:transparent;border:1px solid var(--border);color:var(--gray);padding:12px 24px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">СКАСУВАТИ</button>
+      <button onclick="saveInvoice('draft')" style="background:transparent;border:1px solid rgba(136,136,136,0.4);color:#888;padding:12px 24px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='#aaa';this.style.color='#ccc'" onmouseout="this.style.borderColor='rgba(136,136,136,0.4)';this.style.color='#888'" id="invSaveDraftBtn">💾 ЗБЕРЕГТИ ЧЕРНЕТКУ</button>
+      <button onclick="saveInvoice(document.getElementById('inv-status').value)" style="background:var(--orange);color:#000;border:none;padding:12px 28px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.08em;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all 0.2s;" onmouseover="this.style.background='#ff8833'" onmouseout="this.style.background='var(--orange)'" id="invSaveBtn">✅ ЗБЕРЕГТИ</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════ НАКЛАДНА: DETAIL VIEW ═══════════ -->
+<div class="inv-detail-modal" id="invDetailModal" onclick="if(event.target===this)closeInvDetail()">
+  <div class="inv-detail-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;">
+      <div>
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:#33ff66;letter-spacing:0.2em;margin-bottom:4px;">// ДЕТАЛІ НАКЛАДНОЇ</div>
+        <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:900;" id="detailNumber">—</div>
+      </div>
+      <button onclick="closeInvDetail()" style="background:transparent;border:1px solid var(--border);color:var(--gray);width:36px;height:36px;cursor:pointer;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--orange)';this.style.color='var(--orange)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--gray)'">✕</button>
+    </div>
+    <div id="invDetailContent"></div>
+  </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════════════════
+//  НАКЛАДНІ НА ПРИХІД
+// ══════════════════════════════════════════════════════
+window._invoices = [];
+window._invFilter = 'all';
+window._editingInvId = null;
+window._invItems = [];   // [{productId, productName, qty, costPrice, total}]
+window._invWasPosted = false; // was prev status 'posted' before edit?
+
+// ── Firebase helpers ──────────────────────────────────
+async function _invDb() { return window._db; }
+
+window.loadInvoices = async function() {
+  const db = await _invDb();
+  const { getDocs, collection } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  const snap = await getDocs(collection(db, 'invoices'));
+  window._invoices = [];
+  snap.forEach(d => window._invoices.push({id: d.id, ...d.data()}));
+  window._invoices.sort((a,b) => {
+    const ta = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
+    const tb = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
+    return tb - ta;
+  });
+  renderInvoicesTable();
+  updateInvStats();
+};
+
+// ── Stats ─────────────────────────────────────────────
+function updateInvStats() {
+  const all = window._invoices;
+  document.getElementById('inv-stat-total').textContent     = all.length;
+  document.getElementById('inv-stat-confirmed').textContent = all.filter(i=>i.status==='confirmed').length;
+  document.getElementById('inv-stat-posted').textContent    = all.filter(i=>i.status==='posted').length;
+  const sum = all.filter(i=>i.status==='posted').reduce((s,i)=>s+(i.totalSum||0),0);
+  document.getElementById('inv-stat-sum').textContent       = sum.toLocaleString('uk-UA');
+}
+
+// ── Table ─────────────────────────────────────────────
+function renderInvoicesTable() {
+  const tbody = document.getElementById('invoicesTbody');
+  if (!tbody) return;
+  const f = window._invFilter || 'all';
+  let items = window._invoices;
+  if (f !== 'all') items = items.filter(i => i.status === f);
+  if (items.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9" class="loading">Накладних немає</td></tr>'; return;
+  }
+  const stClass = {draft:'draft',confirmed:'confirmed',posted:'posted',cancelled:'cancelled'};
+  const stLabel = {draft:'⬜ Чернетка',confirmed:'🟡 Підтверджено',posted:'🟢 Проведено',cancelled:'🔴 Скасовано'};
+  tbody.innerHTML = items.map(inv => {
+    const date = inv.date || '—';
+    const units = (inv.items||[]).reduce((s,i)=>s+(Number(i.qty)||0),0);
+    const isDraft = inv.status === 'draft';
+    const isPosted = inv.status === 'posted';
+    const isCancelled = inv.status === 'cancelled';
+    return `<tr>
+      <td>
+        <span style="font-family:'Orbitron',monospace;font-size:12px;color:var(--orange);cursor:pointer;text-decoration:underline;" onclick="viewInvoice('${inv.id}')">${inv.number||'—'}</span>
+      </td>
+      <td style="font-family:'Space Mono',monospace;font-size:12px;">${inv.supplier||'—'}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);">${date}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:12px;text-align:center;">${(inv.items||[]).length}</td>
+      <td style="font-family:'Space Mono',monospace;font-size:12px;text-align:center;">${units}</td>
+      <td style="font-family:'Orbitron',monospace;font-size:13px;color:var(--orange);font-weight:700;">${(inv.totalSum||0).toLocaleString('uk-UA')} грн</td>
+      <td><span class="inv-status inv-status-${stClass[inv.status]||'draft'}">${stLabel[inv.status]||'—'}</span></td>
+      <td style="font-family:'Space Mono',monospace;font-size:11px;color:var(--gray);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${inv.comment||'—'}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          ${!isPosted && !isCancelled ? `<button class="edit-btn" onclick="editInvoice('${inv.id}')">✏️ Ред.</button>` : ''}
+          ${isDraft ? `<button class="edit-btn" style="background:rgba(255,204,0,0.1);border-color:rgba(255,204,0,0.4);color:#ffcc00;" onclick="quickPostInvoice('${inv.id}','confirmed')">🟡 Підтв.</button>` : ''}
+          ${inv.status==='confirmed' ? `<button class="edit-btn" style="background:rgba(51,255,102,0.1);border-color:rgba(51,255,102,0.4);color:#33ff66;" onclick="quickPostInvoice('${inv.id}','posted')">🟢 Провести</button>` : ''}
+          ${isPosted ? `<button class="del-btn" style="font-size:10px;" onclick="cancelPostedInvoice('${inv.id}')">↩️ Скас.</button>` : ''}
+          ${!isPosted ? `<button class="del-btn" onclick="deleteInvoice('${inv.id}')">🗑 Вид.</button>` : ''}
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.filterInvoices = function(f, btn) {
+  window._invFilter = f;
+  document.querySelectorAll('#tab-invoices .tab-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderInvoicesTable();
+};
+
+// ── Open / Close modal ────────────────────────────────
+window.openInvModal = function() {
+  window._editingInvId = null;
+  window._invWasPosted = false;
+  window._invItems = [{productId:'',productName:'',qty:1,costPrice:0,total:0}];
+  document.getElementById('invModalTitle').textContent = 'НОВА НАКЛАДНА';
+  document.getElementById('invModalSub').textContent   = 'Заповніть дані та додайте товари';
+  document.getElementById('inv-number').value          = 'НК-' + new Date().getFullYear() + '-' + String(Date.now()).slice(-4);
+  document.getElementById('inv-supplier').value        = '';
+  document.getElementById('inv-date').value            = new Date().toISOString().slice(0,10);
+  document.getElementById('inv-expected-date').value   = '';
+  document.getElementById('inv-status').value          = 'draft';
+  document.getElementById('inv-comment').value         = '';
+  renderInvItemsBody();
+  document.getElementById('invModal').classList.add('open');
+};
+
+window.closeInvModal = function() {
+  document.getElementById('invModal').classList.remove('open');
+};
+
+// ── Edit invoice ──────────────────────────────────────
+window.editInvoice = function(id) {
+  const inv = window._invoices.find(i => i.id === id);
+  if (!inv) return;
+  window._editingInvId = id;
+  window._invWasPosted = inv.status === 'posted';
+  window._invItems = (inv.items || []).map(i => ({...i}));
+  if (window._invItems.length === 0) window._invItems.push({productId:'',productName:'',qty:1,costPrice:0,total:0});
+  document.getElementById('invModalTitle').textContent        = 'РЕДАГУВАННЯ НАКЛАДНОЇ';
+  document.getElementById('invModalSub').textContent          = inv.number || '';
+  document.getElementById('inv-number').value                 = inv.number || '';
+  document.getElementById('inv-supplier').value               = inv.supplier || '';
+  document.getElementById('inv-date').value                   = inv.date || '';
+  document.getElementById('inv-expected-date').value          = inv.expectedDate || '';
+  document.getElementById('inv-status').value                 = inv.status || 'draft';
+  document.getElementById('inv-comment').value                = inv.comment || '';
+  renderInvItemsBody();
+  document.getElementById('invModal').classList.add('open');
+};
+
+// ── Items body ────────────────────────────────────────
+function renderInvItemsBody() {
+  const tbody = document.getElementById('invItemsBody');
+  const products = window._products || [];
+  tbody.innerHTML = window._invItems.map((item, idx) => {
+    const opts = products.map(p =>
+      `<option value="${p.id}" ${item.productId===p.id?'selected':''}>${p.emoji||'📦'} ${p.name} (склад: ${p.stock??'—'})</option>`
+    ).join('');
+    return `<tr>
+      <td>
+        <select class="inv-item-select" onchange="invItemChange(${idx},'productId',this.value)">
+          <option value="">— Оберіть товар —</option>
+          ${opts}
+        </select>
+      </td>
+      <td><input class="inv-item-input" type="number" min="1" value="${item.qty||1}" style="width:70px;" onchange="invItemChange(${idx},'qty',this.value)"></td>
+      <td><input class="inv-item-input" type="number" min="0" step="0.01" value="${item.costPrice||0}" style="width:90px;" onchange="invItemChange(${idx},'costPrice',this.value)"></td>
+      <td style="font-family:'Orbitron',monospace;font-size:13px;color:var(--orange);font-weight:700;">${((item.qty||0)*(item.costPrice||0)).toFixed(2)} грн</td>
+      <td><button class="inv-del-row" onclick="invRemoveItem(${idx})">✕</button></td>
+    </tr>`;
+  }).join('');
+  updateInvModalTotal();
+}
+
+window.invItemChange = function(idx, field, val) {
+  if (!window._invItems[idx]) return;
+  if (field === 'productId') {
+    const p = (window._products||[]).find(p => p.id === val);
+    window._invItems[idx].productId   = val;
+    window._invItems[idx].productName = p ? p.name : '';
+  } else if (field === 'qty') {
+    window._invItems[idx].qty = Math.max(1, parseInt(val)||1);
+  } else if (field === 'costPrice') {
+    window._invItems[idx].costPrice = parseFloat(val)||0;
+  }
+  window._invItems[idx].total = (window._invItems[idx].qty||0) * (window._invItems[idx].costPrice||0);
+  updateInvModalTotal();
+};
+
+window.addInvItem = function() {
+  window._invItems.push({productId:'',productName:'',qty:1,costPrice:0,total:0});
+  renderInvItemsBody();
+};
+
+window.invRemoveItem = function(idx) {
+  window._invItems.splice(idx,1);
+  if (window._invItems.length === 0) window._invItems.push({productId:'',productName:'',qty:1,costPrice:0,total:0});
+  renderInvItemsBody();
+};
+
+function updateInvModalTotal() {
+  const total = window._invItems.reduce((s,i)=>s+((i.qty||0)*(i.costPrice||0)),0);
+  const el = document.getElementById('invModalTotal');
+  if (el) el.textContent = total.toFixed(2) + ' грн';
+}
+
+// ── Save invoice ──────────────────────────────────────
+window.saveInvoice = async function(status) {
+  const number   = document.getElementById('inv-number').value.trim();
+  const supplier = document.getElementById('inv-supplier').value.trim();
+  const date     = document.getElementById('inv-date').value;
+  if (!number)   { showToast('❌ Вкажіть номер накладної'); return; }
+  if (!supplier) { showToast('❌ Вкажіть постачальника'); return; }
+  if (!date)     { showToast('❌ Вкажіть дату'); return; }
+
+  const validItems = window._invItems.filter(i => i.productId && i.qty > 0);
+  if (validItems.length === 0) { showToast('❌ Додайте хоча б один товар'); return; }
+
+  // Warn if posting
+  if (status === 'posted' && !window._invWasPosted) {
+    if (!confirm('Провести накладну? Залишки товарів на складі збільшаться. Відмінити проведення можна буде тільки скасуванням.')) return;
+  }
+
+  const btn = document.getElementById('invSaveBtn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Збереження...'; }
+
+  const totalSum = validItems.reduce((s,i)=>s+(i.qty||0)*(i.costPrice||0),0);
+  const data = {
+    number,
+    supplier,
+    date,
+    expectedDate : document.getElementById('inv-expected-date').value || null,
+    status       : status || 'draft',
+    comment      : document.getElementById('inv-comment').value.trim() || '',
+    items        : validItems,
+    totalSum,
+    updatedAt    : new Date().toISOString()
+  };
+
+  const { addDoc, updateDoc, doc, collection, serverTimestamp } =
+    await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  const db = window._db;
+
+  try {
+    if (window._editingInvId) {
+      const prevInv = window._invoices.find(i => i.id === window._editingInvId);
+      const wasPosted = prevInv && prevInv.status === 'posted';
+      await updateDoc(doc(db, 'invoices', window._editingInvId), data);
+      // If newly posted — add stock
+      if (status === 'posted' && !wasPosted) {
+        await applyInvoiceToStock(validItems, +1);
+      }
+      // If was posted and now cancelled — reverse stock
+      if (wasPosted && status === 'cancelled') {
+        await applyInvoiceToStock(prevInv.items || [], -1);
+      }
+      showToast('✅ Накладну оновлено');
+    } else {
+      data.createdAt = serverTimestamp();
+      const ref = await addDoc(collection(db, 'invoices'), data);
+      // If posted right away — add stock
+      if (status === 'posted') {
+        await applyInvoiceToStock(validItems, +1);
+      }
+      showToast('✅ Накладну створено');
+    }
+    closeInvModal();
+    await window.loadInvoices();
+    await window.loadProducts(); // refresh stock numbers
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message);
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '✅ ЗБЕРЕГТИ'; }
+};
+
+// ── Quick status change ───────────────────────────────
+window.quickPostInvoice = async function(id, newStatus) {
+  const inv = window._invoices.find(i => i.id === id);
+  if (!inv) return;
+  if (newStatus === 'posted') {
+    if (!confirm('Провести накладну? Залишки товарів збільшаться.')) return;
+  }
+  const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  await updateDoc(doc(window._db, 'invoices', id), {status: newStatus, updatedAt: new Date().toISOString()});
+  if (newStatus === 'posted') await applyInvoiceToStock(inv.items||[], +1);
+  inv.status = newStatus;
+  renderInvoicesTable();
+  updateInvStats();
+  await window.loadProducts();
+  showToast(newStatus === 'posted' ? '✅ Накладну проведено, склад оновлено!' : '🟡 Статус змінено');
+};
+
+window.cancelPostedInvoice = async function(id) {
+  if (!confirm('Скасувати проведену накладну? Залишки товарів зменшаться назад.')) return;
+  const inv = window._invoices.find(i => i.id === id);
+  if (!inv) return;
+  const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  await updateDoc(doc(window._db, 'invoices', id), {status:'cancelled', updatedAt: new Date().toISOString()});
+  await applyInvoiceToStock(inv.items||[], -1);
+  inv.status = 'cancelled';
+  renderInvoicesTable();
+  updateInvStats();
+  await window.loadProducts();
+  showToast('↩️ Накладну скасовано, склад відновлено');
+};
+
+window.deleteInvoice = async function(id) {
+  if (!confirm('Видалити накладну?')) return;
+  const { deleteDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  await deleteDoc(doc(window._db, 'invoices', id));
+  window._invoices = window._invoices.filter(i => i.id !== id);
+  renderInvoicesTable();
+  updateInvStats();
+  showToast('🗑 Накладну видалено');
+};
+
+// ── Apply to stock ────────────────────────────────────
+async function applyInvoiceToStock(items, sign) {
+  // sign: +1 = add, -1 = subtract
+  const { updateDoc, doc } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+  const db = window._db;
+  for (const item of items) {
+    if (!item.productId || !item.qty) continue;
+    const p = (window._products||[]).find(p => p.id === item.productId);
+    if (!p) continue;
+    const currentStock = p.stock !== undefined && p.stock !== null ? p.stock : 0;
+    const newStock = Math.max(0, currentStock + sign * (Number(item.qty)||0));
+    const autoOut = newStock === 0;
+    await updateDoc(doc(db, 'products', item.productId), {
+      stock: newStock,
+      isOutOfStock: autoOut
+    });
+    p.stock = newStock;
+    p.isOutOfStock = autoOut;
+    // Log
+    const log = JSON.parse(localStorage.getItem('stockLog')||'[]');
+    log.unshift({
+      productId: item.productId,
+      delta: sign * (Number(item.qty)||0),
+      reason: sign > 0 ? 'Накладна (прихід)' : 'Накладна (скасування)',
+      date: new Date().toISOString()
+    });
+    localStorage.setItem('stockLog', JSON.stringify(log.slice(0,200)));
+  }
+}
+
+// ── View detail ───────────────────────────────────────
+window.viewInvoice = function(id) {
+  const inv = window._invoices.find(i => i.id === id);
+  if (!inv) return;
+  document.getElementById('detailNumber').textContent = inv.number || '—';
+  const stLabel = {draft:'⬜ Чернетка',confirmed:'🟡 Підтверджено',posted:'🟢 Проведено',cancelled:'🔴 Скасовано'};
+  const stClass = {draft:'draft',confirmed:'confirmed',posted:'posted',cancelled:'cancelled'};
+  const rows = (inv.items||[]).map(item => {
+    const p = (window._products||[]).find(p=>p.id===item.productId);
+    return `<tr>
+      <td style="padding:10px 12px;">${p ? (p.emoji||'📦')+' '+p.name : (item.productName||item.productId||'—')}</td>
+      <td style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:12px;text-align:center;">${item.qty}</td>
+      <td style="padding:10px 12px;font-family:'Space Mono',monospace;font-size:12px;text-align:right;">${(item.costPrice||0).toFixed(2)} грн</td>
+      <td style="padding:10px 12px;font-family:'Orbitron',monospace;font-size:13px;color:var(--orange);font-weight:700;text-align:right;">${((item.qty||0)*(item.costPrice||0)).toFixed(2)} грн</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('invDetailContent').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+      <div style="background:var(--card);border:1px solid var(--border);padding:14px 18px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:4px;">ПОСТАЧАЛЬНИК</div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;">${inv.supplier||'—'}</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);padding:14px 18px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:4px;">СТАТУС</div>
+        <span class="inv-status inv-status-${stClass[inv.status]||'draft'}">${stLabel[inv.status]||'—'}</span>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);padding:14px 18px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:4px;">ДАТА</div>
+        <div style="font-family:'Space Mono',monospace;font-size:13px;">${inv.date||'—'}</div>
+      </div>
+      <div style="background:var(--card);border:1px solid var(--border);padding:14px 18px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);margin-bottom:4px;">ОЧІКУВАНИЙ ПРИХІД</div>
+        <div style="font-family:'Space Mono',monospace;font-size:13px;">${inv.expectedDate||'—'}</div>
+      </div>
+    </div>
+    ${inv.comment ? `<div style="background:var(--card);border:1px solid var(--border);border-left:3px solid var(--orange);padding:12px 16px;margin-bottom:20px;font-family:'Space Mono',monospace;font-size:12px;color:var(--light);">💬 ${inv.comment}</div>` : ''}
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+      <thead><tr style="border-bottom:1px solid var(--border);">
+        <th style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);padding:8px 12px;text-align:left;">ТОВАР</th>
+        <th style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);padding:8px 12px;text-align:center;">К-СТЬ</th>
+        <th style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);padding:8px 12px;text-align:right;">ЦІНА ЗАКУПКИ</th>
+        <th style="font-family:'Space Mono',monospace;font-size:10px;color:var(--gray);padding:8px 12px;text-align:right;">СУМА</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <div style="display:flex;justify-content:flex-end;align-items:center;gap:16px;padding:12px 0;border-top:1px solid var(--border);">
+      <span style="font-family:'Space Mono',monospace;font-size:12px;color:var(--gray);">ЗАГАЛЬНА СУМА:</span>
+      <span style="font-family:'Orbitron',monospace;font-size:24px;color:var(--orange);font-weight:900;">${(inv.totalSum||0).toFixed(2)} грн</span>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:8px;">
+      ${inv.status !== 'posted' && inv.status !== 'cancelled' ? `<button onclick="closeInvDetail();editInvoice('${inv.id}')" style="background:transparent;border:1px solid var(--orange);color:var(--orange);padding:10px 20px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;">✏️ РЕДАГУВАТИ</button>` : ''}
+      <button onclick="closeInvDetail()" style="background:transparent;border:1px solid var(--border);color:var(--gray);padding:10px 20px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;">ЗАКРИТИ</button>
+    </div>
+  `;
+  document.getElementById('invDetailModal').classList.add('open');
+};
+
+window.closeInvDetail = function() {
+  document.getElementById('invDetailModal').classList.remove('open');
+};
+</script>
 
 </body>
 </html>

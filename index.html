@@ -107,6 +107,46 @@ section { padding:80px 40px; max-width:1400px; margin:0 auto; }
 .badge-out { background:rgba(120,120,120,0.2); color:#aaa; border:1px solid rgba(120,120,120,0.4); }
 .product-card.out-of-stock { opacity:0.65; }
 .product-card.out-of-stock .product-img { filter:grayscale(60%); }
+
+/* PREORDER on index */
+.out-of-stock-notice-idx{background:rgba(160,80,255,0.06);border:1px solid rgba(160,80,255,0.28);padding:8px 12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.out-notice-dot-idx{width:7px;height:7px;background:#cc88ff;border-radius:50%;flex-shrink:0;animation:pulse-dot-idx 2s infinite;}
+@keyframes pulse-dot-idx{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.out-notice-text-idx{font-family:'Space Mono',monospace;font-size:9px;color:#cc88ff;line-height:1.5;}
+.btn-preorder-idx{width:100%;margin-top:14px;background:transparent;border:2px solid rgba(160,80,255,0.5);color:#cc88ff;padding:10px;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;transition:all 0.3s;}
+.btn-preorder-idx:hover{border-color:#cc88ff;background:rgba(160,80,255,0.1);box-shadow:0 0 16px rgba(160,80,255,0.2);}
+/* PREORDER MODAL (index) */
+.po-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:6000;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.po-overlay.open{display:flex;}
+.po-box{background:#111;border:1px solid #2a2a2a;border-top:3px solid #cc88ff;width:100%;max-width:500px;max-height:92vh;overflow-y:auto;position:relative;}
+.po-glow{position:absolute;top:0;left:50%;transform:translateX(-50%);width:180px;height:1px;background:linear-gradient(90deg,transparent,#cc88ff,transparent);box-shadow:0 0 28px 6px rgba(160,80,255,0.25);}
+.po-header{padding:32px 32px 0;}
+.po-icon{width:52px;height:52px;background:rgba(160,80,255,0.15);border:1px solid rgba(160,80,255,0.4);display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:18px;}
+.po-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:#f0f0f0;margin-bottom:6px;line-height:1.2;}
+.po-subtitle{font-family:'Space Mono',monospace;font-size:11px;color:#555;letter-spacing:0.05em;margin-bottom:20px;}
+.po-product-strip{background:#161616;border:1px solid #2a2a2a;padding:12px 14px;display:flex;align-items:center;gap:12px;margin:0 32px 20px;}
+.po-product-name{font-family:'Space Mono',monospace;font-size:12px;color:#f0f0f0;font-weight:700;}
+.po-product-price{font-family:'Orbitron',monospace;font-size:15px;color:#cc88ff;font-weight:900;margin-top:2px;}
+.po-body{padding:0 32px 32px;}
+.po-promise{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.po-promise-item{background:#161616;border:1px solid #2a2a2a;padding:10px;text-align:center;}
+.po-promise-icon{font-size:18px;margin-bottom:4px;}
+.po-promise-text{font-family:'Space Mono',monospace;font-size:9px;color:#888;line-height:1.5;}
+.po-label{font-family:'Space Mono',monospace;font-size:10px;color:#666;letter-spacing:0.1em;display:block;margin-bottom:5px;}
+.po-input-i{width:100%;background:#161616;border:1px solid #2a2a2a;color:#f0f0f0;padding:12px 14px;font-family:'Rajdhani',sans-serif;font-size:15px;outline:none;transition:border-color 0.2s;box-sizing:border-box;}
+.po-input-i:focus{border-color:#cc88ff;}
+.po-input-i::placeholder{color:#444;}
+.po-submit-i{width:100%;background:linear-gradient(135deg,#7722bb,#cc88ff);color:#fff;border:none;padding:15px;font-family:'Space Mono',monospace;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.1em;clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%);transition:all 0.2s;margin-top:10px;}
+.po-submit-i:hover{background:linear-gradient(135deg,#8833cc,#dd99ff);}
+.po-submit-i:disabled{opacity:0.5;cursor:not-allowed;}
+.po-close-btn{position:absolute;top:14px;right:14px;background:transparent;border:none;color:#444;font-size:18px;cursor:pointer;width:30px;height:30px;display:flex;align-items:center;justify-content:center;transition:color 0.2s;}
+.po-close-btn:hover{color:#f0f0f0;}
+.po-terms{font-family:'Space Mono',monospace;font-size:9px;color:#444;text-align:center;margin-top:10px;line-height:1.6;}
+.po-success{padding:36px;text-align:center;}
+.po-success-icon{font-size:44px;margin-bottom:14px;}
+.po-success-title{font-family:'Orbitron',monospace;font-size:18px;font-weight:900;color:#cc88ff;margin-bottom:10px;}
+.po-success-text{font-family:'Space Mono',monospace;font-size:11px;color:#888;line-height:1.9;}
+
 .product-btn-disabled { width:100%; margin-top:14px; background:rgba(120,120,120,0.1); border:1px solid #444; color:#666; padding:10px; font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.1em; cursor:not-allowed; }
 .product-name { font-family:'Orbitron',monospace; font-size:14px; color:var(--white); margin-bottom:8px; }
 .product-price { font-family:'Orbitron',monospace; font-size:20px; color:var(--orange); font-weight:900; }
@@ -590,14 +630,32 @@ function toggleChat(){
   _chatOpen = !_chatOpen;
   document.getElementById('chatWindow').style.display = _chatOpen ? 'block' : 'none';
 }
-function submitChatForm(){
+async function submitChatForm(){
   var name = document.getElementById('chatNameInput').value.trim();
   var phone = document.getElementById('chatPhoneInput').value.trim();
+  var topic = document.getElementById('chatTopicInput') ? document.getElementById('chatTopicInput').value : '';
   if(!name||!phone){ showToast('❌ Введіть ім\'я та номер телефону'); return; }
+  var btn = document.querySelector('#chatFormWrap button');
+  if(btn){ btn.disabled=true; btn.textContent='⏳ Надсилаємо...'; }
+  try {
+    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+    const cfg = {apiKey:'AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE',authDomain:'linux-shop-b5b3e.firebaseapp.com',projectId:'linux-shop-b5b3e',storageBucket:'linux-shop-b5b3e.firebasestorage.app',messagingSenderId:'889010336562',appId:'1:889010336562:web:2f60090b33fa29c0ed5d2b'};
+    const app = getApps().length ? getApps()[0] : initializeApp(cfg);
+    const db = getFirestore(app);
+    await addDoc(collection(db, 'callbacks'), {
+      name, phone,
+      topic: topic || 'Загальне питання',
+      source: 'index',
+      status: 'new',
+      createdAt: serverTimestamp()
+    });
+  } catch(e){ console.warn('callback save error:', e); }
   document.getElementById('chatFormWrap').style.display='none';
   document.getElementById('chatSuccessWrap').style.display='block';
   document.getElementById('chatSuccessName').textContent=name;
   document.getElementById('chatSuccessPhone').textContent=phone;
+  if(btn){ btn.disabled=false; btn.textContent='ПЕРЕДЗВОНІТЬ МЕНІ →'; }
 }
 </script>
 
@@ -627,9 +685,11 @@ function submitChatForm(){
         grid.innerHTML = '<div class="products-loading">Товарів поки немає. Адмін може додати їх в <a href="admin.html" style="color:var(--orange)">адмін-панелі</a>.</div>';
         return;
       }
+      window._allFeatured = [];
       grid.innerHTML = '';
       snapshot.forEach(doc => {
         const p = doc.data();
+        window._allFeatured.push({id: doc.id, ...p});
         grid.innerHTML += renderCard(doc.id, p);
       });
     } catch(e) {
@@ -638,7 +698,7 @@ function submitChatForm(){
   }
 
   function renderCard(id, p) {
-    const isOut = p.isOut === true;
+    const isOut = p.isOutOfStock === true || p.isOut === true;
     const badges = [
       p.isHit ? '<span class="badge badge-hit">ХІТ</span>' : '',
       p.isNew ? '<span class="badge badge-new">НОВИНКА</span>' : '',
@@ -650,7 +710,7 @@ function submitChatForm(){
     const photoEsc = (p.photo||'').replace(/'/g,"\\'");
     const favHeart = `<button class="fav-heart-btn" data-id="${id}" onclick="toggleFav('${id}','${(p.name||'').replace(/'/g,"\\'")}',${p.price},'${p.emoji||'📦'}','${photoEsc}')" style="position:absolute;top:10px;right:10px;background:rgba(10,10,10,0.7);border:1px solid var(--border);color:${isFav?'var(--orange)':'var(--gray)'};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:18px;transition:all 0.2s;z-index:1;">${isFav?'♥':'♡'}</button>`;
     const cartBtn = isOut
-      ? '<button class="product-btn-disabled" disabled>НЕМАЄ В НАЯВНОСТІ</button>'
+      ? `<div class="out-of-stock-notice-idx"><div class="out-notice-dot-idx"></div><div class="out-notice-text-idx">Зараз немає в наявності.<br>Очікуємо надходження.</div></div><button class="btn-preorder-idx" onclick="openPreorderModalIdx('${id}')">🕐 ПЕРЕДЗАМОВИТИ</button>`
       : `<button class="product-btn" onclick="addToCart('${id}','${p.name}',${p.price},'${p.emoji||'📦'}')">В КОШИК</button>`;
     return `<div class="product-card${isOut ? ' out-of-stock' : ''}" style="position:relative;">
       <div class="product-img">${p.emoji || '📦'}${favHeart}</div>
@@ -752,5 +812,132 @@ window.addEventListener('scroll', function(){
   if(s){ s.classList.toggle('show', window.scrollY > 400); }
 });
 </script>
+
+<!-- PREORDER MODAL (index) -->
+<div class="po-overlay" id="poModalIdx" onclick="if(event.target===this)closePOModalIdx()">
+  <div class="po-box">
+    <div class="po-glow"></div>
+    <button class="po-close-btn" onclick="closePOModalIdx()">✕</button>
+
+    <div id="poFormViewIdx">
+      <div class="po-header">
+        <div class="po-icon">🕐</div>
+        <div class="po-title">Товар тимчасово<br>відсутній</div>
+        <div class="po-subtitle">// ОФОРМИТИ ПЕРЕДЗАМОВЛЕННЯ — БЕЗКОШТОВНО</div>
+      </div>
+      <div class="po-product-strip">
+        <div id="poEmojiIdx" style="font-size:28px;flex-shrink:0;">📦</div>
+        <div>
+          <div class="po-product-name" id="poProductNameIdx">Товар</div>
+          <div class="po-product-price" id="poProductPriceIdx">0 грн</div>
+        </div>
+      </div>
+      <div class="po-body">
+        <div class="po-promise">
+          <div class="po-promise-item"><div class="po-promise-icon">📬</div><div class="po-promise-text">Повідомимо одразу після надходження</div></div>
+          <div class="po-promise-item"><div class="po-promise-icon">🔒</div><div class="po-promise-text">Товар буде зарезервовано саме для вас</div></div>
+          <div class="po-promise-item"><div class="po-promise-icon">💳</div><div class="po-promise-text">Оплата тільки після надходження</div></div>
+          <div class="po-promise-item"><div class="po-promise-icon">⚡</div><div class="po-promise-text">Відправка в день отримання товару</div></div>
+        </div>
+        <div style="margin-bottom:12px;"><label class="po-label">ІМ'Я *</label><input class="po-input-i" type="text" id="poi-name" placeholder="Ваше ім'я"></div>
+        <div style="margin-bottom:12px;"><label class="po-label">ТЕЛЕФОН *</label><input class="po-input-i" type="tel" id="poi-phone" placeholder="+38 (___) ___-__-__"></div>
+        <div style="margin-bottom:6px;"><label class="po-label">EMAIL (для сповіщення)</label><input class="po-input-i" type="email" id="poi-email" placeholder="your@email.com"></div>
+        <button class="po-submit-i" id="poSubmitBtnIdx" onclick="submitPreorderIdx()">🕐 ОФОРМИТИ ПЕРЕДЗАМОВЛЕННЯ</button>
+        <div class="po-terms">Ми не стягуємо передоплату — лише резервуємо товар для вас.<br>Ви можете відмовитись у будь-який момент.</div>
+      </div>
+    </div>
+
+    <div id="poSuccessViewIdx" class="po-success" style="display:none;">
+      <div class="po-success-icon">✅</div>
+      <div class="po-success-title">ПЕРЕДЗАМОВЛЕННЯ<br>ОФОРМЛЕНО!</div>
+      <div class="po-success-text" id="poSuccessTextIdx">Ми зарезервували товар для вас.</div>
+      <div style="margin-top:20px;background:#161616;border:1px solid rgba(160,80,255,0.3);padding:14px;">
+        <div style="font-family:'Space Mono',monospace;font-size:10px;color:#555;margin-bottom:4px;">НОМЕР ЗАМОВЛЕННЯ</div>
+        <div style="font-family:'Orbitron',monospace;font-size:20px;color:#cc88ff;" id="poSuccessOrderIdIdx">—</div>
+      </div>
+      <button onclick="closePOModalIdx()" style="margin-top:20px;background:transparent;border:1px solid #2a2a2a;color:#888;padding:12px 24px;font-family:'Space Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s;width:100%;" onmouseover="this.style.borderColor='#cc88ff';this.style.color='#cc88ff'" onmouseout="this.style.borderColor='#2a2a2a';this.style.color='#888'">ЗАКРИТИ</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window._poProductIdx = null;
+
+function openPreorderModalIdx(productId) {
+  // Find product from loaded data
+  const allP = window._allFeatured || [];
+  const p = allP.find(p => p.id === productId);
+  if (!p) { showToast('❌ Товар не знайдено'); return; }
+  window._poProductIdx = p;
+
+  if (p.photo) {
+    document.getElementById('poEmojiIdx').innerHTML = `<img src="${p.photo}" style="width:40px;height:40px;object-fit:cover;border:1px solid #2a2a2a;">`;
+  } else {
+    document.getElementById('poEmojiIdx').textContent = p.emoji || '📦';
+  }
+  document.getElementById('poProductNameIdx').textContent  = p.name;
+  document.getElementById('poProductPriceIdx').textContent = p.price + ' грн';
+
+  document.getElementById('poi-name').value  = '';
+  document.getElementById('poi-phone').value = '';
+  document.getElementById('poi-email').value = '';
+  document.getElementById('poFormViewIdx').style.display    = '';
+  document.getElementById('poSuccessViewIdx').style.display = 'none';
+  const btn = document.getElementById('poSubmitBtnIdx');
+  btn.disabled = false; btn.textContent = '🕐 ОФОРМИТИ ПЕРЕДЗАМОВЛЕННЯ';
+
+  document.getElementById('poModalIdx').classList.add('open');
+}
+
+function closePOModalIdx() {
+  document.getElementById('poModalIdx').classList.remove('open');
+  window._poProductIdx = null;
+}
+
+async function submitPreorderIdx() {
+  const name  = document.getElementById('poi-name').value.trim();
+  const phone = document.getElementById('poi-phone').value.trim();
+  const email = document.getElementById('poi-email').value.trim();
+  if (!name)  { showToast("❌ Введіть ваше ім'я"); return; }
+  if (!phone) { showToast('❌ Введіть номер телефону'); return; }
+
+  const btn = document.getElementById('poSubmitBtnIdx');
+  btn.disabled = true; btn.textContent = '⏳ Оформлюємо...';
+
+  try {
+    const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+    const { getFirestore, collection, addDoc, serverTimestamp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+    const firebaseConfig = {
+      apiKey:'AIzaSyDSFdSjNQNDxAU_QgvzhEpGDyxbo8apfTE',authDomain:'linux-shop-b5b3e.firebaseapp.com',
+      projectId:'linux-shop-b5b3e',storageBucket:'linux-shop-b5b3e.firebasestorage.app',
+      messagingSenderId:'889010336562',appId:'1:889010336562:web:2f60090b33fa29c0ed5d2b'
+    };
+    const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+    const p   = window._poProductIdx;
+
+    const orderRef = await addDoc(collection(db, 'orders'), {
+      status: 'preorder', isPreorder: true,
+      customer: { name, phone, email: email || null, city: '—', branch: '—' },
+      items: [{ id: p.id, name: p.name, price: p.price, emoji: p.emoji || '📦', photo: p.photo || '', qty: 1 }],
+      total: p.price,
+      createdAt: serverTimestamp()
+    });
+
+    document.getElementById('poFormViewIdx').style.display    = 'none';
+    document.getElementById('poSuccessViewIdx').style.display = 'block';
+    document.getElementById('poSuccessOrderIdIdx').textContent = '#' + orderRef.id.slice(-6).toUpperCase();
+    document.getElementById('poSuccessTextIdx').innerHTML =
+      `Ми зарезервували <strong style="color:#cc88ff">${p.name}</strong> для вас, ${name}.<br><br>
+       Як тільки товар надійде на склад —<br>
+       ми зв'яжемося з вами за номером<br>
+       <strong style="color:#f0f0f0">${phone}</strong>${email ? '<br>та на <strong style="color:#f0f0f0">'+email+'</strong>' : ''}.`;
+  } catch(e) {
+    showToast('❌ Помилка: ' + e.message);
+    btn.disabled = false; btn.textContent = '🕐 ОФОРМИТИ ПЕРЕДЗАМОВЛЕННЯ';
+  }
+}
+</script>
+
 </body>
 </html>
